@@ -15,7 +15,7 @@ class StudentGroupController extends Controller
      */
     public function index()
     {
-        $studentGroups = StudentGroup::all()->sortBy('name');
+        $studentGroups = StudentGroup::allSorted();
 
         return view('studentGroups.index', compact('studentGroups'));
     }

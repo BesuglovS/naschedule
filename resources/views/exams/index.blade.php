@@ -20,11 +20,19 @@
 
                     <td>{{$exam->student_group_name}}</td>
 
-                    <td>{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->consultation_datetime)->format('d.m.Y H:i:s')}}</td>
+                    <td>
+                        @if($exam->consultation_datetime !== "2020-01-01 00:00:00")
+                            {{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->consultation_datetime)->format('d.m.Y H:i:s')}}
+                        @endif
+                    </td>
 
                     <td>{{$exam->consultationAuditoriumName}}</td>
 
-                    <td>{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->exam_datetime)->format('d.m.Y H:i:s')}}</td>
+                    <td>
+                        @if($exam->exam_datetime !== "2020-01-01 00:00:00")
+                            {{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->exam_datetime)->format('d.m.Y H:i:s')}}
+                        @endif
+                    </td>
 
                     <td>{{$exam->examAuditoriumName}}</td>
 

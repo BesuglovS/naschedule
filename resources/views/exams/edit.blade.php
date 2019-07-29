@@ -21,7 +21,11 @@
                             @endforeach
                         </select>
 
-                        <input style="width: 160px;" name="consultation_datetime" type="text" value="{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->consultation_datetime)->format('d.m.Y H:i:s')}}">
+                        @if($exam->consultation_datetime !== "2020-01-01 00:00:00")
+                            <input style="width: 160px;" name="consultation_datetime" type="text" value="{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->consultation_datetime)->format('d.m.Y H:i:s')}}">
+                        @else
+                            <input style="width: 160px;" name="consultation_datetime" type="text">
+                        @endif
 
                         <select name="consultation_auditorium_id">
                             @foreach($auditoriums as $auditorium)
@@ -29,7 +33,11 @@
                             @endforeach
                         </select>
 
-                        <input style="width: 160px;" name="exam_datetime" type="text" value="{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->exam_datetime)->format('d.m.Y H:i:s')}}">
+                        @if($exam->exam_datetime !== "2020-01-01 00:00:00")
+                            <input style="width: 160px;" name="exam_datetime" type="text" value="{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $exam->exam_datetime)->format('d.m.Y H:i:s')}}">
+                        @else
+                            <input style="width: 160px;" name="exam_datetime" type="text">
+                        @endif
 
                         <select name="exam_auditorium_id">
                             @foreach($auditoriums as $auditorium)

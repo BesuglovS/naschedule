@@ -269,7 +269,7 @@ class OldApiController extends Controller
             $exam->StudentGroupName = $exam->group_name;
             unset($exam->group_name);
 
-            unset($exam->id);
+            //unset($exam->id);
         });
 
         $result = array();

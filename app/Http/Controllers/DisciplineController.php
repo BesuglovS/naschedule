@@ -22,9 +22,26 @@ class DisciplineController extends Controller
             ->leftJoin('discipline_teacher','disciplines.id', '=', 'discipline_teacher.discipline_id')
             ->leftJoin('teachers','discipline_teacher.teacher_id', '=', 'teachers.id')
             ->select('disciplines.*', 'student_groups.name as groupName', 'teachers.fio')
-            ->orderBy('student_groups.name', 'asc')
-            ->orderBy('disciplines.name', 'asc')
             ->get();
+
+        $disciplines = $disciplines->sort(function($a, $b) {
+            if ($a->groupName == $b->groupName) {
+                if ($a->name == $b->name) return 0;
+                return $a->name < $b->name ? -1 : 1;
+            }
+
+            $num1 = explode(" ", $a->groupName)[0];
+            $num2 = explode(" ", $b->groupName)[0];
+
+            if ($num1 == $num2)
+            {
+                return $a->groupName < $b->groupName ? -1 : 1;
+            }
+            else
+            {
+                return ($num1 < $num2) ? -1 : 1;
+            }
+        });
 
         return view('disciplines.index', compact('disciplines'));
     }

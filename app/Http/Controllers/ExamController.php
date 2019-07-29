@@ -23,8 +23,8 @@ class ExamController extends Controller
             ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
             ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
             ->join('student_groups', 'student_groups.id' , '=', 'disciplines.student_group_id')
-            ->join('auditoriums as consAud', 'consAud.id' , '=', 'exams.consultation_auditorium_id')
-            ->join('auditoriums as examAud', 'examAud.id' , '=', 'exams.exam_auditorium_id')
+            ->leftJoin('auditoriums as consAud', 'consAud.id' , '=', 'exams.consultation_auditorium_id')
+            ->leftJoin('auditoriums as examAud', 'examAud.id' , '=', 'exams.exam_auditorium_id')
             ->select('exams.*', 'disciplines.name as disciplineName',
                 'consAud.name as consultationAuditoriumName', 'examAud.name as examAuditoriumName',
                 'student_groups.name as student_group_name', 'teachers.fio as teacherFio')
@@ -127,8 +127,8 @@ class ExamController extends Controller
             ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
             ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
             ->join('student_groups', 'student_groups.id' , '=', 'disciplines.student_group_id')
-            ->join('auditoriums as consAud', 'consAud.id' , '=', 'exams.consultation_auditorium_id')
-            ->join('auditoriums as examAud', 'examAud.id' , '=', 'exams.exam_auditorium_id')
+            ->leftJoin('auditoriums as consAud', 'consAud.id' , '=', 'exams.consultation_auditorium_id')
+            ->leftJoin('auditoriums as examAud', 'examAud.id' , '=', 'exams.exam_auditorium_id')
             ->select('exams.*', 'disciplines.name as disciplineName',
                 'disciplines.id as disciplineId',
                 'consAud.name as consultationAuditoriumName', 'examAud.name as examAuditoriumName',
@@ -183,8 +183,8 @@ class ExamController extends Controller
     {
         $exam = DB::table('exams')
             ->join('disciplines', 'disciplines.id' , '=', 'exams.discipline_id')
-            ->join('auditoriums as consAud', 'consAud.id' , '=', 'exams.consultation_auditorium_id')
-            ->join('auditoriums as examAud', 'examAud.id' , '=', 'exams.exam_auditorium_id')
+            ->leftJoin('auditoriums as consAud', 'consAud.id' , '=', 'exams.consultation_auditorium_id')
+            ->leftJoin('auditoriums as examAud', 'examAud.id' , '=', 'exams.exam_auditorium_id')
             ->select('exams.*', 'disciplines.name as disciplineName',
                 'consAud.name as consultationAuditoriumName', 'examAud.name as examAuditoriumName')
             ->where('exams.id', '=', $exam->id)

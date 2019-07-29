@@ -9,6 +9,27 @@ class StudentGroup extends Model
 {
     public $timestamps = false;
 
+    public static function allSorted()
+    {
+        $result = StudentGroup::all()->sort(function($a, $b) {
+
+            $num1 = explode(" ", $a->name)[0];
+            $num2 = explode(" ", $b->name)[0];
+
+            if ($num1 == $num2)
+            {
+                if ($a->name == $b->name) return 0;
+                return $a->name < $b->name ? -1 : 1;
+            }
+            else
+            {
+                return ($num1 < $num2) ? -1 : 1;
+            }
+        });
+
+        return $result;
+    }
+
     public static function NameFromId($groupId)
     {
         $name = $studentIds = DB::table('student_groups')
