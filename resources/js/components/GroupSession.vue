@@ -6,7 +6,7 @@
                     <div class="card-header">Экзамены группы</div>
 
                     <div class="card-body">
-                        <select v-model="selectedGroupId" @change="loadExams()" name="group_id">
+                        <select v-model="studentGroupId" @change="loadExams()">
                             <option v-for="sg in groupsSorted" :value="sg.id">{{sg.name}}</option>
                         </select>
 
@@ -62,12 +62,11 @@
         data() {
           return {
               groups: this.studentGroups,
-              selectedGroupId: 0,
               exams: [],
               csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
               firstLoad: true,
               loading: false,
-              studentGroupId: this.groupId
+              studentGroupId: this.groupId,
           }
         },
         methods: {
@@ -76,9 +75,9 @@
                 this.loading = true;
                 this.firstLoad = false;
                 axios
-                    .get('/api.php?action=groupExams&groupId=' + this.selectedGroupId)
+                    .get('/api.php?action=groupExams&groupId=' + this.studentGroupId)
                     .then(response => {
-                        let data = response.data[this.selectedGroupId].Exams;
+                        let data = response.data[this.studentGroupId].Exams;
                         this.exams = data.sort((a,b) => {
                             let num1 = parseInt(a.StudentGroupName.split(' ')[0]);
                             let num2 = parseInt(b.StudentGroupName.split(' ')[0]);
@@ -100,18 +99,16 @@
             }
         },
         mounted() {
-            console.log(this.studentGroupId);
             if (this.studentGroupId === -1)
             {
                 if (this.groups.length !== 0) {
-                    this.selectedGroupId = this.groupsSorted[0].id;
+                    this.studentGroupId = this.groupsSorted[0].id;
                     this.loadExams();
                 }
                 else {
-                    this.selectedGroupId = 0;
+                    this.studentGroupId = 0;
                 }
             } else {
-                this.selectedGroupId = this.studentGroupId;
                 this.loadExams();
             }
         },

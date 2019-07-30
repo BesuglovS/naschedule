@@ -76,6 +76,19 @@ class Calendar extends Model
 
     }
 
+    public static function WeekCount()
+    {
+        if (Calendar::all()->count() == 0) {
+            return 0;
+        }
+
+        $lastDate = DB::table('calendars')->orderBy('date', 'desc')->first()->date;
+
+        $lastDateWeek = Calendar::WeekFromDate($lastDate, Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts()));
+
+        return $lastDateWeek;
+    }
+
     public function auditorium_events()
     {
         return $this->hasMany(AuditoriumEvent::class);

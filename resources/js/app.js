@@ -4,6 +4,7 @@ import moment from 'moment'
 window.Vue = require('vue');
 
 Vue.component('group-session', require('./components/GroupSession.vue').default);
+Vue.component('teacher-schedule', require('./components/TeacherSchedule').default);
 
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
