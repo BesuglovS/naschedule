@@ -26,11 +26,11 @@
 
                                 <td>{{exam.StudentGroupName}}</td>
 
-                                <td>{{exam.ConsultationDateTime | formatDate | emptyIf2020Date}}</td>
+                                <td>{{exam.ConsultationDateTime | formatDateTime | emptyIf2020Date}}</td>
 
                                 <td>{{exam.ConsultationAuditoriumName}}</td>
 
-                                <td>{{exam.ExamDateTime | formatDate | emptyIf2020Date}}</td>
+                                <td>{{exam.ExamDateTime | formatDateTime | emptyIf2020Date}}</td>
 
                                 <td>{{exam.ExamAuditoriumName}}</td>
 
@@ -57,7 +57,7 @@
         name: "groupSession",
         props: {
             'studentGroups': Object,
-            'groupId': Number
+            'groupId': Number,
         },
         data() {
           return {
@@ -104,9 +104,6 @@
                 if (this.groups.length !== 0) {
                     this.studentGroupId = this.groupsSorted[0].id;
                     this.loadExams();
-                }
-                else {
-                    this.studentGroupId = 0;
                 }
             } else {
                 this.loadExams();

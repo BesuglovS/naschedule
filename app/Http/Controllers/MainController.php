@@ -23,7 +23,19 @@ class MainController extends Controller
 
     public function groupSchedule()
     {
-        return view('main.groupSchedule');
+        $studentGroups = StudentGroup::allSorted()->toArray();
+        $group_id = -1;
+        $weekCount = Calendar::WeekCount();
+
+        return view('main.groupSchedule', compact('studentGroups', 'group_id', 'weekCount'));
+    }
+
+    public function groupScheduleWithId(int $group_id)
+    {
+        $studentGroups = StudentGroup::allSorted()->toArray();
+        $weekCount = Calendar::WeekCount();
+
+        return view('main.groupSchedule', compact('studentGroups', 'group_id', 'weekCount'));
     }
 
     public function facultySchedule()
@@ -42,8 +54,25 @@ class MainController extends Controller
 
     public function groupSession()
     {
-        $studentGroups = StudentGroup::allSorted()->toArray();
+        $studentGroups = $this->GetSortedExamStudentGroups();
         $group_id = -1;
+
+        return view('main.groupSession', compact('studentGroups', 'group_id'));
+    }
+
+    public function groupSessionWithId(int $group_id)
+    {
+        $studentGroups = $this->GetSortedExamStudentGroups();
+
+        return view('main.groupSession', compact('studentGroups', 'group_id'));
+    }
+
+    /**
+     * @return Collection
+     */
+    public function GetSortedExamStudentGroups(): Collection
+    {
+        $studentGroups = StudentGroup::allSorted()->toArray();
 
         $examGroupIds = DB::table('exams')
             ->join('disciplines', 'exams.discipline_id', '=', 'disciplines.id')
@@ -52,7 +81,7 @@ class MainController extends Controller
             ->where('exams.is_active', '=', 1)
             ->pluck('disciplines.student_group_id');
 
-        $studentGroups = array_filter($studentGroups, function($item) use ($examGroupIds) {
+        $studentGroups = array_filter($studentGroups, function ($item) use ($examGroupIds) {
             $groupGroupsIds = StudentGroup::GetGroupsOfStudentFromGroup($item["id"]);
 
             $intersectCount = $examGroupIds->intersect($groupGroupsIds)->count();
@@ -61,29 +90,18 @@ class MainController extends Controller
         });
 
         $studentGroups = new Collection($studentGroups);
-        $studentGroups = $studentGroups->sort(function($a, $b) {
+        $studentGroups = $studentGroups->sort(function ($a, $b) {
 
             $num1 = explode(" ", $a["name"])[0];
             $num2 = explode(" ", $b["name"])[0];
 
-            if ($num1 == $num2)
-            {
+            if ($num1 == $num2) {
                 if ($a["name"] == $b["name"]) return 0;
                 return $a["name"] < $b["name"] ? -1 : 1;
-            }
-            else
-            {
+            } else {
                 return ($num1 < $num2) ? -1 : 1;
             }
         });
-
-        return view('main.groupSession', compact('studentGroups', 'group_id'));
-    }
-
-    public function groupSessionWithId(int $group_id)
-    {
-        $studentGroups = StudentGroup::allSorted()->toArray();
-
-        return view('main.groupSession', compact('studentGroups', 'group_id'));
+        return $studentGroups;
     }
 }

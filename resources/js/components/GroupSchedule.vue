@@ -3,32 +3,30 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">Расписание преподавателя</div>
+                    <div class="card-header">Расписание группы</div>
 
                     <div class="card-body">
-                        <select v-model="selectedTeacherId" @change="loadFullTeacherSchedule();">
-                            <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
+                        <select v-model="studentGroupId" @change="loadGroupSchedule()">
+                            <option v-for="sg in groupsSorted" :value="sg.id">{{sg.name}}</option>
                         </select>
 
                         Недели: {{combineWeeksToRange(this.selectedWeeks)}}
 
-                        <div style="text-align: center;" v-if="this.loading">Загрузка...</div>
-
-                        <div id="teachersSchedule" style="margin-top: 1em;">
+                        <div id="groupSchedule" style="margin-top: 1em;">
                             <div style="text-align: center;">
                                 Недели:
-                                <button @click="loadFullTeacherSchedule();"
+                                <button @click="loadFullGroupSchedule();"
                                         style="margin-right:0.5em; margin-bottom: 0.5em;"
                                         :class="{'button': true,
-                                        'is-primary': selectedWeeks.length !== 1 || (selectedWeeks.length > 0 && selectedWeeks[0] !== -1),
-                                        'is-danger': selectedWeeks.length === 1 && selectedWeeks[0] === -1 }"
+                                    'is-primary': selectedWeeks.length !== 1 || (selectedWeeks.length > 0 && selectedWeeks[0] !== -1),
+                                    'is-danger': selectedWeeks.length === 1 && selectedWeeks[0] === -1 }"
                                 >Все</button>
                                 <button @click="weekToggled(week)"
                                         v-for="week in this.weeksCount"
                                         style="margin-right:0.5em; margin-bottom: 0.5em;"
                                         :class="{'button': true,
-                                        'is-primary': !selectedWeeks.includes(week),
-                                        'is-danger': selectedWeeks.includes(week) }"
+                                    'is-primary': !selectedWeeks.includes(week),
+                                    'is-danger': selectedWeeks.includes(week) }"
                                 >{{week}}</button>
 
                                 <div class="custom-control custom-switch">
@@ -38,95 +36,95 @@
                             </div>
 
                             <div v-if="
-                                (teacherSchedule[1] && teacherSchedule[1].length === 0) &&
-                                (teacherSchedule[2] && teacherSchedule[2].length === 0) &&
-                                (teacherSchedule[3] && teacherSchedule[3].length === 0) &&
-                                (teacherSchedule[4] && teacherSchedule[4].length === 0) &&
-                                (teacherSchedule[5] && teacherSchedule[5].length === 0) &&
-                                (teacherSchedule[6] && teacherSchedule[6].length === 0)
-                            " style="text-align: center; font-size: 30px">
+                            (groupSchedule[1] && groupSchedule[1].length === 0) &&
+                            (groupSchedule[2] && groupSchedule[2].length === 0) &&
+                            (groupSchedule[3] && groupSchedule[3].length === 0) &&
+                            (groupSchedule[4] && groupSchedule[4].length === 0) &&
+                            (groupSchedule[5] && groupSchedule[5].length === 0) &&
+                            (groupSchedule[6] && groupSchedule[6].length === 0)
+                        " style="text-align: center; font-size: 30px">
                                 Занятий нет
                             </div>
 
                             <table v-if=" !(
-                                (teacherSchedule[1] && teacherSchedule[1].length === 0) &&
-                                (teacherSchedule[2] && teacherSchedule[2].length === 0) &&
-                                (teacherSchedule[3] && teacherSchedule[3].length === 0) &&
-                                (teacherSchedule[4] && teacherSchedule[4].length === 0) &&
-                                (teacherSchedule[5] && teacherSchedule[5].length === 0) &&
-                                (teacherSchedule[6] && teacherSchedule[6].length === 0))
-                            "
+                            (groupSchedule[1] && groupSchedule[1].length === 0) &&
+                            (groupSchedule[2] && groupSchedule[2].length === 0) &&
+                            (groupSchedule[3] && groupSchedule[3].length === 0) &&
+                            (groupSchedule[4] && groupSchedule[4].length === 0) &&
+                            (groupSchedule[5] && groupSchedule[5].length === 0) &&
+                            (groupSchedule[6] && groupSchedule[6].length === 0))
+                        "
 
-                                style="margin-top: 2em;" class="table td-center is-bordered">
+                                   style="margin-top: 2em;" class="table td-center is-bordered">
                                 <tr>
                                     <td></td>
-                                    <td v-if="teacherSchedule[1] && teacherSchedule[1].length !== 0">
+                                    <td v-if="groupSchedule[1] && groupSchedule[1].length !== 0">
                                         <strong>Понедельник</strong>
                                         <template v-if="!this.severalWeeks">
                                             <br />
-                                            {{teacherSchedule[1]
-                                                [Object.keys(teacherSchedule[1])[0]]
-                                                [Object.keys(teacherSchedule[1][Object.keys(teacherSchedule[1])[0]])]
-                                                ["lessons"][0]
-                                                ["date"] | formatOnlyDate
+                                            {{groupSchedule[1]
+                                            [Object.keys(groupSchedule[1])[0]]
+                                            [Object.keys(groupSchedule[1][Object.keys(groupSchedule[1])[0]])]
+                                            ["lessons"][0]
+                                            ["date"] | formatOnlyDate
                                             }}
                                         </template>
                                     </td>
-                                    <td v-if="teacherSchedule[2] && teacherSchedule[2].length !== 0">
+                                    <td v-if="groupSchedule[2] && groupSchedule[2].length !== 0">
                                         <strong>Вторник</strong>
                                         <template v-if="!this.severalWeeks">
                                             <br />
-                                            {{teacherSchedule[2]
-                                            [Object.keys(teacherSchedule[2])[0]]
-                                            [Object.keys(teacherSchedule[2][Object.keys(teacherSchedule[2])[0]])]
+                                            {{groupSchedule[2]
+                                            [Object.keys(groupSchedule[2])[0]]
+                                            [Object.keys(groupSchedule[2][Object.keys(groupSchedule[2])[0]])]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
                                         </template>
                                     </td>
-                                    <td v-if="teacherSchedule[3] && teacherSchedule[3].length !== 0">
+                                    <td v-if="groupSchedule[3] && groupSchedule[3].length !== 0">
                                         <strong>Среда</strong>
                                         <template v-if="!this.severalWeeks">
                                             <br />
-                                            {{teacherSchedule[3]
-                                            [Object.keys(teacherSchedule[3])[0]]
-                                            [Object.keys(teacherSchedule[3][Object.keys(teacherSchedule[3])[0]])]
+                                            {{groupSchedule[3]
+                                            [Object.keys(groupSchedule[3])[0]]
+                                            [Object.keys(groupSchedule[3][Object.keys(groupSchedule[3])[0]])]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
                                         </template>
                                     </td>
-                                    <td v-if="teacherSchedule[4] && teacherSchedule[4].length !== 0">
+                                    <td v-if="groupSchedule[4] && groupSchedule[4].length !== 0">
                                         <strong>Четверг</strong>
                                         <template v-if="!this.severalWeeks">
                                             <br />
-                                            {{teacherSchedule[4]
-                                            [Object.keys(teacherSchedule[4])[0]]
-                                            [Object.keys(teacherSchedule[4][Object.keys(teacherSchedule[4])[0]])]
+                                            {{groupSchedule[4]
+                                            [Object.keys(groupSchedule[4])[0]]
+                                            [Object.keys(groupSchedule[4][Object.keys(groupSchedule[4])[0]])]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
                                         </template>
                                     </td>
-                                    <td v-if="teacherSchedule[5] && teacherSchedule[5].length !== 0">
+                                    <td v-if="groupSchedule[5] && groupSchedule[5].length !== 0">
                                         <strong>Пятница</strong>
                                         <template v-if="!this.severalWeeks">
                                             <br />
-                                            {{teacherSchedule[5]
-                                            [Object.keys(teacherSchedule[5])[0]]
-                                            [Object.keys(teacherSchedule[5][Object.keys(teacherSchedule[5])[0]])]
+                                            {{groupSchedule[5]
+                                            [Object.keys(groupSchedule[5])[0]]
+                                            [Object.keys(groupSchedule[5][Object.keys(groupSchedule[5])[0]])]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
                                         </template>
                                     </td>
-                                    <td v-if="teacherSchedule[6] && teacherSchedule[6].length !== 0">
+                                    <td v-if="groupSchedule[6] && groupSchedule[6].length !== 0">
                                         <strong>Суббота</strong>
                                         <template v-if="!this.severalWeeks">
                                             <br />
-                                            {{teacherSchedule[6]
-                                            [Object.keys(teacherSchedule[6])[0]]
-                                            [Object.keys(teacherSchedule[6][Object.keys(teacherSchedule[6])[0]])]
+                                            {{groupSchedule[6]
+                                            [Object.keys(groupSchedule[6])[0]]
+                                            [Object.keys(groupSchedule[6][Object.keys(groupSchedule[6])[0]])]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
@@ -136,15 +134,16 @@
 
                                 <tr v-for="ring in this.scheduleRings">
                                     <td><strong>{{ring}}</strong></td>
-                                    <td v-if="Object.keys(teacherSchedule[dow]).length !== 0" v-for="dow in 6">
-                                        <div style="border: none;" v-if="teacherSchedule[dow][ring] !== undefined">
-                                            <template v-for="tfd in Object.keys(teacherSchedule[dow][ring])">
-                                                <strong>{{teacherSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br />
-                                                {{teacherSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
-                                                <template v-for="auditorium in Object.keys(teacherSchedule[dow][ring][tfd]['weeksAndAuds'])">
-                                                    {{combineWeeksToRange(teacherSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
+                                    <td v-if="Object.keys(groupSchedule[dow]).length !== 0" v-for="dow in 6">
+                                        <div style="border: none;" v-if="groupSchedule[dow][ring] !== undefined">
+                                            <template v-for="tfd in Object.keys(groupSchedule[dow][ring])">
+                                                <strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br />
+                                                {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
+                                                {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
+                                                <template v-for="auditorium in Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])">
+                                                    {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
                                                 </template>
-                                                <template v-if="tfd !== Object.keys(teacherSchedule[dow][ring])[Object.keys(teacherSchedule[dow][ring]).length-1]">
+                                                <template v-if="tfd !== Object.keys(groupSchedule[dow][ring])[Object.keys(groupSchedule[dow][ring]).length-1]">
                                                     <hr>
                                                 </template>
                                             </template>
@@ -162,33 +161,40 @@
 
 <script>
     export default {
-        name: "TeacherSchedule",
+        name: "GroupSchedule",
         props: {
-            'teachers': Object,
+            'studentGroups': Object,
+            'groupId': Number,
             'weekCount': Number,
         },
         data() {
             return {
-                teacherList: this.teachers,
-                selectedTeacherId: -1,
-                teacherSchedule: {},
+                groups: this.studentGroups,
+                exams: [],
+                csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 firstLoad: true,
                 loading: false,
+                studentGroupId: this.groupId,
                 weeksCount: this.weekCount,
                 scheduleRings: [],
                 selectedWeeks: [],
-                severalWeeks: true
+                severalWeeks: true,
+                groupSchedule: {}
             }
         },
         methods: {
-            loadTeacherSchedule() {
-                let apiUrl = '/api.php?action=teacherWeeksSchedule&teacherId=' + this.selectedTeacherId + '&weeks=' + this.selectedWeeks.join('|') + '&compactResult';
+            loadGroupSchedule() {
+                this.exams = [];
+                this.loading = true;
+                this.firstLoad = false;
+
+                let apiUrl = '/api.php?action=weeksSchedule&groupId=' + this.studentGroupId + '&weeks=' + this.selectedWeeks.join('|') + '&compactResult';
 
                 if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)
                 {
                     let weeksString = this.range(1, this.weekCount).join('|');
 
-                    apiUrl = '/api.php?action=teacherWeeksSchedule&teacherId=' + this.selectedTeacherId + '&weeks=' + weeksString + '&compactResult';
+                    apiUrl = '/api.php?action=weeksSchedule&groupId=' + this.studentGroupId + '&weeks=' + weeksString + '&compactResult';
                 }
 
                 axios
@@ -218,11 +224,14 @@
                             return aMinutes < bMinutes ? -1 : 1;
                         });
 
-                        this.teacherSchedule = data;
+                        this.groupSchedule = data;
                     });
             },
-            range(start, end) {
-                return Array(end - start + 1).fill().map((_, idx) => start + idx)
+            loadFullGroupSchedule() {
+                this.severalWeeks = true;
+                this.selectedWeeks = [];
+                this.selectedWeeks.push(-1);
+                this.loadGroupSchedule();
             },
             combineWeeksToRange(ws) {
                 let weeks = ws.slice(0);
@@ -325,11 +334,25 @@
 
                 return stringResult;
             },
+            range(start, end) {
+                return Array(end - start + 1).fill().map((_, idx) => start + idx)
+            },
+            severalWeeksSwitchFlipped() {
+                if (!this.severalWeeks) {
+                    let min = 1;
+                    if (!(this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)) {
+                        min = Math.min(...this.selectedWeeks);
+                    }
+                    this.selectedWeeks = [];
+                    this.selectedWeeks.push(min);
+                    this.loadGroupSchedule();
+                }
+            },
             weekToggled(week) {
                 if (!this.severalWeeks) {
                     this.selectedWeeks = [];
                     this.selectedWeeks.push(week);
-                    this.loadTeacherSchedule();
+                    this.loadGroupSchedule();
                 }
                 else {
                     if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1) {
@@ -341,14 +364,14 @@
                             for(let i = week; i < this.selectedWeeks[0]; i++) {
                                 this.selectedWeeks.push(i);
                             }
-                            this.loadTeacherSchedule()
+                            this.loadGroupSchedule()
                         }
 
                         if (week > this.selectedWeeks[0]) {
                             for(let i = this.selectedWeeks[0]+1; i <= week; i++) {
                                 this.selectedWeeks.push(i);
                             }
-                            this.loadTeacherSchedule()
+                            this.loadGroupSchedule()
                         }
 
                         return;
@@ -358,7 +381,7 @@
                     {
                         this.selectedWeeks = [];
                         this.selectedWeeks.push(week);
-                        this.loadTeacherSchedule();
+                        this.loadGroupSchedule();
 
                         return;
                     }
@@ -373,51 +396,43 @@
                         console.log();
                         this.selectedWeeks.splice(index, 1);
                     }
-                    this.loadTeacherSchedule();
+                    this.loadGroupSchedule();
                 }
             },
-            loadFullTeacherSchedule() {
-                this.severalWeeks = true;
-                this.selectedWeeks = [];
-                this.selectedWeeks.push(-1);
-                this.loadTeacherSchedule();
-            },
-            severalWeeksSwitchFlipped() {
-                if (!this.severalWeeks) {
-                    let min = 1;
-                    if (!(this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)) {
-                        min = Math.min(...this.selectedWeeks);
-                    }
-                    this.selectedWeeks = [];
-                    this.selectedWeeks.push(min);
-                    this.loadTeacherSchedule();
-                }
-            }
         },
         mounted() {
-            if (this.selectedTeacherId === -1)
+            if (this.studentGroupId === -1)
             {
-                if (this.teacherList.length !== 0) {
-                    this.selectedTeacherId = this.teachersSorted[0].id;
+                if (this.groups.length !== 0) {
+                    this.studentGroupId = this.groupsSorted[0].id;
                     this.selectedWeeks = [-1];
-                    this.loadTeacherSchedule();
+                    this.loadGroupSchedule();
                 }
             } else {
                 this.selectedWeeks = [-1];
-                this.loadTeacherSchedule();
+                this.loadGroupSchedule();
             }
         },
         computed: {
-            teachersSorted() {
+            groupsSorted() {
                 let result = [];
-                for (var index in this.teacherList) {
-                    let teacher = this.teacherList[index];
-                    result.push(teacher);
+                for (var index in this.groups) {
+                    let group = this.groups[index];
+                    result.push(group);
                 }
 
                 result.sort((a,b) => {
-                    if (a.fio === b.fio) return 0;
-                    return a.fio < b.fio ? -1 : 1;
+                    let num1 = parseInt(a.name.split(' ')[0]);
+                    let num2 = parseInt(b.name.split(' ')[0]);
+
+                    if (num1 === num2) {
+                        if (a === b) return 0;
+                        return (a.name < b.name) ? -1 : 1;
+                    }
+                    else
+                    {
+                        return (num1 < num2) ? -1 : 1;
+                    }
                 });
 
                 return result;
@@ -427,8 +442,5 @@
 </script>
 
 <style scoped>
-    table th, table td {
-        display: table-cell;
-        vertical-align: middle;
-    }
+
 </style>

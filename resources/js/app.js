@@ -5,12 +5,14 @@ window.Vue = require('vue');
 
 Vue.component('group-session', require('./components/GroupSession.vue').default);
 Vue.component('teacher-schedule', require('./components/TeacherSchedule').default);
+Vue.component('group-schedule', require('./components/GroupSchedule').default);
+
 
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 Vue.use(Buefy);
 
-Vue.filter('formatDate', function(value) {
+Vue.filter('formatDateTime', function(value) {
    if (value) {
        return moment(String(value), 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY HH:mm');
    }
@@ -18,7 +20,7 @@ Vue.filter('formatDate', function(value) {
 
 Vue.filter('formatOnlyDate', function(value) {
     if (value) {
-        return moment(String(value), 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY');
+        return moment(String(value), 'YYYY-MM-DD').format('DD.MM.YYYY');
     }
 });
 
