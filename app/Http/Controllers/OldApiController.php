@@ -37,7 +37,8 @@ class OldApiController extends Controller
 
         $allowed_actions = array("list", "groupsBundle", "bundle", "update", "dailySchedule", "groupExams",
             "weekSchedule", "weeksSchedule", "groupSchedule", "TeacherWeekSchedule", "TeacherSchedule",
-            "disciplineLessons", "LastLessons", "teacherLessons", "teacherWeeksSchedule", "teacherExams");
+            "disciplineLessons", "LastLessons", "teacherLessons", "teacherWeeksSchedule", "teacherExams",
+            "facultyWeeksSchedule");
 
         if (!in_array($action, $allowed_actions))
         {
@@ -116,6 +117,7 @@ class OldApiController extends Controller
             case "teacherLessons":          return $this->GetTeacherLessons($input);
             case "teacherWeeksSchedule":    return $this->GetTeacherWeeksSchedule($input);
             case "teacherExams":            return $this->GetTeacherExams($input);
+            case "facultyWeeksSchedule":    return $this->GetFacultyWeeksSchedule($input);
         }
 
         return array("error" => "Whoops, looks like something went wrong :-)");
@@ -870,13 +872,7 @@ class OldApiController extends Controller
             $result = array();
 
             for ($i = 0; $i < count($weeks); $i++) {
-                $weekMinusOne = $weeks[$i] - 1;
-
-                $weekStart = $css->addWeeks($weekMinusOne);
-                $weekEnd = $weekStart->clone()->endOfWeek();
-
-                $weekStartString = $weekStart->format('Y-m-d');
-                $weekEndString = $weekEnd->format('Y-m-d');
+                $weeksCalendars = Calendar::IdsFromWeeks($weeks);
 
                 $rawLessons = DB::table('lessons')
                     ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
@@ -886,6 +882,9 @@ class OldApiController extends Controller
                     ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
                     ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
                     ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                    ->where('lessons.state', '=', 1)
+                    ->whereIn('disciplines.student_group_id', $groupIds)
+                    ->whereIn('lessons.calendar_id', $weeksCalendars)
                     ->select('calendars.date AS date', 'rings.time as Time', 'disciplines.name AS discName',
                         'teachers.fio as FIO', 'auditoriums.name AS audName', 'student_groups.name AS groupName')
                     ->get();
@@ -1253,6 +1252,130 @@ class OldApiController extends Controller
         }
 
         return $exams;
+    }
+
+    private function GetFacultyWeeksSchedule($input)
+    {
+        if ((!isset($input['facultyId'])) || (!isset($input['weeks'])))
+        {
+            return array("error" => "facultyId и weeks обязательные параметры");
+        }
+
+        $facultyId = $input['facultyId'];
+        $weeks = $input['weeks'];
+
+        $facultyGroups = DB::table('student_groups')
+            ->join('faculty_student_group', 'student_groups.id', '=', 'faculty_student_group.student_group_id')
+            ->where('faculty_student_group.faculty_id', '=', $facultyId)
+            ->select('student_groups.*')
+            ->get()
+            ->reverse()->toArray();
+
+        usort( $facultyGroups, function( $a, $b ) {
+            $aVal = intval($a->name);
+            $bVal = intval($a->name);
+
+            if ($aVal === $bVal) {
+                if ($a->name === $b->name) return 0;
+                return ($a->name < $b->name) ? -1 : 1;
+            }
+
+            return ($aVal < $bVal) ? -1 : 1;
+        });
+
+        Carbon::setWeekStartsAt(Carbon::MONDAY);
+        Carbon::setWeekEndsAt(Carbon::SUNDAY);
+
+        $weeks = explode('|', $input['weeks']);
+        sort($weeks);
+
+        $ss = ConfigOption::SemesterStarts();
+
+        $css = Carbon::createFromFormat('Y-m-d', $ss);
+        $css = $css->startOfWeek();
+
+        $result = array();
+
+        for ($index = 0; $index < sizeof($facultyGroups); $index++)
+        {
+            $group = $facultyGroups[$index];
+
+            $groupId = $group->id;
+
+            $groupIds = StudentGroup::GetGroupsOfStudentFromGroup($groupId);
+
+            $weeksCalendars = Calendar::IdsFromWeeks($weeks);
+
+            $rawLessons = DB::table('lessons')
+                ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+                ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+                ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+                ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+                ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+                ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+                ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                ->where('lessons.state', '=', 1)
+                ->whereIn('disciplines.student_group_id', $groupIds)
+                ->whereIn('lessons.calendar_id', $weeksCalendars)
+                ->select('disciplines.name as discName', 'rings.time as startTime', 'calendars.date as date',
+                    'teachers.fio as teacherFIO', 'auditoriums.name as auditoriumName', 'discipline_teacher.id as tfdId',
+                    'student_groups.name as groupName', 'student_groups.id as groupId')
+                ->get();
+
+            $lessons = array("1" => array(), "2" => array(), "3" => array(), "4" => array(),
+                "5" => array(), "6" => array(), "7" => array());
+            $timeArray = array();
+
+            $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
+
+            foreach ($rawLessons as $lesson)
+            {
+                $lessonWeek = Calendar::WeekFromDate($lesson->date, $semesterStarts);
+                $dow = Carbon::createFromFormat('Y-m-d', $lesson->date)->isoFormat('E');
+
+                $time = mb_substr($lesson->startTime, 0, 5);
+                if (!array_key_exists($time, $lessons[$dow]))
+                {
+                    if (!in_array($time, $timeArray))
+                    {
+                        $timeArray[] = $time;
+                    }
+                    $lessons[$dow][$time] = array();
+                }
+
+                $tfd = $lesson->tfdId;
+                if (!array_key_exists($tfd, $lessons[$dow][$time]))
+                {
+                    $lessons[$dow][$time][$tfd] = array();
+                }
+
+                $lessonAud = $lesson->auditoriumName;
+                if (!array_key_exists("weeksAndAuds", $lessons[$dow][$time][$tfd]))
+                {
+                    $lessons[$dow][$time][$tfd]["weeksAndAuds"] = array();
+                }
+                if (!array_key_exists("lessons", $lessons[$dow][$time][$tfd]))
+                {
+                    $lessons[$dow][$time][$tfd]["lessons"] = array();
+                }
+                if (!array_key_exists($lessonAud, $lessons[$dow][$time][$tfd]["weeksAndAuds"]))
+                {
+                    $lessons[$dow][$time][$tfd]["weeksAndAuds"][$lessonAud] = array();
+                }
+                $lessons[$dow][$time][$tfd]["weeksAndAuds"][$lessonAud][] = $lessonWeek;
+
+                $lessons[$dow][$time][$tfd]["lessons"][] = $lesson;
+            }
+
+            $resultItem = array();
+            $resultItem["groupId"] = $group->id;
+            $resultItem["groupName"] = $group->name;
+            $resultItem["lessons"] = $lessons;
+
+            $result[] = $resultItem;
+        }
+
+        return $result;
     }
 }
 
