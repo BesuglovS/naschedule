@@ -2298,8 +2298,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
 
       result.sort(function (a, b) {
-        var aVal = a.toString().indexOf('-') === -1 ? a : a.toString().substr(0, a.indexOf('-'));
-        var bVal = b.toString().indexOf('-') === -1 ? b : b.toString().substr(0, b.indexOf('-'));
+        var aVal = parseInt(a.toString().indexOf('-') === -1 ? a : a.toString().substr(0, a.toString().indexOf('-')));
+        var bVal = parseInt(b.toString().indexOf('-') === -1 ? b : b.toString().substr(0, b.toString().indexOf('-')));
         if (aVal === bVal) return 0;
         return aVal < bVal ? -1 : 1;
       });

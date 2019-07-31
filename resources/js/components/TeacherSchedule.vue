@@ -316,8 +316,8 @@
                 }
 
                 result.sort((a,b) => {
-                    let aVal = (a.toString().indexOf('-') === -1) ? a : a.toString().substr(0, a.indexOf('-'));
-                    let bVal = (b.toString().indexOf('-') === -1) ? b : b.toString().substr(0, b.indexOf('-'));
+                    let aVal = parseInt((a.toString().indexOf('-') === -1) ? a : a.toString().substr(0, a.toString().indexOf('-')));
+                    let bVal = parseInt((b.toString().indexOf('-') === -1) ? b : b.toString().substr(0, b.toString().indexOf('-')));
 
                     if (aVal === bVal) return 0;
                     return (aVal < bVal) ? -1 : 1;
