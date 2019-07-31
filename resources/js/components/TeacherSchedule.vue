@@ -6,24 +6,35 @@
                     <div class="card-header">Расписание преподавателя</div>
 
                     <div class="card-body">
-                        <select v-model="selectedTeacherId" @change="loadTeacherSchedule(selectedWeek)">
+                        <select v-model="selectedTeacherId" @change="loadFullTeacherSchedule();">
                             <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
                         </select>
+
+                        Недели: {{combineWeeksToRange(this.selectedWeeks)}}
 
                         <div style="text-align: center;" v-if="this.loading">Загрузка...</div>
 
                         <div id="teachersSchedule" style="margin-top: 1em;">
                             <div style="text-align: center;">
                                 Недели:
-                                <button @click="loadTeacherSchedule(-1)"
+                                <button @click="loadFullTeacherSchedule();"
                                         style="margin-right:0.5em; margin-bottom: 0.5em;"
-                                        :class="{'button': true, 'is-primary': selectedWeek !== -1, 'is-danger': selectedWeek === -1 }"
+                                        :class="{'button': true,
+                                        'is-primary': selectedWeeks.length !== 1 || (selectedWeeks.length > 0 && selectedWeeks[0] !== -1),
+                                        'is-danger': selectedWeeks.length === 1 && selectedWeeks[0] === -1 }"
                                 >Все</button>
-                                <button @click="loadTeacherSchedule(week)"
+                                <button @click="weekToggled(week)"
                                         v-for="week in this.weeksCount"
                                         style="margin-right:0.5em; margin-bottom: 0.5em;"
-                                        :class="{'button': true, 'is-primary': selectedWeek !== week, 'is-danger': selectedWeek === week }"
+                                        :class="{'button': true,
+                                        'is-primary': !selectedWeeks.includes(week),
+                                        'is-danger': selectedWeeks.includes(week) }"
                                 >{{week}}</button>
+
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
+                                    <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
+                                </div>
                             </div>
 
                             <div v-if="
@@ -49,24 +60,92 @@
                                 style="margin-top: 2em;" class="table td-center is-bordered">
                                 <tr>
                                     <td></td>
-                                    <td v-if="teacherSchedule[1] && teacherSchedule[1].length !== 0">Понедельник</td>
-                                    <td v-if="teacherSchedule[2] && teacherSchedule[2].length !== 0">Вторник</td>
-                                    <td v-if="teacherSchedule[3] && teacherSchedule[3].length !== 0">Среда</td>
-                                    <td v-if="teacherSchedule[4] && teacherSchedule[4].length !== 0">Четверг</td>
-                                    <td v-if="teacherSchedule[5] && teacherSchedule[5].length !== 0">Пятница</td>
-                                    <td v-if="teacherSchedule[6] && teacherSchedule[6].length !== 0">Суббота</td>
+                                    <td v-if="teacherSchedule[1] && teacherSchedule[1].length !== 0">
+                                        <strong>Понедельник</strong>
+                                        <template v-if="!this.severalWeeks">
+                                            <br />
+                                            {{teacherSchedule[1]
+                                                [Object.keys(teacherSchedule[1])[0]]
+                                                [Object.keys(teacherSchedule[1][Object.keys(teacherSchedule[1])[0]])]
+                                                ["lessons"][0]
+                                                ["date"] | formatOnlyDate
+                                            }}
+                                        </template>
+                                    </td>
+                                    <td v-if="teacherSchedule[2] && teacherSchedule[2].length !== 0">
+                                        <strong>Вторник</strong>
+                                        <template v-if="!this.severalWeeks">
+                                            <br />
+                                            {{teacherSchedule[2]
+                                            [Object.keys(teacherSchedule[2])[0]]
+                                            [Object.keys(teacherSchedule[2][Object.keys(teacherSchedule[2])[0]])]
+                                            ["lessons"][0]
+                                            ["date"] | formatOnlyDate
+                                            }}
+                                        </template>
+                                    </td>
+                                    <td v-if="teacherSchedule[3] && teacherSchedule[3].length !== 0">
+                                        <strong>Среда</strong>
+                                        <template v-if="!this.severalWeeks">
+                                            <br />
+                                            {{teacherSchedule[3]
+                                            [Object.keys(teacherSchedule[3])[0]]
+                                            [Object.keys(teacherSchedule[3][Object.keys(teacherSchedule[3])[0]])]
+                                            ["lessons"][0]
+                                            ["date"] | formatOnlyDate
+                                            }}
+                                        </template>
+                                    </td>
+                                    <td v-if="teacherSchedule[4] && teacherSchedule[4].length !== 0">
+                                        <strong>Четверг</strong>
+                                        <template v-if="!this.severalWeeks">
+                                            <br />
+                                            {{teacherSchedule[4]
+                                            [Object.keys(teacherSchedule[4])[0]]
+                                            [Object.keys(teacherSchedule[4][Object.keys(teacherSchedule[4])[0]])]
+                                            ["lessons"][0]
+                                            ["date"] | formatOnlyDate
+                                            }}
+                                        </template>
+                                    </td>
+                                    <td v-if="teacherSchedule[5] && teacherSchedule[5].length !== 0">
+                                        <strong>Пятница</strong>
+                                        <template v-if="!this.severalWeeks">
+                                            <br />
+                                            {{teacherSchedule[5]
+                                            [Object.keys(teacherSchedule[5])[0]]
+                                            [Object.keys(teacherSchedule[5][Object.keys(teacherSchedule[5])[0]])]
+                                            ["lessons"][0]
+                                            ["date"] | formatOnlyDate
+                                            }}
+                                        </template>
+                                    </td>
+                                    <td v-if="teacherSchedule[6] && teacherSchedule[6].length !== 0">
+                                        <strong>Суббота</strong>
+                                        <template v-if="!this.severalWeeks">
+                                            <br />
+                                            {{teacherSchedule[6]
+                                            [Object.keys(teacherSchedule[6])[0]]
+                                            [Object.keys(teacherSchedule[6][Object.keys(teacherSchedule[6])[0]])]
+                                            ["lessons"][0]
+                                            ["date"] | formatOnlyDate
+                                            }}
+                                        </template>
+                                    </td>
                                 </tr>
 
                                 <tr v-for="ring in this.scheduleRings">
-                                    <td>{{ring}}</td>
+                                    <td><strong>{{ring}}</strong></td>
                                     <td v-if="Object.keys(teacherSchedule[dow]).length !== 0" v-for="dow in 6">
                                         <div style="border: none;" v-if="teacherSchedule[dow][ring] !== undefined">
                                             <template v-for="tfd in Object.keys(teacherSchedule[dow][ring])">
-                                                {{teacherSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}<br />
+                                                <strong>{{teacherSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br />
                                                 {{teacherSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
-                                                {{teacherSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
                                                 <template v-for="auditorium in Object.keys(teacherSchedule[dow][ring][tfd]['weeksAndAuds'])">
                                                     {{combineWeeksToRange(teacherSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
+                                                </template>
+                                                <template v-if="tfd !== Object.keys(teacherSchedule[dow][ring])[Object.keys(teacherSchedule[dow][ring]).length-1]">
+                                                    <hr>
                                                 </template>
                                             </template>
                                         </div>
@@ -97,16 +176,15 @@
                 loading: false,
                 weeksCount: this.weekCount,
                 scheduleRings: [],
-                selectedWeek: 1
+                selectedWeeks: [],
+                severalWeeks: true
             }
         },
         methods: {
-            loadTeacherSchedule(week) {
-                this.selectedWeek = week;
+            loadTeacherSchedule() {
+                let apiUrl = '/api.php?action=teacherWeeksSchedule&teacherId=' + this.selectedTeacherId + '&weeks=' + this.selectedWeeks.join('|') + '&compactResult';
 
-                let apiUrl = '/api.php?action=teacherWeeksSchedule&teacherId=' + this.selectedTeacherId + '&weeks=' + week + '&compactResult';
-
-                if (this.selectedWeek === -1)
+                if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)
                 {
                     let weeksString = this.range(1, this.weekCount).join('|');
 
@@ -150,6 +228,10 @@
             },
             combineWeeksToRange(ws) {
                 let weeks = ws.slice(0);
+
+                if (weeks.length === 1 && weeks[0] === -1) {
+                    weeks = this.range(1, this.weekCount);
+                }
 
                 let min = Math.min(...weeks);
                 let max = Math.max(...weeks);
@@ -244,6 +326,74 @@
                 let stringResult = result.join(', ');
 
                 return stringResult;
+            },
+            weekToggled(week) {
+                if (!this.severalWeeks) {
+                    this.selectedWeeks = [];
+                    this.selectedWeeks.push(week);
+                    this.loadTeacherSchedule();
+                }
+                else {
+                    if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1) {
+                        this.selectedWeeks = [];
+                    }
+
+                    if (this.selectedWeeks.length === 1 && event.shiftKey) {
+                        if (week < this.selectedWeeks[0]) {
+                            for(let i = week; i < this.selectedWeeks[0]; i++) {
+                                this.selectedWeeks.push(i);
+                            }
+                            this.loadTeacherSchedule()
+                        }
+
+                        if (week > this.selectedWeeks[0]) {
+                            for(let i = this.selectedWeeks[0]+1; i <= week; i++) {
+                                this.selectedWeeks.push(i);
+                            }
+                            this.loadTeacherSchedule()
+                        }
+
+                        return;
+                    }
+
+                    if (event.ctrlKey)
+                    {
+                        this.selectedWeeks = [];
+                        this.selectedWeeks.push(week);
+                        this.loadTeacherSchedule();
+
+                        return;
+                    }
+
+                    if (!this.selectedWeeks.includes(week))
+                    {
+                        this.selectedWeeks.push(week);
+                    }
+                    else
+                    {
+                        let index = this.selectedWeeks.indexOf(week);
+                        console.log();
+                        this.selectedWeeks.splice(index, 1);
+                    }
+                    this.loadTeacherSchedule();
+                }
+            },
+            loadFullTeacherSchedule() {
+                this.severalWeeks = true;
+                this.selectedWeeks = [];
+                this.selectedWeeks.push(-1);
+                this.loadTeacherSchedule();
+            },
+            severalWeeksSwitchFlipped() {
+                if (!this.severalWeeks) {
+                    let min = 1;
+                    if (!(this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)) {
+                        min = Math.min(...this.selectedWeeks);
+                    }
+                    this.selectedWeeks = [];
+                    this.selectedWeeks.push(min);
+                    this.loadTeacherSchedule();
+                }
             }
         },
         mounted() {
@@ -251,13 +401,12 @@
             {
                 if (this.teacherList.length !== 0) {
                     this.selectedTeacherId = this.teachersSorted[0].id;
-                    this.loadTeacherSchedule(1);
-                }
-                else {
-                    this.selectedTeacherId = 0;
+                    this.selectedWeeks = [-1];
+                    this.loadTeacherSchedule();
                 }
             } else {
-                this.loadTeacherSchedule(1);
+                this.selectedWeeks = [-1];
+                this.loadTeacherSchedule();
             }
         },
         computed: {
@@ -280,5 +429,8 @@
 </script>
 
 <style scoped>
-
+    table th, table td {
+        display: table-cell;
+        vertical-align: middle;
+    }
 </style>

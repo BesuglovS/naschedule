@@ -16,6 +16,12 @@ Vue.filter('formatDate', function(value) {
    }
 });
 
+Vue.filter('formatOnlyDate', function(value) {
+    if (value) {
+        return moment(String(value), 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY');
+    }
+});
+
 Vue.filter('emptyIf2020Date', function(value) {
     if (value) {
         return (value === '01.01.2020 00:00') ? '' : value;
