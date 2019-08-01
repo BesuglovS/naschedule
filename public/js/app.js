@@ -1829,6 +1829,381 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "FacultySchedule",
+  props: {
+    'faculties': Array,
+    'facultyId': Number,
+    'weekCount': Number
+  },
+  data: function data() {
+    return {
+      facultiesList: this.faculties,
+      facId: this.facultyId,
+      csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+      firstLoad: true,
+      loading: false,
+      weeksCount: this.weekCount,
+      scheduleRings: {},
+      selectedWeeks: [],
+      severalWeeks: true,
+      facultySchedule: {},
+      dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+    };
+  },
+  methods: {
+    loadFacultySchedule: function loadFacultySchedule() {
+      var _this = this;
+
+      this.loading = true;
+      this.firstLoad = false;
+      var apiUrl = '/api.php?action=facultyWeeksSchedule&facultyId=' + this.facId + '&weeks=' + this.selectedWeeks.join('|');
+
+      if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1) {
+        var weeksString = this.range(1, this.weekCount).join('|');
+        apiUrl = '/api.php?action=facultyWeeksSchedule&facultyId=' + this.facId + '&weeks=' + weeksString;
+      }
+
+      axios.get(apiUrl).then(function (response) {
+        var data = response.data;
+
+        for (var i = 0; i < data.length; i++) {
+          var groupLessons = data[i]['lessons'];
+          _this.scheduleRings = {};
+
+          var _loop = function _loop(dow) {
+            var dowGroupRings = Object.keys(groupLessons[dow]);
+            var dowRings = _this.scheduleRings[dow] !== undefined ? _this.scheduleRings[dow] : [];
+            dowGroupRings.forEach(function (item) {
+              if (dowRings.indexOf(item) === -1) dowRings.push(item);
+            });
+            _this.scheduleRings[dow] = dowRings;
+          };
+
+          for (var dow = 1; dow <= 6; dow++) {
+            _loop(dow);
+          }
+        }
+
+        for (var dow = 1; dow <= 6; dow++) {
+          _this.scheduleRings[dow].sort(function (a, b) {
+            var aMinutes = parseInt(a.substr(0, 2)) * 60 + parseInt(a.substr(3, 2));
+            var bMinutes = parseInt(b.substr(0, 2)) * 60 + parseInt(b.substr(3, 2));
+            return aMinutes < bMinutes ? -1 : 1;
+          });
+        }
+
+        _this.facultySchedule = data;
+      });
+    },
+    loadFullFacultySchedule: function loadFullFacultySchedule() {
+      this.severalWeeks = true;
+      this.selectedWeeks = [];
+      this.selectedWeeks.push(-1);
+      this.loadFacultySchedule();
+    },
+    combineWeeksToRange: function combineWeeksToRange(ws) {
+      var weeks = ws.slice(0);
+
+      if (weeks.length === 1 && weeks[0] === -1) {
+        weeks = this.range(1, this.weekCount);
+      }
+
+      var min = Math.min.apply(Math, _toConsumableArray(weeks));
+      var max = Math.max.apply(Math, _toConsumableArray(weeks));
+      var result = [];
+      var prev = false;
+      var baseNum = max + 3;
+
+      for (var i = min - 1; i <= max + 1; i++) {
+        if (prev === false && weeks.includes(i)) {
+          baseNum = i;
+        }
+
+        if (!weeks.includes(i) && i - baseNum > 2) {
+          result.push(baseNum + "-" + (i - 1).toString());
+
+          for (var k = baseNum; k < i; k++) {
+            var index = weeks.indexOf(k);
+
+            if (index > -1) {
+              weeks.splice(index, 1);
+            }
+          }
+        }
+
+        if (!weeks.includes(i)) baseNum = max + 3;
+        prev = weeks.includes(i);
+      }
+
+      prev = false;
+      baseNum = max + 3;
+
+      for (var _i = min % 2 === 1 ? min - 2 : min - 1; _i <= max + 3; _i = _i + 2) {
+        if (prev === false && weeks.includes(_i)) {
+          baseNum = _i;
+        }
+
+        if (!weeks.includes(_i) && _i - baseNum > 4) {
+          result.push(baseNum + "-" + (_i - 2).toString() + " (нечёт.)");
+
+          for (var _k = baseNum; _k < _i; _k = _k + 2) {
+            var _index = weeks.indexOf(_k);
+
+            if (_index > -1) {
+              weeks.splice(_index, 1);
+            }
+          }
+        }
+
+        if (!weeks.includes(_i)) baseNum = max + 3;
+        prev = weeks.includes(_i);
+      }
+
+      prev = false;
+      baseNum = max + 3;
+
+      for (var _i2 = min % 2 === 0 ? min - 2 : min - 1; _i2 <= max + 3; _i2 = _i2 + 2) {
+        if (prev === false && weeks.includes(_i2)) {
+          baseNum = _i2;
+        }
+
+        if (!weeks.includes(_i2) && _i2 - baseNum > 4) {
+          result.push(baseNum + "-" + (_i2 - 2).toString() + " (чёт.)");
+
+          for (var _k2 = baseNum; _k2 < _i2; _k2 = _k2 + 2) {
+            var _index2 = weeks.indexOf(_k2);
+
+            if (_index2 > -1) {
+              weeks.splice(_index2, 1);
+            }
+          }
+        }
+
+        if (!weeks.includes(_i2)) baseNum = max + 3;
+        prev = weeks.includes(_i2);
+      }
+
+      for (var _index3 = 0; _index3 < weeks.length; _index3++) {
+        result.push(weeks[_index3]);
+      }
+
+      result.sort(function (a, b) {
+        var aVal = parseInt(a.toString().indexOf('-') === -1 ? a : a.toString().substr(0, a.toString().indexOf('-')));
+        var bVal = parseInt(b.toString().indexOf('-') === -1 ? b : b.toString().substr(0, b.toString().indexOf('-')));
+        if (aVal === bVal) return 0;
+        return aVal < bVal ? -1 : 1;
+      });
+      var stringResult = result.join(', ');
+      return stringResult;
+    },
+    range: function range(start, end) {
+      return Array(end - start + 1).fill().map(function (_, idx) {
+        return start + idx;
+      });
+    },
+    severalWeeksSwitchFlipped: function severalWeeksSwitchFlipped() {
+      if (!this.severalWeeks) {
+        var min = 1;
+
+        if (!(this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)) {
+          min = Math.min.apply(Math, _toConsumableArray(this.selectedWeeks));
+        }
+
+        this.selectedWeeks = [];
+        this.selectedWeeks.push(min);
+        this.loadFacultySchedule();
+      }
+    },
+    weekToggled: function weekToggled(week) {
+      if (!this.severalWeeks) {
+        this.selectedWeeks = [];
+        this.selectedWeeks.push(week);
+        this.loadFacultySchedule();
+      } else {
+        if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1) {
+          this.selectedWeeks = [];
+        }
+
+        if (this.selectedWeeks.length === 1 && event.shiftKey) {
+          if (week < this.selectedWeeks[0]) {
+            for (var i = week; i < this.selectedWeeks[0]; i++) {
+              this.selectedWeeks.push(i);
+            }
+
+            this.loadFacultySchedule();
+          }
+
+          if (week > this.selectedWeeks[0]) {
+            for (var _i3 = this.selectedWeeks[0] + 1; _i3 <= week; _i3++) {
+              this.selectedWeeks.push(_i3);
+            }
+
+            this.loadFacultySchedule();
+          }
+
+          return;
+        }
+
+        if (event.ctrlKey) {
+          this.selectedWeeks = [];
+          this.selectedWeeks.push(week);
+          this.loadFacultySchedule();
+          return;
+        }
+
+        if (!this.selectedWeeks.includes(week)) {
+          this.selectedWeeks.push(week);
+        } else {
+          var index = this.selectedWeeks.indexOf(week);
+          console.log();
+          this.selectedWeeks.splice(index, 1);
+        }
+
+        this.loadFacultySchedule();
+      }
+    }
+  },
+  mounted: function mounted() {
+    if (this.facId === -1) {
+      if (this.facultiesList.length !== 0) {
+        this.facId = this.facultiesSorted[0].id;
+        this.selectedWeeks = [-1];
+        this.loadFacultySchedule();
+      }
+    } else {
+      this.selectedWeeks = [-1];
+      this.loadFacultySchedule();
+    }
+  },
+  computed: {
+    facultiesSorted: function facultiesSorted() {
+      var result = [];
+
+      for (var index in this.facultiesList) {
+        var faculty = this.facultiesList[index];
+        result.push(faculty);
+      }
+
+      result.sort(function (a, b) {
+        var aso = a.sorting_order;
+        var bso = b.sorting_order;
+        if (aso === bso) return 0;
+        return aso < bso ? -1 : 1;
+      });
+      return result;
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/GroupSchedule.vue?vue&type=script&lang=js&":
 /*!************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/GroupSchedule.vue?vue&type=script&lang=js& ***!
@@ -72287,6 +72662,385 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true&":
+/*!******************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true& ***!
+  \******************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container" }, [
+    _c("div", { staticClass: "row justify-content-center" }, [
+      _c("div", { staticClass: "col-md-12" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("Расписание параллели")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c(
+              "select",
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.facId,
+                    expression: "facId"
+                  }
+                ],
+                on: {
+                  change: [
+                    function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.facId = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    },
+                    function($event) {
+                      return _vm.loadFacultySchedule()
+                    }
+                  ]
+                }
+              },
+              _vm._l(_vm.facultiesSorted, function(faculty) {
+                return _c("option", { domProps: { value: faculty.id } }, [
+                  _vm._v(_vm._s(faculty.name))
+                ])
+              }),
+              0
+            ),
+            _vm._v(
+              "\n\n                        Недели: " +
+                _vm._s(_vm.combineWeeksToRange(this.selectedWeeks)) +
+                "\n\n                        "
+            ),
+            _c(
+              "div",
+              {
+                staticStyle: { "margin-top": "1em" },
+                attrs: { id: "groupSchedule" }
+              },
+              [
+                _c(
+                  "div",
+                  { staticStyle: { "text-align": "center" } },
+                  [
+                    _vm._v(
+                      "\n                                Недели:\n                                "
+                    ),
+                    _c(
+                      "button",
+                      {
+                        class: {
+                          button: true,
+                          "is-primary":
+                            _vm.selectedWeeks.length !== 1 ||
+                            (_vm.selectedWeeks.length > 0 &&
+                              _vm.selectedWeeks[0] !== -1),
+                          "is-danger":
+                            _vm.selectedWeeks.length === 1 &&
+                            _vm.selectedWeeks[0] === -1
+                        },
+                        staticStyle: {
+                          "margin-right": "0.5em",
+                          "margin-bottom": "0.5em"
+                        },
+                        on: {
+                          click: function($event) {
+                            return _vm.loadFullFacultySchedule()
+                          }
+                        }
+                      },
+                      [_vm._v("Все")]
+                    ),
+                    _vm._v(" "),
+                    _vm._l(this.weeksCount, function(week) {
+                      return _c(
+                        "button",
+                        {
+                          class: {
+                            button: true,
+                            "is-primary": !_vm.selectedWeeks.includes(week),
+                            "is-danger": _vm.selectedWeeks.includes(week)
+                          },
+                          staticStyle: {
+                            "margin-right": "0.5em",
+                            "margin-bottom": "0.5em"
+                          },
+                          on: {
+                            click: function($event) {
+                              return _vm.weekToggled(week)
+                            }
+                          }
+                        },
+                        [_vm._v(_vm._s(week))]
+                      )
+                    }),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "custom-control custom-switch" }, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.severalWeeks,
+                            expression: "severalWeeks"
+                          }
+                        ],
+                        staticClass: "custom-control-input",
+                        attrs: { type: "checkbox", id: "customSwitch1" },
+                        domProps: {
+                          checked: Array.isArray(_vm.severalWeeks)
+                            ? _vm._i(_vm.severalWeeks, null) > -1
+                            : _vm.severalWeeks
+                        },
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$a = _vm.severalWeeks,
+                                $$el = $event.target,
+                                $$c = $$el.checked ? true : false
+                              if (Array.isArray($$a)) {
+                                var $$v = null,
+                                  $$i = _vm._i($$a, $$v)
+                                if ($$el.checked) {
+                                  $$i < 0 &&
+                                    (_vm.severalWeeks = $$a.concat([$$v]))
+                                } else {
+                                  $$i > -1 &&
+                                    (_vm.severalWeeks = $$a
+                                      .slice(0, $$i)
+                                      .concat($$a.slice($$i + 1)))
+                                }
+                              } else {
+                                _vm.severalWeeks = $$c
+                              }
+                            },
+                            function($event) {
+                              return _vm.severalWeeksSwitchFlipped()
+                            }
+                          ]
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "custom-control-label",
+                          attrs: { for: "customSwitch1" }
+                        },
+                        [_vm._v("Несколько недель")]
+                      )
+                    ])
+                  ],
+                  2
+                ),
+                _vm._v(" "),
+                _c(
+                  "table",
+                  {
+                    staticClass: "table td-center is-bordered",
+                    staticStyle: { "margin-top": "2em" }
+                  },
+                  [
+                    _c(
+                      "tr",
+                      [
+                        _c("td"),
+                        _vm._v(" "),
+                        _vm._l(_vm.facultySchedule, function(groupSchedule) {
+                          return _c("td", [
+                            _c("strong", [
+                              _vm._v(
+                                "\n                                            " +
+                                  _vm._s(groupSchedule.groupName) +
+                                  "\n                                        "
+                              )
+                            ])
+                          ])
+                        })
+                      ],
+                      2
+                    ),
+                    _vm._v(" "),
+                    _vm._l(6, function(dow) {
+                      return [
+                        _c("tr", [
+                          _c(
+                            "td",
+                            {
+                              attrs: { colspan: _vm.facultySchedule.length + 1 }
+                            },
+                            [_c("strong", [_vm._v(_vm._s(_vm.dowRu[dow - 1]))])]
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _vm._l(_vm.scheduleRings[dow], function(ring) {
+                          return _c(
+                            "tr",
+                            [
+                              _c("td", [
+                                _c("strong", [
+                                  _vm._v(
+                                    "\n                                                " +
+                                      _vm._s(ring) +
+                                      "\n                                            "
+                                  )
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _vm._l(_vm.facultySchedule, function(
+                                groupSchedule
+                              ) {
+                                return _c(
+                                  "td",
+                                  [
+                                    groupSchedule["lessons"][dow][ring] !==
+                                    undefined
+                                      ? [
+                                          _vm._l(
+                                            Object.keys(
+                                              groupSchedule["lessons"][dow][
+                                                ring
+                                              ]
+                                            ),
+                                            function(tfd) {
+                                              return [
+                                                groupSchedule["lessons"][dow][
+                                                  ring
+                                                ][tfd]["lessons"][0][
+                                                  "groupName"
+                                                ] !== groupSchedule["groupName"]
+                                                  ? [
+                                                      _vm._v(
+                                                        "\n                                                        " +
+                                                          _vm._s(
+                                                            groupSchedule[
+                                                              "lessons"
+                                                            ][dow][ring][tfd][
+                                                              "lessons"
+                                                            ][0]["groupName"]
+                                                          )
+                                                      ),
+                                                      _c("br")
+                                                    ]
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                _c("strong", [
+                                                  _vm._v(
+                                                    _vm._s(
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][tfd][
+                                                        "lessons"
+                                                      ][0]["discName"]
+                                                    )
+                                                  )
+                                                ]),
+                                                _c("br"),
+                                                _vm._v(
+                                                  "\n                                                    " +
+                                                    _vm._s(
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][tfd][
+                                                        "lessons"
+                                                      ][0]["teacherFIO"]
+                                                    ) +
+                                                    " "
+                                                ),
+                                                _c("br"),
+                                                _vm._v(" "),
+                                                _vm._l(
+                                                  Object.keys(
+                                                    groupSchedule["lessons"][
+                                                      dow
+                                                    ][ring][tfd]["weeksAndAuds"]
+                                                  ),
+                                                  function(auditorium) {
+                                                    return [
+                                                      _vm._v(
+                                                        "\n                                                        " +
+                                                          _vm._s(
+                                                            _vm.combineWeeksToRange(
+                                                              groupSchedule[
+                                                                "lessons"
+                                                              ][dow][ring][tfd][
+                                                                "weeksAndAuds"
+                                                              ][auditorium]
+                                                            )
+                                                          ) +
+                                                          " - " +
+                                                          _vm._s(auditorium)
+                                                      ),
+                                                      _c("br")
+                                                    ]
+                                                  }
+                                                ),
+                                                _vm._v(" "),
+                                                tfd !==
+                                                Object.keys(
+                                                  groupSchedule["lessons"][dow][
+                                                    ring
+                                                  ]
+                                                )[
+                                                  Object.keys(
+                                                    groupSchedule["lessons"][
+                                                      dow
+                                                    ][ring]
+                                                  ).length - 1
+                                                ]
+                                                  ? [_c("hr")]
+                                                  : _vm._e()
+                                              ]
+                                            }
+                                          )
+                                        ]
+                                      : _vm._e()
+                                  ],
+                                  2
+                                )
+                              })
+                            ],
+                            2
+                          )
+                        })
+                      ]
+                    })
+                  ],
+                  2
+                )
+              ]
+            )
+          ])
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/GroupSchedule.vue?vue&type=template&id=9e49e24a&scoped=true&":
 /*!****************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/GroupSchedule.vue?vue&type=template&id=9e49e24a&scoped=true& ***!
@@ -85825,6 +86579,7 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 Vue.component('group-session', __webpack_require__(/*! ./components/GroupSession.vue */ "./resources/js/components/GroupSession.vue")["default"]);
 Vue.component('teacher-schedule', __webpack_require__(/*! ./components/TeacherSchedule */ "./resources/js/components/TeacherSchedule.vue")["default"]);
 Vue.component('group-schedule', __webpack_require__(/*! ./components/GroupSchedule */ "./resources/js/components/GroupSchedule.vue")["default"]);
+Vue.component('faculty-schedule', __webpack_require__(/*! ./components/FacultySchedule */ "./resources/js/components/FacultySchedule.vue")["default"]);
 
 
 Vue.use(buefy__WEBPACK_IMPORTED_MODULE_1___default.a);
@@ -85904,6 +86659,75 @@ if (token) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+/***/ }),
+
+/***/ "./resources/js/components/FacultySchedule.vue":
+/*!*****************************************************!*\
+  !*** ./resources/js/components/FacultySchedule.vue ***!
+  \*****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _FacultySchedule_vue_vue_type_template_id_9bf01800_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true& */ "./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true&");
+/* harmony import */ var _FacultySchedule_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./FacultySchedule.vue?vue&type=script&lang=js& */ "./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _FacultySchedule_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _FacultySchedule_vue_vue_type_template_id_9bf01800_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _FacultySchedule_vue_vue_type_template_id_9bf01800_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  "9bf01800",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/FacultySchedule.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js&":
+/*!******************************************************************************!*\
+  !*** ./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_FacultySchedule_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./FacultySchedule.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_FacultySchedule_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true&":
+/*!************************************************************************************************!*\
+  !*** ./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true& ***!
+  \************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_FacultySchedule_vue_vue_type_template_id_9bf01800_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_FacultySchedule_vue_vue_type_template_id_9bf01800_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_FacultySchedule_vue_vue_type_template_id_9bf01800_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
 
 /***/ }),
 

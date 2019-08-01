@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/groupSchedule/{group_id}', 'MainController@groupScheduleWithId');
 
     Route::get('/facultySchedule', 'MainController@facultySchedule');
+    Route::get('/facultySchedule/(faculty_id)', 'MainController@facultyScheduleWithId');
 
     Route::get('/teacherSchedule', 'MainController@teacherSchedule');
 

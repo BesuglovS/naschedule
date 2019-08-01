@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DomainClasses\Calendar;
+use App\DomainClasses\Faculty;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use Illuminate\Routing\Controller;
@@ -40,7 +41,19 @@ class MainController extends Controller
 
     public function facultySchedule()
     {
-        return view('main.facultySchedule');
+        $faculty_id = -1;
+        $faculties = Faculty::all()->sortBy('sorting_order');
+        $weekCount = Calendar::WeekCount();
+
+        return view('main.facultySchedule', compact('faculty_id', 'faculties', 'weekCount'));
+    }
+
+    public function facultyScheduleWithId(int $faculty_id)
+    {
+        $faculties = Faculty::all()->sortBy('sorting_order');
+        $weekCount = Calendar::WeekCount();
+
+        return view('main.facultySchedule', compact('faculty_id', 'faculties', 'weekCount'));
     }
 
     public function teacherSchedule()

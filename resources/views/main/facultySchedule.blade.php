@@ -3,7 +3,12 @@
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-12" id="groupScheduleVue">
+            <div class="col-12">
+                <faculty-schedule
+                    :faculty-id="{{$faculty_id}}"
+                    :faculties="{{json_encode($faculties)}}"
+                    :week-count="{{$weekCount}}">
+                </faculty-schedule>
             </div>
         </div>
     </div>
