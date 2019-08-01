@@ -136,14 +136,72 @@
                                     <td><strong>{{ring}}</strong></td>
                                     <td v-if="Object.keys(groupSchedule[dow]).length !== 0" v-for="dow in 6">
                                         <div style="border: none;" v-if="groupSchedule[dow][ring] !== undefined">
-                                            <template v-for="tfd in Object.keys(groupSchedule[dow][ring])">
+                                            <template v-for="tfd in
+                                                Object.keys(groupSchedule[dow][ring])
+                                                .sort((a,b) => {
+                                                            let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
+                                                            let bMin = Math.min(...Object.values(groupSchedule[dow][ring][b]['weeksAndAuds']).flat());
+
+                                                            if (aMin === bMin) {
+                                                                let aGroupName = groupSchedule[dow][ring][a]['lessons'][0]['groupName'];
+                                                                let bGroupName = groupSchedule[dow][ring][b]['lessons'][0]['groupName'];
+
+                                                                let numA = parseInt(aGroupName.split(' ')[0]);
+                                                                let numB = parseInt(bGroupName.split(' ')[0]);
+
+                                                                if (numA === numB) {
+                                                                    if (aGroupName === bGroupName) return 0;
+                                                                    return (aGroupName < bGroupName) ? -1 : 1;
+                                                                }
+                                                                else
+                                                                {
+                                                                    return (numA < numB) ? -1 : 1;
+                                                                }
+                                                            }
+
+                                                            return aMin < bMin ? -1 : 1;
+                                                    })
+                                            ">
                                                 <strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br />
                                                 {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
                                                 {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
-                                                <template v-for="auditorium in Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])">
+                                                <template v-for="auditorium in
+                                                    Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])
+                                                        .sort((a,b) => {
+                                                            let aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
+                                                            let bMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][b]);
+
+                                                            if (aMin === bMin) return 0;
+                                                            return aMin < bMin ? -1 : 1;
+                                                        })
+                                                ">
                                                     {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
                                                 </template>
-                                                <template v-if="tfd !== Object.keys(groupSchedule[dow][ring])[Object.keys(groupSchedule[dow][ring]).length-1]">
+                                                <template v-if="tfd !== Object.keys(groupSchedule[dow][ring])
+                                                    .sort((a,b) => {
+                                                            let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
+                                                            let bMin = Math.min(...Object.values(groupSchedule[dow][ring][b]['weeksAndAuds']).flat());
+
+                                                            if (aMin === bMin) {
+                                                                let aGroupName = groupSchedule[dow][ring][a]['lessons'][0]['groupName'];
+                                                                let bGroupName = groupSchedule[dow][ring][b]['lessons'][0]['groupName'];
+
+                                                                let numA = parseInt(aGroupName.split(' ')[0]);
+                                                                let numB = parseInt(bGroupName.split(' ')[0]);
+
+                                                                if (numA === numB) {
+                                                                    if (aGroupName === bGroupName) return 0;
+                                                                    return (aGroupName < bGroupName) ? -1 : 1;
+                                                                }
+                                                                else
+                                                                {
+                                                                    return (numA < numB) ? -1 : 1;
+                                                                }
+                                                            }
+
+                                                            return aMin < bMin ? -1 : 1;
+                                                    })
+                                                    [Object.keys(groupSchedule[dow][ring]).length-1]">
                                                     <hr>
                                                 </template>
                                             </template>

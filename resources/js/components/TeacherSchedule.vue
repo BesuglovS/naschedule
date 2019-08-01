@@ -138,13 +138,71 @@
                                     <td><strong>{{ring}}</strong></td>
                                     <td v-if="Object.keys(teacherSchedule[dow]).length !== 0" v-for="dow in 6">
                                         <div style="border: none;" v-if="teacherSchedule[dow][ring] !== undefined">
-                                            <template v-for="tfd in Object.keys(teacherSchedule[dow][ring])">
+                                            <template v-for="tfd in
+                                                Object.keys(teacherSchedule[dow][ring])
+                                                    .sort((a,b) => {
+                                                            let aMin = Math.min(...Object.values(teacherSchedule[dow][ring][a]['weeksAndAuds']).flat());
+                                                            let bMin = Math.min(...Object.values(teacherSchedule[dow][ring][b]['weeksAndAuds']).flat());
+
+                                                            if (aMin === bMin) {
+                                                                let aGroupName = teacherSchedule[dow][ring][a]['lessons'][0]['groupName'];
+                                                                let bGroupName = teacherSchedule[dow][ring][b]['lessons'][0]['groupName'];
+
+                                                                let numA = parseInt(aGroupName.split(' ')[0]);
+                                                                let numB = parseInt(bGroupName.split(' ')[0]);
+
+                                                                if (numA === numB) {
+                                                                    if (aGroupName === bGroupName) return 0;
+                                                                    return (aGroupName < bGroupName) ? -1 : 1;
+                                                                }
+                                                                else
+                                                                {
+                                                                    return (numA < numB) ? -1 : 1;
+                                                                }
+                                                            }
+
+                                                            return aMin < bMin ? -1 : 1;
+                                                    })
+                                            ">
                                                 <strong>{{teacherSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br />
                                                 {{teacherSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
-                                                <template v-for="auditorium in Object.keys(teacherSchedule[dow][ring][tfd]['weeksAndAuds'])">
+                                                <template v-for="auditorium in
+                                                    Object.keys(teacherSchedule[dow][ring][tfd]['weeksAndAuds'])
+                                                        .sort((a,b) => {
+                                                            let aMin = Math.min(...teacherSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
+                                                            let bMin = Math.min(...teacherSchedule[dow][ring][tfd]['weeksAndAuds'][b]);
+
+                                                            if (aMin === bMin) return 0;
+                                                            return aMin < bMin ? -1 : 1;
+                                                        })
+                                                ">
                                                     {{combineWeeksToRange(teacherSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
                                                 </template>
-                                                <template v-if="tfd !== Object.keys(teacherSchedule[dow][ring])[Object.keys(teacherSchedule[dow][ring]).length-1]">
+                                                <template v-if="tfd !== Object.keys(teacherSchedule[dow][ring])
+                                                    .sort((a,b) => {
+                                                            let aMin = Math.min(...Object.values(teacherSchedule[dow][ring][a]['weeksAndAuds']).flat());
+                                                            let bMin = Math.min(...Object.values(teacherSchedule[dow][ring][b]['weeksAndAuds']).flat());
+
+                                                            if (aMin === bMin) {
+                                                                let aGroupName = teacherSchedule[dow][ring][a]['lessons'][0]['groupName'];
+                                                                let bGroupName = teacherSchedule[dow][ring][b]['lessons'][0]['groupName'];
+
+                                                                let numA = parseInt(aGroupName.split(' ')[0]);
+                                                                let numB = parseInt(bGroupName.split(' ')[0]);
+
+                                                                if (numA === numB) {
+                                                                    if (aGroupName === bGroupName) return 0;
+                                                                    return (aGroupName < bGroupName) ? -1 : 1;
+                                                                }
+                                                                else
+                                                                {
+                                                                    return (numA < numB) ? -1 : 1;
+                                                                }
+                                                            }
+
+                                                            return aMin < bMin ? -1 : 1;
+                                                    })
+                                                    [Object.keys(teacherSchedule[dow][ring]).length-1]">
                                                     <hr>
                                                 </template>
                                             </template>
@@ -181,6 +239,9 @@
             }
         },
         methods: {
+            cl(text) {
+              console.log(text);
+            },
             loadTeacherSchedule() {
                 let apiUrl = '/api.php?action=teacherWeeksSchedule&teacherId=' + this.selectedTeacherId + '&weeks=' + this.selectedWeeks.join('|') + '&compactResult';
 

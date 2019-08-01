@@ -1935,6 +1935,64 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "FacultySchedule",
   props: {
@@ -2221,6 +2279,64 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -2973,6 +3089,64 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TeacherSchedule",
   props: {
@@ -2993,6 +3167,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     };
   },
   methods: {
+    cl: function cl(text) {
+      console.log(text);
+    },
     loadTeacherSchedule: function loadTeacherSchedule() {
       var _this = this;
 
@@ -72923,7 +73100,61 @@ var render = function() {
                                               groupSchedule["lessons"][dow][
                                                 ring
                                               ]
-                                            ),
+                                            ).sort(function(a, b) {
+                                              var aMin = Math.min.apply(
+                                                Math,
+                                                Object.values(
+                                                  groupSchedule["lessons"][dow][
+                                                    ring
+                                                  ][a]["weeksAndAuds"]
+                                                ).flat()
+                                              )
+                                              var bMin = Math.min.apply(
+                                                Math,
+                                                Object.values(
+                                                  groupSchedule["lessons"][dow][
+                                                    ring
+                                                  ][b]["weeksAndAuds"]
+                                                ).flat()
+                                              )
+
+                                              if (aMin === bMin) {
+                                                var aGroupName =
+                                                  groupSchedule["lessons"][dow][
+                                                    ring
+                                                  ][a]["lessons"][0][
+                                                    "groupName"
+                                                  ]
+                                                var bGroupName =
+                                                  groupSchedule["lessons"][dow][
+                                                    ring
+                                                  ][b]["lessons"][0][
+                                                    "groupName"
+                                                  ]
+
+                                                var numA = parseInt(
+                                                  aGroupName.split(" ")[0]
+                                                )
+                                                var numB = parseInt(
+                                                  bGroupName.split(" ")[0]
+                                                )
+
+                                                if (numA === numB) {
+                                                  if (
+                                                    aGroupName === bGroupName
+                                                  ) {
+                                                    return 0
+                                                  }
+                                                  return aGroupName < bGroupName
+                                                    ? -1
+                                                    : 1
+                                                } else {
+                                                  return numA < numB ? -1 : 1
+                                                }
+                                              }
+
+                                              return aMin < bMin ? -1 : 1
+                                            }),
                                             function(tfd) {
                                               return [
                                                 groupSchedule["lessons"][dow][
@@ -72976,7 +73207,29 @@ var render = function() {
                                                     groupSchedule["lessons"][
                                                       dow
                                                     ][ring][tfd]["weeksAndAuds"]
-                                                  ),
+                                                  ).sort(function(a, b) {
+                                                    var aMin = Math.min.apply(
+                                                      Math,
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][tfd][
+                                                        "weeksAndAuds"
+                                                      ][a]
+                                                    )
+                                                    var bMin = Math.min.apply(
+                                                      Math,
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][tfd][
+                                                        "weeksAndAuds"
+                                                      ][b]
+                                                    )
+
+                                                    if (aMin === bMin) {
+                                                      return 0
+                                                    }
+                                                    return aMin < bMin ? -1 : 1
+                                                  }),
                                                   function(auditorium) {
                                                     return [
                                                       _vm._v(
@@ -73003,7 +73256,65 @@ var render = function() {
                                                   groupSchedule["lessons"][dow][
                                                     ring
                                                   ]
-                                                )[
+                                                ).sort(function(a, b) {
+                                                  var aMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][a]["weeksAndAuds"]
+                                                    ).flat()
+                                                  )
+                                                  var bMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][b]["weeksAndAuds"]
+                                                    ).flat()
+                                                  )
+
+                                                  if (aMin === bMin) {
+                                                    var aGroupName =
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][a]["lessons"][0][
+                                                        "groupName"
+                                                      ]
+                                                    var bGroupName =
+                                                      groupSchedule["lessons"][
+                                                        dow
+                                                      ][ring][b]["lessons"][0][
+                                                        "groupName"
+                                                      ]
+
+                                                    var numA = parseInt(
+                                                      aGroupName.split(" ")[0]
+                                                    )
+                                                    var numB = parseInt(
+                                                      bGroupName.split(" ")[0]
+                                                    )
+
+                                                    if (numA === numB) {
+                                                      if (
+                                                        aGroupName ===
+                                                        bGroupName
+                                                      ) {
+                                                        return 0
+                                                      }
+                                                      return aGroupName <
+                                                        bGroupName
+                                                        ? -1
+                                                        : 1
+                                                    } else {
+                                                      return numA < numB
+                                                        ? -1
+                                                        : 1
+                                                    }
+                                                  }
+
+                                                  return aMin < bMin ? -1 : 1
+                                                })[
                                                   Object.keys(
                                                     groupSchedule["lessons"][
                                                       dow
@@ -73524,7 +73835,65 @@ var render = function() {
                                               _vm._l(
                                                 Object.keys(
                                                   _vm.groupSchedule[dow][ring]
-                                                ),
+                                                ).sort(function(a, b) {
+                                                  var aMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      _vm.groupSchedule[dow][
+                                                        ring
+                                                      ][a]["weeksAndAuds"]
+                                                    ).flat()
+                                                  )
+                                                  var bMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      _vm.groupSchedule[dow][
+                                                        ring
+                                                      ][b]["weeksAndAuds"]
+                                                    ).flat()
+                                                  )
+
+                                                  if (aMin === bMin) {
+                                                    var aGroupName =
+                                                      _vm.groupSchedule[dow][
+                                                        ring
+                                                      ][a]["lessons"][0][
+                                                        "groupName"
+                                                      ]
+                                                    var bGroupName =
+                                                      _vm.groupSchedule[dow][
+                                                        ring
+                                                      ][b]["lessons"][0][
+                                                        "groupName"
+                                                      ]
+
+                                                    var numA = parseInt(
+                                                      aGroupName.split(" ")[0]
+                                                    )
+                                                    var numB = parseInt(
+                                                      bGroupName.split(" ")[0]
+                                                    )
+
+                                                    if (numA === numB) {
+                                                      if (
+                                                        aGroupName ===
+                                                        bGroupName
+                                                      ) {
+                                                        return 0
+                                                      }
+                                                      return aGroupName <
+                                                        bGroupName
+                                                        ? -1
+                                                        : 1
+                                                    } else {
+                                                      return numA < numB
+                                                        ? -1
+                                                        : 1
+                                                    }
+                                                  }
+
+                                                  return aMin < bMin ? -1 : 1
+                                                }),
                                                 function(tfd) {
                                                   return [
                                                     _c("strong", [
@@ -73569,7 +73938,31 @@ var render = function() {
                                                         _vm.groupSchedule[dow][
                                                           ring
                                                         ][tfd]["weeksAndAuds"]
-                                                      ),
+                                                      ).sort(function(a, b) {
+                                                        var aMin = Math.min.apply(
+                                                          Math,
+                                                          _vm.groupSchedule[
+                                                            dow
+                                                          ][ring][tfd][
+                                                            "weeksAndAuds"
+                                                          ][a]
+                                                        )
+                                                        var bMin = Math.min.apply(
+                                                          Math,
+                                                          _vm.groupSchedule[
+                                                            dow
+                                                          ][ring][tfd][
+                                                            "weeksAndAuds"
+                                                          ][b]
+                                                        )
+
+                                                        if (aMin === bMin) {
+                                                          return 0
+                                                        }
+                                                        return aMin < bMin
+                                                          ? -1
+                                                          : 1
+                                                      }),
                                                       function(auditorium) {
                                                         return [
                                                           _vm._v(
@@ -73597,7 +73990,75 @@ var render = function() {
                                                       _vm.groupSchedule[dow][
                                                         ring
                                                       ]
-                                                    )[
+                                                    ).sort(function(a, b) {
+                                                      var aMin = Math.min.apply(
+                                                        Math,
+                                                        Object.values(
+                                                          _vm.groupSchedule[
+                                                            dow
+                                                          ][ring][a][
+                                                            "weeksAndAuds"
+                                                          ]
+                                                        ).flat()
+                                                      )
+                                                      var bMin = Math.min.apply(
+                                                        Math,
+                                                        Object.values(
+                                                          _vm.groupSchedule[
+                                                            dow
+                                                          ][ring][b][
+                                                            "weeksAndAuds"
+                                                          ]
+                                                        ).flat()
+                                                      )
+
+                                                      if (aMin === bMin) {
+                                                        var aGroupName =
+                                                          _vm.groupSchedule[
+                                                            dow
+                                                          ][ring][a][
+                                                            "lessons"
+                                                          ][0]["groupName"]
+                                                        var bGroupName =
+                                                          _vm.groupSchedule[
+                                                            dow
+                                                          ][ring][b][
+                                                            "lessons"
+                                                          ][0]["groupName"]
+
+                                                        var numA = parseInt(
+                                                          aGroupName.split(
+                                                            " "
+                                                          )[0]
+                                                        )
+                                                        var numB = parseInt(
+                                                          bGroupName.split(
+                                                            " "
+                                                          )[0]
+                                                        )
+
+                                                        if (numA === numB) {
+                                                          if (
+                                                            aGroupName ===
+                                                            bGroupName
+                                                          ) {
+                                                            return 0
+                                                          }
+                                                          return aGroupName <
+                                                            bGroupName
+                                                            ? -1
+                                                            : 1
+                                                        } else {
+                                                          return numA < numB
+                                                            ? -1
+                                                            : 1
+                                                        }
+                                                      }
+
+                                                      return aMin < bMin
+                                                        ? -1
+                                                        : 1
+                                                    })[
                                                       Object.keys(
                                                         _vm.groupSchedule[dow][
                                                           ring
@@ -74320,7 +74781,65 @@ var render = function() {
                                               _vm._l(
                                                 Object.keys(
                                                   _vm.teacherSchedule[dow][ring]
-                                                ),
+                                                ).sort(function(a, b) {
+                                                  var aMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      _vm.teacherSchedule[dow][
+                                                        ring
+                                                      ][a]["weeksAndAuds"]
+                                                    ).flat()
+                                                  )
+                                                  var bMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      _vm.teacherSchedule[dow][
+                                                        ring
+                                                      ][b]["weeksAndAuds"]
+                                                    ).flat()
+                                                  )
+
+                                                  if (aMin === bMin) {
+                                                    var aGroupName =
+                                                      _vm.teacherSchedule[dow][
+                                                        ring
+                                                      ][a]["lessons"][0][
+                                                        "groupName"
+                                                      ]
+                                                    var bGroupName =
+                                                      _vm.teacherSchedule[dow][
+                                                        ring
+                                                      ][b]["lessons"][0][
+                                                        "groupName"
+                                                      ]
+
+                                                    var numA = parseInt(
+                                                      aGroupName.split(" ")[0]
+                                                    )
+                                                    var numB = parseInt(
+                                                      bGroupName.split(" ")[0]
+                                                    )
+
+                                                    if (numA === numB) {
+                                                      if (
+                                                        aGroupName ===
+                                                        bGroupName
+                                                      ) {
+                                                        return 0
+                                                      }
+                                                      return aGroupName <
+                                                        bGroupName
+                                                        ? -1
+                                                        : 1
+                                                    } else {
+                                                      return numA < numB
+                                                        ? -1
+                                                        : 1
+                                                    }
+                                                  }
+
+                                                  return aMin < bMin ? -1 : 1
+                                                }),
                                                 function(tfd) {
                                                   return [
                                                     _c("strong", [
@@ -74355,7 +74874,31 @@ var render = function() {
                                                         ][ring][tfd][
                                                           "weeksAndAuds"
                                                         ]
-                                                      ),
+                                                      ).sort(function(a, b) {
+                                                        var aMin = Math.min.apply(
+                                                          Math,
+                                                          _vm.teacherSchedule[
+                                                            dow
+                                                          ][ring][tfd][
+                                                            "weeksAndAuds"
+                                                          ][a]
+                                                        )
+                                                        var bMin = Math.min.apply(
+                                                          Math,
+                                                          _vm.teacherSchedule[
+                                                            dow
+                                                          ][ring][tfd][
+                                                            "weeksAndAuds"
+                                                          ][b]
+                                                        )
+
+                                                        if (aMin === bMin) {
+                                                          return 0
+                                                        }
+                                                        return aMin < bMin
+                                                          ? -1
+                                                          : 1
+                                                      }),
                                                       function(auditorium) {
                                                         return [
                                                           _vm._v(
@@ -74383,7 +74926,75 @@ var render = function() {
                                                       _vm.teacherSchedule[dow][
                                                         ring
                                                       ]
-                                                    )[
+                                                    ).sort(function(a, b) {
+                                                      var aMin = Math.min.apply(
+                                                        Math,
+                                                        Object.values(
+                                                          _vm.teacherSchedule[
+                                                            dow
+                                                          ][ring][a][
+                                                            "weeksAndAuds"
+                                                          ]
+                                                        ).flat()
+                                                      )
+                                                      var bMin = Math.min.apply(
+                                                        Math,
+                                                        Object.values(
+                                                          _vm.teacherSchedule[
+                                                            dow
+                                                          ][ring][b][
+                                                            "weeksAndAuds"
+                                                          ]
+                                                        ).flat()
+                                                      )
+
+                                                      if (aMin === bMin) {
+                                                        var aGroupName =
+                                                          _vm.teacherSchedule[
+                                                            dow
+                                                          ][ring][a][
+                                                            "lessons"
+                                                          ][0]["groupName"]
+                                                        var bGroupName =
+                                                          _vm.teacherSchedule[
+                                                            dow
+                                                          ][ring][b][
+                                                            "lessons"
+                                                          ][0]["groupName"]
+
+                                                        var numA = parseInt(
+                                                          aGroupName.split(
+                                                            " "
+                                                          )[0]
+                                                        )
+                                                        var numB = parseInt(
+                                                          bGroupName.split(
+                                                            " "
+                                                          )[0]
+                                                        )
+
+                                                        if (numA === numB) {
+                                                          if (
+                                                            aGroupName ===
+                                                            bGroupName
+                                                          ) {
+                                                            return 0
+                                                          }
+                                                          return aGroupName <
+                                                            bGroupName
+                                                            ? -1
+                                                            : 1
+                                                        } else {
+                                                          return numA < numB
+                                                            ? -1
+                                                            : 1
+                                                        }
+                                                      }
+
+                                                      return aMin < bMin
+                                                        ? -1
+                                                        : 1
+                                                    })[
                                                       Object.keys(
                                                         _vm.teacherSchedule[
                                                           dow
