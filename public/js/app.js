@@ -2729,6 +2729,8 @@ __webpack_require__.r(__webpack_exports__);
     loadExams: function loadExams() {
       var _this = this;
 
+      var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+
       this.exams = [];
       this.loading = true;
       this.firstLoad = false;
@@ -2740,8 +2742,10 @@ __webpack_require__.r(__webpack_exports__);
 
           if (num1 === num2) {
             if (a.StudentGroupName === b.StudentGroupName) {
-              if (a.DisciplineName === b.DisciplineName) return 0;
-              return a.DisciplineName < b.DisciplineName ? -1 : 1;
+              var aDate = a.ConsultationDateTime !== '2020-01-01 00:00:00' ? moment(a.ConsultationDateTime, 'YYYY-MM-DD HH:mm:ss') : a.ExamDateTime !== '2020-01-01 00:00:00' ? moment(a.ExamDateTime, 'YYYY-MM-DD HH:mm:ss') : moment('2100-01-01 00:00:00', 'YYYY-MM-DD HH:mm:ss');
+              var bDate = b.ConsultationDateTime !== '2020-01-01 00:00:00' ? moment(b.ConsultationDateTime, 'YYYY-MM-DD HH:mm:ss') : b.ExamDateTime !== '2020-01-01 00:00:00' ? moment(b.ExamDateTime, 'YYYY-MM-DD HH:mm:ss') : moment('2100-01-01 00:00:00', 'YYYY-MM-DD HH:mm:ss');
+              if (aDate === bDate) return 0;
+              return aDate < bDate ? -1 : 1;
             }
 
             return a.StudentGroupName < b.StudentGroupName ? -1 : 1;
