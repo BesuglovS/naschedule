@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DomainClasses\Building;
 use App\DomainClasses\Calendar;
 use App\DomainClasses\Faculty;
 use App\DomainClasses\StudentGroup;
@@ -116,5 +117,13 @@ class MainController extends Controller
             }
         });
         return $studentGroups;
+    }
+
+    public function buildingEvents()
+    {
+        $weekCount = Calendar::WeekCount();
+        $buildings = Building::all()->sortBy('name');
+
+        return view('main.buildingEvents', compact('weekCount', 'buildings'));
     }
 }

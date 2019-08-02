@@ -7,6 +7,7 @@ Vue.component('group-session', require('./components/GroupSession.vue').default)
 Vue.component('teacher-schedule', require('./components/TeacherSchedule').default);
 Vue.component('group-schedule', require('./components/GroupSchedule').default);
 Vue.component('faculty-schedule', require('./components/FacultySchedule').default);
+Vue.component('building-events', require('./components/BuildingEvents').default);
 
 
 import Buefy from 'buefy'

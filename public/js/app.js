@@ -1829,6 +1829,409 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BuildingEvents.vue?vue&type=script&lang=js&":
+/*!*************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BuildingEvents.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "BuildingEvents",
+  props: {
+    'buildings': Array,
+    'weekCount': Number
+  },
+  data: function data() {
+    return {
+      buildingsList: this.buildings,
+      csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+      firstLoad: true,
+      loading: false,
+      buildingId: -1,
+      weeksCount: this.weekCount,
+      scheduleRings: [],
+      scheduleAuditoriums: [],
+      selectedWeeks: [],
+      severalWeeks: true,
+      buildingEvents: {},
+      dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+      selectedDow: 1
+    };
+  },
+  methods: {
+    cl: function cl(text) {
+      console.log(text);
+    },
+    loadBuildingEvents: function loadBuildingEvents() {
+      var _this = this;
+
+      this.buildingEvents = {};
+      this.loading = true;
+      this.firstLoad = false;
+      var apiUrl = '/api.php?action=buildingEvents&dow=' + this.selectedDow + '&weeks=' + this.selectedWeeks.join('|') + '&buildingId=' + this.buildingId;
+
+      if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1) {
+        var weeksString = this.range(1, this.weekCount).join('|');
+        apiUrl = '/api.php?action=buildingEvents&dow=' + this.selectedDow + '&weeks=' + weeksString + '&buildingId=' + this.buildingId;
+      }
+
+      axios.get(apiUrl).then(function (response) {
+        var data = response.data;
+        _this.buildingEvents = data.schedule;
+        _this.scheduleAuditoriums = data.auditoriums;
+        _this.scheduleRings = data.rings;
+      });
+    },
+    loadFullBuildingEvents: function loadFullBuildingEvents() {
+      this.severalWeeks = true;
+      this.selectedWeeks = [];
+      this.selectedWeeks.push(-1);
+      this.loadBuildingEvents();
+    },
+    combineWeeksToRange: function combineWeeksToRange(ws) {
+      var weeks = ws.slice(0);
+
+      if (weeks.length === 1 && weeks[0] === -1) {
+        weeks = this.range(1, this.weekCount);
+      }
+
+      var min = Math.min.apply(Math, _toConsumableArray(weeks));
+      var max = Math.max.apply(Math, _toConsumableArray(weeks));
+      var result = [];
+      var prev = false;
+      var baseNum = max + 3;
+
+      for (var i = min - 1; i <= max + 1; i++) {
+        if (prev === false && weeks.includes(i)) {
+          baseNum = i;
+        }
+
+        if (!weeks.includes(i) && i - baseNum > 2) {
+          result.push(baseNum + "-" + (i - 1).toString());
+
+          for (var k = baseNum; k < i; k++) {
+            var index = weeks.indexOf(k);
+
+            if (index > -1) {
+              weeks.splice(index, 1);
+            }
+          }
+        }
+
+        if (!weeks.includes(i)) baseNum = max + 3;
+        prev = weeks.includes(i);
+      }
+
+      prev = false;
+      baseNum = max + 3;
+
+      for (var _i = min % 2 === 1 ? min - 2 : min - 1; _i <= max + 3; _i = _i + 2) {
+        if (prev === false && weeks.includes(_i)) {
+          baseNum = _i;
+        }
+
+        if (!weeks.includes(_i) && _i - baseNum > 4) {
+          result.push(baseNum + "-" + (_i - 2).toString() + " (нечёт.)");
+
+          for (var _k = baseNum; _k < _i; _k = _k + 2) {
+            var _index = weeks.indexOf(_k);
+
+            if (_index > -1) {
+              weeks.splice(_index, 1);
+            }
+          }
+        }
+
+        if (!weeks.includes(_i)) baseNum = max + 3;
+        prev = weeks.includes(_i);
+      }
+
+      prev = false;
+      baseNum = max + 3;
+
+      for (var _i2 = min % 2 === 0 ? min - 2 : min - 1; _i2 <= max + 3; _i2 = _i2 + 2) {
+        if (prev === false && weeks.includes(_i2)) {
+          baseNum = _i2;
+        }
+
+        if (!weeks.includes(_i2) && _i2 - baseNum > 4) {
+          result.push(baseNum + "-" + (_i2 - 2).toString() + " (чёт.)");
+
+          for (var _k2 = baseNum; _k2 < _i2; _k2 = _k2 + 2) {
+            var _index2 = weeks.indexOf(_k2);
+
+            if (_index2 > -1) {
+              weeks.splice(_index2, 1);
+            }
+          }
+        }
+
+        if (!weeks.includes(_i2)) baseNum = max + 3;
+        prev = weeks.includes(_i2);
+      }
+
+      for (var _index3 = 0; _index3 < weeks.length; _index3++) {
+        result.push(weeks[_index3]);
+      }
+
+      result.sort(function (a, b) {
+        var aVal = parseInt(a.toString().indexOf('-') === -1 ? a : a.toString().substr(0, a.toString().indexOf('-')));
+        var bVal = parseInt(b.toString().indexOf('-') === -1 ? b : b.toString().substr(0, b.toString().indexOf('-')));
+        if (aVal === bVal) return 0;
+        return aVal < bVal ? -1 : 1;
+      });
+      var stringResult = result.join(', ');
+      return stringResult;
+    },
+    range: function range(start, end) {
+      return Array(end - start + 1).fill().map(function (_, idx) {
+        return start + idx;
+      });
+    },
+    severalWeeksSwitchFlipped: function severalWeeksSwitchFlipped() {
+      if (!this.severalWeeks) {
+        var min = 1;
+
+        if (!(this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)) {
+          min = Math.min.apply(Math, _toConsumableArray(this.selectedWeeks));
+        }
+
+        this.selectedWeeks = [];
+        this.selectedWeeks.push(min);
+        this.loadBuildingEvents();
+      }
+    },
+    weekToggled: function weekToggled(week) {
+      if (!this.severalWeeks) {
+        this.selectedWeeks = [];
+        this.selectedWeeks.push(week);
+        this.loadBuildingEvents();
+      } else {
+        if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1) {
+          this.selectedWeeks = [];
+        }
+
+        if (this.selectedWeeks.length === 1 && event.shiftKey) {
+          if (week < this.selectedWeeks[0]) {
+            for (var i = week; i < this.selectedWeeks[0]; i++) {
+              this.selectedWeeks.push(i);
+            }
+
+            this.loadBuildingEvents();
+          }
+
+          if (week > this.selectedWeeks[0]) {
+            for (var _i3 = this.selectedWeeks[0] + 1; _i3 <= week; _i3++) {
+              this.selectedWeeks.push(_i3);
+            }
+
+            this.loadBuildingEvents();
+          }
+
+          return;
+        }
+
+        if (event.ctrlKey) {
+          this.selectedWeeks = [];
+          this.selectedWeeks.push(week);
+          this.loadBuildingEvents();
+          return;
+        }
+
+        if (!this.selectedWeeks.includes(week)) {
+          this.selectedWeeks.push(week);
+        } else {
+          var index = this.selectedWeeks.indexOf(week);
+          console.log();
+          this.selectedWeeks.splice(index, 1);
+        }
+
+        this.loadBuildingEvents();
+      }
+    }
+  },
+  mounted: function mounted() {
+    if (this.buildingId === -1) {
+      if (this.buildingsList.length !== 0) {
+        this.buildingId = this.buildingsList[0].id;
+        this.selectedWeeks = [-1];
+        this.loadBuildingEvents();
+      }
+    } else {
+      this.selectedWeeks = [-1];
+      this.loadBuildingEvents();
+    }
+  },
+  computed: {
+    ringsSorted: function ringsSorted() {
+      var result = [];
+
+      for (var k in this.scheduleRings) {
+        if (this.scheduleRings.hasOwnProperty(k)) {
+          result.push({
+            'id': k,
+            'time': this.scheduleRings[k]
+          });
+        }
+      }
+
+      result.sort(function (a, b) {
+        var aVal = a.time.substr(0, 2) * 60 + parseInt(a.time.substr(3, 2));
+        var bVal = b.time.substr(0, 2) * 60 + parseInt(b.time.substr(3, 2));
+        if (aVal === bVal) return 0;
+        return aVal < bVal ? -1 : 1;
+      });
+      return result;
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js&":
 /*!**************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js& ***!
@@ -72843,6 +73246,481 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true&":
+/*!*****************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true& ***!
+  \*****************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container" }, [
+    _c("div", { staticClass: "row justify-content-center" }, [
+      _c("div", { staticClass: "col-md-12" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("Занятость аудиторий корпуса")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c(
+              "select",
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.buildingId,
+                    expression: "buildingId"
+                  }
+                ],
+                on: {
+                  change: [
+                    function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.buildingId = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    },
+                    function($event) {
+                      return _vm.loadBuildingEvents()
+                    }
+                  ]
+                }
+              },
+              _vm._l(_vm.buildings, function(building) {
+                return _c("option", { domProps: { value: building.id } }, [
+                  _vm._v(_vm._s(building.name))
+                ])
+              }),
+              0
+            ),
+            _vm._v(
+              "\n\n                    Недели: " +
+                _vm._s(_vm.combineWeeksToRange(this.selectedWeeks)) +
+                "\n\n                    "
+            ),
+            _c(
+              "div",
+              { staticStyle: { "margin-top": "1em", "text-align": "center" } },
+              [
+                _c(
+                  "div",
+                  _vm._l(6, function(dow) {
+                    return _c(
+                      "button",
+                      {
+                        class: {
+                          button: true,
+                          "is-primary": _vm.selectedDow !== dow,
+                          "is-danger": _vm.selectedDow === dow
+                        },
+                        staticStyle: {
+                          "margin-right": "0.5em",
+                          "margin-bottom": "0.5em"
+                        },
+                        on: {
+                          click: function($event) {
+                            _vm.selectedDow = dow
+                            this.loadBuildingEvents()
+                          }
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                                " +
+                            _vm._s(_vm.dowRu[dow - 1]) +
+                            "\n                            "
+                        )
+                      ]
+                    )
+                  }),
+                  0
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  [
+                    _vm._v(
+                      "\n                            Недели:\n                            "
+                    ),
+                    _c(
+                      "button",
+                      {
+                        class: {
+                          button: true,
+                          "is-primary":
+                            _vm.selectedWeeks.length !== 1 ||
+                            (_vm.selectedWeeks.length > 0 &&
+                              _vm.selectedWeeks[0] !== -1),
+                          "is-danger":
+                            _vm.selectedWeeks.length === 1 &&
+                            _vm.selectedWeeks[0] === -1
+                        },
+                        staticStyle: {
+                          "margin-right": "0.5em",
+                          "margin-bottom": "0.5em"
+                        },
+                        on: {
+                          click: function($event) {
+                            return _vm.loadFullGroupSchedule()
+                          }
+                        }
+                      },
+                      [_vm._v("Все")]
+                    ),
+                    _vm._v(" "),
+                    _vm._l(this.weeksCount, function(week) {
+                      return _c(
+                        "button",
+                        {
+                          class: {
+                            button: true,
+                            "is-primary": !_vm.selectedWeeks.includes(week),
+                            "is-danger": _vm.selectedWeeks.includes(week)
+                          },
+                          staticStyle: {
+                            "margin-right": "0.5em",
+                            "margin-bottom": "0.5em"
+                          },
+                          on: {
+                            click: function($event) {
+                              return _vm.weekToggled(week)
+                            }
+                          }
+                        },
+                        [_vm._v(_vm._s(week))]
+                      )
+                    }),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "custom-control custom-switch" }, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.severalWeeks,
+                            expression: "severalWeeks"
+                          }
+                        ],
+                        staticClass: "custom-control-input",
+                        attrs: { type: "checkbox", id: "customSwitch1" },
+                        domProps: {
+                          checked: Array.isArray(_vm.severalWeeks)
+                            ? _vm._i(_vm.severalWeeks, null) > -1
+                            : _vm.severalWeeks
+                        },
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$a = _vm.severalWeeks,
+                                $$el = $event.target,
+                                $$c = $$el.checked ? true : false
+                              if (Array.isArray($$a)) {
+                                var $$v = null,
+                                  $$i = _vm._i($$a, $$v)
+                                if ($$el.checked) {
+                                  $$i < 0 &&
+                                    (_vm.severalWeeks = $$a.concat([$$v]))
+                                } else {
+                                  $$i > -1 &&
+                                    (_vm.severalWeeks = $$a
+                                      .slice(0, $$i)
+                                      .concat($$a.slice($$i + 1)))
+                                }
+                              } else {
+                                _vm.severalWeeks = $$c
+                              }
+                            },
+                            function($event) {
+                              return _vm.severalWeeksSwitchFlipped()
+                            }
+                          ]
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "custom-control-label",
+                          attrs: { for: "customSwitch1" }
+                        },
+                        [_vm._v("Несколько недель")]
+                      )
+                    ])
+                  ],
+                  2
+                ),
+                _vm._v(" "),
+                _c(
+                  "table",
+                  {
+                    staticClass: "table table-responsive td-center is-bordered",
+                    staticStyle: {
+                      "overflow-y": "auto",
+                      "font-size": "0.6em",
+                      "margin-top": "2em"
+                    }
+                  },
+                  [
+                    _c(
+                      "tr",
+                      [
+                        _c("td"),
+                        _vm._v(" "),
+                        _vm._l(_vm.scheduleAuditoriums, function(
+                          auditoriumName,
+                          auditoriumId
+                        ) {
+                          return _c("td", [_vm._v(_vm._s(auditoriumName))])
+                        })
+                      ],
+                      2
+                    ),
+                    _vm._v(" "),
+                    _vm._l(_vm.ringsSorted, function(ring) {
+                      return _c(
+                        "tr",
+                        [
+                          _c("td", [_vm._v(_vm._s(ring.time))]),
+                          _vm._v(" "),
+                          _vm._l(_vm.scheduleAuditoriums, function(
+                            auditoriumName,
+                            auditoriumId
+                          ) {
+                            return _c(
+                              "td",
+                              [
+                                _vm.buildingEvents[ring.id] !== undefined &&
+                                auditoriumId in _vm.buildingEvents[ring.id]
+                                  ? [
+                                      _vm._l(
+                                        Object.keys(
+                                          _vm.buildingEvents[ring.id][
+                                            auditoriumId
+                                          ]
+                                        ).sort(function(a, b) {
+                                          var aMin = Math.min.apply(
+                                            Math,
+                                            Object.values(
+                                              _vm.buildingEvents[ring.id][
+                                                auditoriumId
+                                              ][a]["weeksAndAuds"]
+                                            ).flat()
+                                          )
+                                          var bMin = Math.min.apply(
+                                            Math,
+                                            Object.values(
+                                              _vm.buildingEvents[ring.id][
+                                                auditoriumId
+                                              ][b]["weeksAndAuds"]
+                                            ).flat()
+                                          )
+
+                                          if (aMin === bMin) {
+                                            var aGroupName =
+                                              _vm.buildingEvents[ring.id][
+                                                auditoriumId
+                                              ][a]["lessons"][0][
+                                                "studentGroupName"
+                                              ]
+                                            var bGroupName =
+                                              _vm.buildingEvents[ring.id][
+                                                auditoriumId
+                                              ][b]["lessons"][0][
+                                                "studentGroupName"
+                                              ]
+
+                                            var numA = parseInt(
+                                              aGroupName.split(" ")[0]
+                                            )
+                                            var numB = parseInt(
+                                              bGroupName.split(" ")[0]
+                                            )
+
+                                            if (numA === numB) {
+                                              if (aGroupName === bGroupName) {
+                                                return 0
+                                              }
+                                              return aGroupName < bGroupName
+                                                ? -1
+                                                : 1
+                                            } else {
+                                              return numA < numB ? -1 : 1
+                                            }
+                                          }
+
+                                          return aMin < bMin ? -1 : 1
+                                        }),
+                                        function(tfd) {
+                                          return [
+                                            _c(
+                                              "div",
+                                              {
+                                                attrs: {
+                                                  title:
+                                                    _vm.buildingEvents[ring.id][
+                                                      auditoriumId
+                                                    ][tfd]["lessons"][0][
+                                                      "disciplineName"
+                                                    ] +
+                                                    "@" +
+                                                    _vm.buildingEvents[ring.id][
+                                                      auditoriumId
+                                                    ][tfd]["lessons"][0][
+                                                      "teacherFio"
+                                                    ]
+                                                }
+                                              },
+                                              [
+                                                _c("strong", [
+                                                  _vm._v(
+                                                    _vm._s(
+                                                      _vm.buildingEvents[
+                                                        ring.id
+                                                      ][auditoriumId][tfd][
+                                                        "lessons"
+                                                      ][0]["studentGroupName"]
+                                                    )
+                                                  )
+                                                ]),
+                                                _c("br"),
+                                                _vm._v(
+                                                  "\n                                                " +
+                                                    _vm._s(
+                                                      _vm.combineWeeksToRange(
+                                                        _vm.buildingEvents[
+                                                          ring.id
+                                                        ][auditoriumId][tfd][
+                                                          "weeksAndAuds"
+                                                        ][
+                                                          Object.keys(
+                                                            _vm.buildingEvents[
+                                                              ring.id
+                                                            ][auditoriumId][
+                                                              tfd
+                                                            ]["weeksAndAuds"]
+                                                          )[0]
+                                                        ]
+                                                      )
+                                                    ) +
+                                                    "\n                                            "
+                                                )
+                                              ]
+                                            ),
+                                            _vm._v(" "),
+                                            Object.keys(
+                                              _vm.buildingEvents[ring.id][
+                                                auditoriumId
+                                              ]
+                                            ).sort(function(a, b) {
+                                              var aMin = Math.min.apply(
+                                                Math,
+                                                Object.values(
+                                                  _vm.buildingEvents[ring.id][
+                                                    auditoriumId
+                                                  ][a]["weeksAndAuds"]
+                                                ).flat()
+                                              )
+                                              var bMin = Math.min.apply(
+                                                Math,
+                                                Object.values(
+                                                  _vm.buildingEvents[ring.id][
+                                                    auditoriumId
+                                                  ][b]["weeksAndAuds"]
+                                                ).flat()
+                                              )
+
+                                              if (aMin === bMin) {
+                                                var aGroupName =
+                                                  _vm.buildingEvents[ring.id][
+                                                    auditoriumId
+                                                  ][a]["lessons"][0][
+                                                    "studentGroupName"
+                                                  ]
+                                                var bGroupName =
+                                                  _vm.buildingEvents[ring.id][
+                                                    auditoriumId
+                                                  ][b]["lessons"][0][
+                                                    "studentGroupName"
+                                                  ]
+
+                                                var numA = parseInt(
+                                                  aGroupName.split(" ")[0]
+                                                )
+                                                var numB = parseInt(
+                                                  bGroupName.split(" ")[0]
+                                                )
+
+                                                if (numA === numB) {
+                                                  if (
+                                                    aGroupName === bGroupName
+                                                  ) {
+                                                    return 0
+                                                  }
+                                                  return aGroupName < bGroupName
+                                                    ? -1
+                                                    : 1
+                                                } else {
+                                                  return numA < numB ? -1 : 1
+                                                }
+                                              }
+
+                                              return aMin < bMin ? -1 : 1
+                                            })[
+                                              Object.keys(
+                                                _vm.buildingEvents[ring.id][
+                                                  auditoriumId
+                                                ]
+                                              ).length - 1
+                                            ] !== tfd
+                                              ? [_c("hr")]
+                                              : _vm._e()
+                                          ]
+                                        }
+                                      )
+                                    ]
+                                  : _vm._e()
+                              ],
+                              2
+                            )
+                          })
+                        ],
+                        2
+                      )
+                    })
+                  ],
+                  2
+                )
+              ]
+            )
+          ])
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true&":
 /*!******************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true& ***!
@@ -87195,6 +88073,7 @@ Vue.component('group-session', __webpack_require__(/*! ./components/GroupSession
 Vue.component('teacher-schedule', __webpack_require__(/*! ./components/TeacherSchedule */ "./resources/js/components/TeacherSchedule.vue")["default"]);
 Vue.component('group-schedule', __webpack_require__(/*! ./components/GroupSchedule */ "./resources/js/components/GroupSchedule.vue")["default"]);
 Vue.component('faculty-schedule', __webpack_require__(/*! ./components/FacultySchedule */ "./resources/js/components/FacultySchedule.vue")["default"]);
+Vue.component('building-events', __webpack_require__(/*! ./components/BuildingEvents */ "./resources/js/components/BuildingEvents.vue")["default"]);
 
 
 Vue.use(buefy__WEBPACK_IMPORTED_MODULE_1___default.a);
@@ -87274,6 +88153,75 @@ if (token) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+/***/ }),
+
+/***/ "./resources/js/components/BuildingEvents.vue":
+/*!****************************************************!*\
+  !*** ./resources/js/components/BuildingEvents.vue ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _BuildingEvents_vue_vue_type_template_id_ae7994d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true& */ "./resources/js/components/BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true&");
+/* harmony import */ var _BuildingEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./BuildingEvents.vue?vue&type=script&lang=js& */ "./resources/js/components/BuildingEvents.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _BuildingEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _BuildingEvents_vue_vue_type_template_id_ae7994d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _BuildingEvents_vue_vue_type_template_id_ae7994d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  "ae7994d0",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/BuildingEvents.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/BuildingEvents.vue?vue&type=script&lang=js&":
+/*!*****************************************************************************!*\
+  !*** ./resources/js/components/BuildingEvents.vue?vue&type=script&lang=js& ***!
+  \*****************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_BuildingEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./BuildingEvents.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BuildingEvents.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_BuildingEvents_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true&":
+/*!***********************************************************************************************!*\
+  !*** ./resources/js/components/BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true& ***!
+  \***********************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BuildingEvents_vue_vue_type_template_id_ae7994d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/BuildingEvents.vue?vue&type=template&id=ae7994d0&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BuildingEvents_vue_vue_type_template_id_ae7994d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_BuildingEvents_vue_vue_type_template_id_ae7994d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
 
 /***/ }),
 

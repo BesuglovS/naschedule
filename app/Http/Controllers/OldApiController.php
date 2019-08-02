@@ -1460,17 +1460,6 @@ class OldApiController extends Controller
             $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["lessons"][] = $lesson;
         }
 
-        $rings = array_values($rings);
-        usort($rings, function ($a, $b)
-        {
-            $aVal = intval(substr($a,0,2)) * 60 + intval(substr($a, 3, 2));
-            $bVal = intval(substr($b,0,2)) * 60 + intval(substr($b, 3, 2));
-
-            if ($aVal === $bVal) return 0;
-            return $aVal < $bVal ? -1 : 1;
-        });
-        sort($auditoriums);
-
         $result["schedule"] = $schedule;
         $result["rings"] = $rings;
         $result["auditoriums"] = $auditoriums;

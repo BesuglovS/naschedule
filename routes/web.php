@@ -60,4 +60,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/groupSession', 'MainController@groupSession');
     Route::get('/groupSession/{group_id}', 'MainController@groupSessionWithId');
+
+    Route::get('/buildingEvents', 'MainController@buildingEvents');
 });
