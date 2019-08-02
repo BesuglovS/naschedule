@@ -1979,6 +1979,14 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "BuildingEvents",
   props: {
@@ -2021,6 +2029,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
       axios.get(apiUrl).then(function (response) {
         var data = response.data;
+        _this.loading = false;
         _this.buildingEvents = data.schedule;
         _this.scheduleAuditoriums = data.auditoriums;
         _this.scheduleRings = data.rings;
@@ -73336,7 +73345,7 @@ var render = function() {
                         on: {
                           click: function($event) {
                             _vm.selectedDow = dow
-                            this.loadBuildingEvents()
+                            _vm.loadBuildingEvents()
                           }
                         }
                       },
@@ -73466,163 +73475,85 @@ var render = function() {
                   2
                 ),
                 _vm._v(" "),
-                _c(
-                  "table",
-                  {
-                    staticClass: "table table-responsive td-center is-bordered",
-                    staticStyle: {
-                      "overflow-y": "auto",
-                      "font-size": "0.6em",
-                      "margin-top": "2em"
-                    }
-                  },
-                  [
-                    _c(
-                      "tr",
+                _vm.loading === true
+                  ? _c(
+                      "div",
+                      {
+                        staticStyle: {
+                          "font-size": "2em",
+                          "text-align": "center"
+                        }
+                      },
                       [
-                        _c("td"),
+                        _vm._v(
+                          "\n                            Загрузка ...\n                        "
+                        )
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.scheduleRings.length === 0 && _vm.loading === false
+                  ? _c(
+                      "div",
+                      {
+                        staticStyle: {
+                          "font-size": "2em",
+                          "text-align": "center"
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            Занятий нет\n                        "
+                        )
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.scheduleRings.length !== 0 && _vm.loading === false
+                  ? _c(
+                      "table",
+                      {
+                        staticClass:
+                          "table table-responsive td-center is-bordered",
+                        staticStyle: {
+                          "overflow-y": "auto",
+                          "font-size": "0.6em",
+                          "margin-top": "2em"
+                        }
+                      },
+                      [
+                        _c(
+                          "tr",
+                          [
+                            _c("td"),
+                            _vm._v(" "),
+                            _vm._l(_vm.scheduleAuditoriums, function(
+                              auditoriumName,
+                              auditoriumId
+                            ) {
+                              return _c("td", [_vm._v(_vm._s(auditoriumName))])
+                            })
+                          ],
+                          2
+                        ),
                         _vm._v(" "),
-                        _vm._l(_vm.scheduleAuditoriums, function(
-                          auditoriumName,
-                          auditoriumId
-                        ) {
-                          return _c("td", [_vm._v(_vm._s(auditoriumName))])
-                        })
-                      ],
-                      2
-                    ),
-                    _vm._v(" "),
-                    _vm._l(_vm.ringsSorted, function(ring) {
-                      return _c(
-                        "tr",
-                        [
-                          _c("td", [_vm._v(_vm._s(ring.time))]),
-                          _vm._v(" "),
-                          _vm._l(_vm.scheduleAuditoriums, function(
-                            auditoriumName,
-                            auditoriumId
-                          ) {
-                            return _c(
-                              "td",
-                              [
-                                _vm.buildingEvents[ring.id] !== undefined &&
-                                auditoriumId in _vm.buildingEvents[ring.id]
-                                  ? [
-                                      _vm._l(
-                                        Object.keys(
-                                          _vm.buildingEvents[ring.id][
-                                            auditoriumId
-                                          ]
-                                        ).sort(function(a, b) {
-                                          var aMin = Math.min.apply(
-                                            Math,
-                                            Object.values(
-                                              _vm.buildingEvents[ring.id][
-                                                auditoriumId
-                                              ][a]["weeksAndAuds"]
-                                            ).flat()
-                                          )
-                                          var bMin = Math.min.apply(
-                                            Math,
-                                            Object.values(
-                                              _vm.buildingEvents[ring.id][
-                                                auditoriumId
-                                              ][b]["weeksAndAuds"]
-                                            ).flat()
-                                          )
-
-                                          if (aMin === bMin) {
-                                            var aGroupName =
-                                              _vm.buildingEvents[ring.id][
-                                                auditoriumId
-                                              ][a]["lessons"][0][
-                                                "studentGroupName"
-                                              ]
-                                            var bGroupName =
-                                              _vm.buildingEvents[ring.id][
-                                                auditoriumId
-                                              ][b]["lessons"][0][
-                                                "studentGroupName"
-                                              ]
-
-                                            var numA = parseInt(
-                                              aGroupName.split(" ")[0]
-                                            )
-                                            var numB = parseInt(
-                                              bGroupName.split(" ")[0]
-                                            )
-
-                                            if (numA === numB) {
-                                              if (aGroupName === bGroupName) {
-                                                return 0
-                                              }
-                                              return aGroupName < bGroupName
-                                                ? -1
-                                                : 1
-                                            } else {
-                                              return numA < numB ? -1 : 1
-                                            }
-                                          }
-
-                                          return aMin < bMin ? -1 : 1
-                                        }),
-                                        function(tfd) {
-                                          return [
-                                            _c(
-                                              "div",
-                                              {
-                                                attrs: {
-                                                  title:
-                                                    _vm.buildingEvents[ring.id][
-                                                      auditoriumId
-                                                    ][tfd]["lessons"][0][
-                                                      "disciplineName"
-                                                    ] +
-                                                    "@" +
-                                                    _vm.buildingEvents[ring.id][
-                                                      auditoriumId
-                                                    ][tfd]["lessons"][0][
-                                                      "teacherFio"
-                                                    ]
-                                                }
-                                              },
-                                              [
-                                                _c("strong", [
-                                                  _vm._v(
-                                                    _vm._s(
-                                                      _vm.buildingEvents[
-                                                        ring.id
-                                                      ][auditoriumId][tfd][
-                                                        "lessons"
-                                                      ][0]["studentGroupName"]
-                                                    )
-                                                  )
-                                                ]),
-                                                _c("br"),
-                                                _vm._v(
-                                                  "\n                                                " +
-                                                    _vm._s(
-                                                      _vm.combineWeeksToRange(
-                                                        _vm.buildingEvents[
-                                                          ring.id
-                                                        ][auditoriumId][tfd][
-                                                          "weeksAndAuds"
-                                                        ][
-                                                          Object.keys(
-                                                            _vm.buildingEvents[
-                                                              ring.id
-                                                            ][auditoriumId][
-                                                              tfd
-                                                            ]["weeksAndAuds"]
-                                                          )[0]
-                                                        ]
-                                                      )
-                                                    ) +
-                                                    "\n                                            "
-                                                )
-                                              ]
-                                            ),
-                                            _vm._v(" "),
+                        _vm._l(_vm.ringsSorted, function(ring) {
+                          return _c(
+                            "tr",
+                            [
+                              _c("td", [_vm._v(_vm._s(ring.time))]),
+                              _vm._v(" "),
+                              _vm._l(_vm.scheduleAuditoriums, function(
+                                auditoriumName,
+                                auditoriumId
+                              ) {
+                                return _c(
+                                  "td",
+                                  [
+                                    _vm.buildingEvents[ring.id] !== undefined &&
+                                    auditoriumId in _vm.buildingEvents[ring.id]
+                                      ? [
+                                          _vm._l(
                                             Object.keys(
                                               _vm.buildingEvents[ring.id][
                                                 auditoriumId
@@ -73681,31 +73612,161 @@ var render = function() {
                                               }
 
                                               return aMin < bMin ? -1 : 1
-                                            })[
-                                              Object.keys(
-                                                _vm.buildingEvents[ring.id][
-                                                  auditoriumId
-                                                ]
-                                              ).length - 1
-                                            ] !== tfd
-                                              ? [_c("hr")]
-                                              : _vm._e()
-                                          ]
-                                        }
-                                      )
-                                    ]
-                                  : _vm._e()
-                              ],
-                              2
-                            )
-                          })
-                        ],
-                        2
-                      )
-                    })
-                  ],
-                  2
-                )
+                                            }),
+                                            function(tfd) {
+                                              return [
+                                                _c(
+                                                  "div",
+                                                  {
+                                                    attrs: {
+                                                      title:
+                                                        _vm.buildingEvents[
+                                                          ring.id
+                                                        ][auditoriumId][tfd][
+                                                          "lessons"
+                                                        ][0]["disciplineName"] +
+                                                        "@" +
+                                                        _vm.buildingEvents[
+                                                          ring.id
+                                                        ][auditoriumId][tfd][
+                                                          "lessons"
+                                                        ][0]["teacherFio"]
+                                                    }
+                                                  },
+                                                  [
+                                                    _c("strong", [
+                                                      _vm._v(
+                                                        _vm._s(
+                                                          _vm.buildingEvents[
+                                                            ring.id
+                                                          ][auditoriumId][tfd][
+                                                            "lessons"
+                                                          ][0][
+                                                            "studentGroupName"
+                                                          ]
+                                                        )
+                                                      )
+                                                    ]),
+                                                    _c("br"),
+                                                    _vm._v(
+                                                      "\n                                                " +
+                                                        _vm._s(
+                                                          _vm.combineWeeksToRange(
+                                                            _vm.buildingEvents[
+                                                              ring.id
+                                                            ][auditoriumId][
+                                                              tfd
+                                                            ]["weeksAndAuds"][
+                                                              Object.keys(
+                                                                _vm
+                                                                  .buildingEvents[
+                                                                  ring.id
+                                                                ][auditoriumId][
+                                                                  tfd
+                                                                ][
+                                                                  "weeksAndAuds"
+                                                                ]
+                                                              )[0]
+                                                            ]
+                                                          )
+                                                        ) +
+                                                        "\n                                            "
+                                                    )
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                Object.keys(
+                                                  _vm.buildingEvents[ring.id][
+                                                    auditoriumId
+                                                  ]
+                                                ).sort(function(a, b) {
+                                                  var aMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      _vm.buildingEvents[
+                                                        ring.id
+                                                      ][auditoriumId][a][
+                                                        "weeksAndAuds"
+                                                      ]
+                                                    ).flat()
+                                                  )
+                                                  var bMin = Math.min.apply(
+                                                    Math,
+                                                    Object.values(
+                                                      _vm.buildingEvents[
+                                                        ring.id
+                                                      ][auditoriumId][b][
+                                                        "weeksAndAuds"
+                                                      ]
+                                                    ).flat()
+                                                  )
+
+                                                  if (aMin === bMin) {
+                                                    var aGroupName =
+                                                      _vm.buildingEvents[
+                                                        ring.id
+                                                      ][auditoriumId][a][
+                                                        "lessons"
+                                                      ][0]["studentGroupName"]
+                                                    var bGroupName =
+                                                      _vm.buildingEvents[
+                                                        ring.id
+                                                      ][auditoriumId][b][
+                                                        "lessons"
+                                                      ][0]["studentGroupName"]
+
+                                                    var numA = parseInt(
+                                                      aGroupName.split(" ")[0]
+                                                    )
+                                                    var numB = parseInt(
+                                                      bGroupName.split(" ")[0]
+                                                    )
+
+                                                    if (numA === numB) {
+                                                      if (
+                                                        aGroupName ===
+                                                        bGroupName
+                                                      ) {
+                                                        return 0
+                                                      }
+                                                      return aGroupName <
+                                                        bGroupName
+                                                        ? -1
+                                                        : 1
+                                                    } else {
+                                                      return numA < numB
+                                                        ? -1
+                                                        : 1
+                                                    }
+                                                  }
+
+                                                  return aMin < bMin ? -1 : 1
+                                                })[
+                                                  Object.keys(
+                                                    _vm.buildingEvents[ring.id][
+                                                      auditoriumId
+                                                    ]
+                                                  ).length - 1
+                                                ] !== tfd
+                                                  ? [_c("hr")]
+                                                  : _vm._e()
+                                              ]
+                                            }
+                                          )
+                                        ]
+                                      : _vm._e()
+                                  ],
+                                  2
+                                )
+                              })
+                            ],
+                            2
+                          )
+                        })
+                      ],
+                      2
+                    )
+                  : _vm._e()
               ]
             )
           ])

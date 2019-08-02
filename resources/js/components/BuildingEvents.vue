@@ -15,7 +15,7 @@
                         <div style="margin-top: 1em; text-align: center;">
                             <div>
                                 <button v-for="dow in 6" style="margin-right:0.5em; margin-bottom: 0.5em;"
-                                        @click="selectedDow = dow; this.loadBuildingEvents();"
+                                        @click="selectedDow = dow; loadBuildingEvents();"
                                         :class="{'button': true,
                                             'is-primary': selectedDow !== dow,
                                             'is-danger': selectedDow === dow }">
@@ -47,7 +47,15 @@
                                 </div>
                             </div>
 
-                            <table style="overflow-y: auto; font-size: 0.6em; margin-top: 2em;" class="table table-responsive td-center is-bordered">
+                            <div v-if="loading === true" style="font-size: 2em; text-align: center">
+                                Загрузка ...
+                            </div>
+
+                            <div v-if="scheduleRings.length === 0 && loading === false" style="font-size: 2em; text-align: center">
+                                Занятий нет
+                            </div>
+
+                            <table v-if="scheduleRings.length !== 0 && loading === false" style="overflow-y: auto; font-size: 0.6em; margin-top: 2em;" class="table table-responsive td-center is-bordered">
                                 <tr>
                                     <td></td>
                                     <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums">{{auditoriumName}}</td>
@@ -177,6 +185,8 @@
                     .get(apiUrl)
                     .then(response => {
                         let data = response.data;
+
+                        this.loading = false;
 
                         this.buildingEvents = data.schedule;
                         this.scheduleAuditoriums = data.auditoriums;
