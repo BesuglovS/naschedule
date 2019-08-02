@@ -73386,7 +73386,7 @@ var render = function() {
                         },
                         on: {
                           click: function($event) {
-                            return _vm.loadFullGroupSchedule()
+                            return _vm.loadFullBuildingEvents()
                           }
                         }
                       },

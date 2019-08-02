@@ -25,7 +25,7 @@
 
                             <div>
                                 Недели:
-                                <button @click="loadFullGroupSchedule();"
+                                <button @click="loadFullBuildingEvents();"
                                         style="margin-right:0.5em; margin-bottom: 0.5em;"
                                         :class="{'button': true,
                                     'is-primary': selectedWeeks.length !== 1 || (selectedWeeks.length > 0 && selectedWeeks[0] !== -1),
