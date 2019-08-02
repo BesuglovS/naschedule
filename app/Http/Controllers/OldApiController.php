@@ -38,7 +38,7 @@ class OldApiController extends Controller
         $allowed_actions = array("list", "groupsBundle", "bundle", "update", "dailySchedule", "groupExams",
             "weekSchedule", "weeksSchedule", "groupSchedule", "TeacherWeekSchedule", "TeacherSchedule",
             "disciplineLessons", "LastLessons", "teacherLessons", "teacherWeeksSchedule", "teacherExams",
-            "facultyWeeksSchedule");
+            "facultyWeeksSchedule", "buildingEvents");
 
         if (!in_array($action, $allowed_actions))
         {
@@ -118,6 +118,7 @@ class OldApiController extends Controller
             case "teacherWeeksSchedule":    return $this->GetTeacherWeeksSchedule($input);
             case "teacherExams":            return $this->GetTeacherExams($input);
             case "facultyWeeksSchedule":    return $this->GetFacultyWeeksSchedule($input);
+            case "buildingEvents":          return $this->GetBuildingEvents($input);
         }
 
         return array("error" => "Whoops, looks like something went wrong :-)");
@@ -892,7 +893,7 @@ class OldApiController extends Controller
                 $lessons = array();
 
                 $rawLessons->map(function ($lesson) {
-                    $lesson["dow"] = date("N", strtotime($lesson["date"]));
+                    $lesson->dow = date("N", strtotime($lesson->date));
                     $lessons[] = $lesson;
                 });
 
@@ -1374,6 +1375,105 @@ class OldApiController extends Controller
 
             $result[] = $resultItem;
         }
+
+        return $result;
+    }
+
+    private function GetBuildingEvents($input) {
+        if ((!isset($input['dow'])) || (!isset($input['weeks'])) || (!isset($input['buildingId'])))
+        {
+            return array("error" => "dow, weeks и buildingId обязательные параметры");
+        }
+
+        $dow = $input['dow'];
+
+        $weeks = explode('|', $input['weeks']);
+        sort($weeks);
+
+        $buildingId = $input['buildingId'];
+
+        $calendarsId = Calendar::IdsFromDowAndWeeks($dow, $weeks);
+
+        $rawLessons = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->join('buildings', 'auditoriums.building_id', '=', 'buildings.id')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('lessons.state', '=', 1)
+            ->where('buildings.id', '=', $buildingId)
+            ->whereIn('calendars.id', $calendarsId)
+            ->select('lessons.*', 'calendars.date', 'auditoriums.name as auditoriumName',
+                'teachers.fio as teacherFio', 'disciplines.name as disciplineName',
+                'student_groups.name as studentGroupName', 'discipline_teacher.id as disciplineTeacherId',
+                'rings.time')
+            ->get();
+
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts());
+
+        $schedule = array();
+        $rings = array();
+        $auditoriums = array();
+        $result = array();
+
+        foreach ($rawLessons as $lesson) {
+            if (!array_key_exists($lesson->ring_id, $schedule))
+            {
+                $schedule[$lesson->ring_id] = array();
+            }
+
+            if (!array_key_exists($lesson->auditorium_id, $schedule[$lesson->ring_id]))
+            {
+                $schedule[$lesson->ring_id][$lesson->auditorium_id] = array();
+            }
+
+            if (!array_key_exists($lesson->discipline_teacher_id, $schedule[$lesson->ring_id][$lesson->auditorium_id]))
+            {
+                $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id] = array();
+                $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["weeksAndAuds"] = array();
+                $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["lessons"] = array();
+            }
+
+            if (!array_key_exists($lesson->auditoriumName,
+                    $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["weeksAndAuds"]))
+            {
+                $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["weeksAndAuds"]
+                    [$lesson->auditoriumName] = array();
+            }
+
+            if (!array_key_exists($lesson->ring_id, $rings)) {
+                $rings[$lesson->ring_id] = substr($lesson->time, 0, 5);
+            }
+
+            if (!array_key_exists($lesson->auditorium_id, $auditoriums)) {
+                $auditoriums[$lesson->auditorium_id] = $lesson->auditoriumName;
+            }
+
+            $lessonWeek = Calendar::WeekFromDate($lesson->date, $css);
+
+            $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["weeksAndAuds"]
+                [$lesson->auditoriumName][] = $lessonWeek;
+
+            $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["lessons"][] = $lesson;
+        }
+
+        $rings = array_values($rings);
+        usort($rings, function ($a, $b)
+        {
+            $aVal = intval(substr($a,0,2)) * 60 + intval(substr($a, 3, 2));
+            $bVal = intval(substr($b,0,2)) * 60 + intval(substr($b, 3, 2));
+
+            if ($aVal === $bVal) return 0;
+            return $aVal < $bVal ? -1 : 1;
+        });
+        sort($auditoriums);
+
+        $result["schedule"] = $schedule;
+        $result["rings"] = $rings;
+        $result["auditoriums"] = $auditoriums;
 
         return $result;
     }

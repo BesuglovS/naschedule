@@ -73,7 +73,39 @@ class Calendar extends Model
         $result=array_column($result, 'id');
 
         return $result;
+    }
 
+    public static function CarbonDayOfWeek($date)
+    {
+        switch ($date->dayOfWeek) {
+            case Carbon::MONDAY:    return 1;
+            case Carbon::TUESDAY:   return 2;
+            case Carbon::WEDNESDAY: return 3;
+            case Carbon::THURSDAY:  return 4;
+            case Carbon::FRIDAY:    return 5;
+            case Carbon::SATURDAY:  return 6;
+            case Carbon::SUNDAY:    return 7;
+        }
+
+        return -1;
+    }
+
+    public static function IdsFromDowAndWeeks($dow, $weeks)
+    {
+        $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
+
+        $calendars = Calendar::all()->toArray();
+
+        $result = array_filter($calendars, function($calendar) use ($dow, $weeks, $semesterStarts) {
+            $calendarWeek = Calendar::WeekFromDate($calendar["date"], $semesterStarts);
+            $calendarDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $calendar["date"]));
+
+            return (in_array($calendarWeek, $weeks)) && ($calendarDow == $dow);
+        });
+
+        $result=array_column($result, 'id');
+
+        return $result;
     }
 
     public static function WeekCount()
