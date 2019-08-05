@@ -2885,6 +2885,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "GroupSchedule",
   props: {
@@ -2939,6 +2943,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           var bMinutes = parseInt(b.substr(0, 2)) * 60 + parseInt(b.substr(3, 2));
           return aMinutes < bMinutes ? -1 : 1;
         });
+        _this.loading = false;
         _this.groupSchedule = data;
       });
     },
@@ -74450,13 +74455,31 @@ var render = function() {
                   2
                 ),
                 _vm._v(" "),
+                _vm.loading === true
+                  ? _c(
+                      "div",
+                      {
+                        staticStyle: {
+                          "font-size": "2em",
+                          "text-align": "center"
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            Загрузка ...\n                        "
+                        )
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
                 _vm.groupSchedule[1] &&
                 _vm.groupSchedule[1].length === 0 &&
                 (_vm.groupSchedule[2] && _vm.groupSchedule[2].length === 0) &&
                 (_vm.groupSchedule[3] && _vm.groupSchedule[3].length === 0) &&
                 (_vm.groupSchedule[4] && _vm.groupSchedule[4].length === 0) &&
                 (_vm.groupSchedule[5] && _vm.groupSchedule[5].length === 0) &&
-                (_vm.groupSchedule[6] && _vm.groupSchedule[6].length === 0)
+                (_vm.groupSchedule[6] && _vm.groupSchedule[6].length === 0) &&
+                _vm.loading === false
                   ? _c(
                       "div",
                       {
@@ -74481,7 +74504,7 @@ var render = function() {
                   (_vm.groupSchedule[4] && _vm.groupSchedule[4].length === 0) &&
                   (_vm.groupSchedule[5] && _vm.groupSchedule[5].length === 0) &&
                   (_vm.groupSchedule[6] && _vm.groupSchedule[6].length === 0)
-                )
+                ) && _vm.loading === false
                   ? _c(
                       "table",
                       {
@@ -74517,7 +74540,7 @@ var render = function() {
                                                         _vm.groupSchedule[1]
                                                       )[0]
                                                     ]
-                                                  )
+                                                  )[0]
                                                 ]["lessons"][0]["date"]
                                               )
                                             ) +
@@ -74555,7 +74578,7 @@ var render = function() {
                                                         _vm.groupSchedule[2]
                                                       )[0]
                                                     ]
-                                                  )
+                                                  )[0]
                                                 ]["lessons"][0]["date"]
                                               )
                                             ) +
@@ -74593,7 +74616,7 @@ var render = function() {
                                                         _vm.groupSchedule[3]
                                                       )[0]
                                                     ]
-                                                  )
+                                                  )[0]
                                                 ]["lessons"][0]["date"]
                                               )
                                             ) +
@@ -74631,7 +74654,7 @@ var render = function() {
                                                         _vm.groupSchedule[4]
                                                       )[0]
                                                     ]
-                                                  )
+                                                  )[0]
                                                 ]["lessons"][0]["date"]
                                               )
                                             ) +
@@ -74669,7 +74692,7 @@ var render = function() {
                                                         _vm.groupSchedule[5]
                                                       )[0]
                                                     ]
-                                                  )
+                                                  )[0]
                                                 ]["lessons"][0]["date"]
                                               )
                                             ) +
@@ -74707,7 +74730,7 @@ var render = function() {
                                                         _vm.groupSchedule[6]
                                                       )[0]
                                                     ]
-                                                  )
+                                                  )[0]
                                                 ]["lessons"][0]["date"]
                                               )
                                             ) +

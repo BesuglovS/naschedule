@@ -35,13 +35,17 @@
                                 </div>
                             </div>
 
+                            <div v-if="loading === true" style="font-size: 2em; text-align: center">
+                                Загрузка ...
+                            </div>
+
                             <div v-if="
                             (groupSchedule[1] && groupSchedule[1].length === 0) &&
                             (groupSchedule[2] && groupSchedule[2].length === 0) &&
                             (groupSchedule[3] && groupSchedule[3].length === 0) &&
                             (groupSchedule[4] && groupSchedule[4].length === 0) &&
                             (groupSchedule[5] && groupSchedule[5].length === 0) &&
-                            (groupSchedule[6] && groupSchedule[6].length === 0)
+                            (groupSchedule[6] && groupSchedule[6].length === 0) && loading === false
                         " style="text-align: center; font-size: 30px">
                                 Занятий нет
                             </div>
@@ -52,7 +56,7 @@
                             (groupSchedule[3] && groupSchedule[3].length === 0) &&
                             (groupSchedule[4] && groupSchedule[4].length === 0) &&
                             (groupSchedule[5] && groupSchedule[5].length === 0) &&
-                            (groupSchedule[6] && groupSchedule[6].length === 0))
+                            (groupSchedule[6] && groupSchedule[6].length === 0)) && loading === false
                         "
 
                                    style="margin-top: 2em;" class="table td-center is-bordered">
@@ -64,7 +68,7 @@
                                             <br />
                                             {{groupSchedule[1]
                                             [Object.keys(groupSchedule[1])[0]]
-                                            [Object.keys(groupSchedule[1][Object.keys(groupSchedule[1])[0]])]
+                                            [Object.keys(groupSchedule[1][Object.keys(groupSchedule[1])[0]])[0]]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
@@ -76,7 +80,7 @@
                                             <br />
                                             {{groupSchedule[2]
                                             [Object.keys(groupSchedule[2])[0]]
-                                            [Object.keys(groupSchedule[2][Object.keys(groupSchedule[2])[0]])]
+                                            [Object.keys(groupSchedule[2][Object.keys(groupSchedule[2])[0]])[0]]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
@@ -88,7 +92,7 @@
                                             <br />
                                             {{groupSchedule[3]
                                             [Object.keys(groupSchedule[3])[0]]
-                                            [Object.keys(groupSchedule[3][Object.keys(groupSchedule[3])[0]])]
+                                            [Object.keys(groupSchedule[3][Object.keys(groupSchedule[3])[0]])[0]]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
@@ -100,7 +104,7 @@
                                             <br />
                                             {{groupSchedule[4]
                                             [Object.keys(groupSchedule[4])[0]]
-                                            [Object.keys(groupSchedule[4][Object.keys(groupSchedule[4])[0]])]
+                                            [Object.keys(groupSchedule[4][Object.keys(groupSchedule[4])[0]])[0]]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
@@ -112,7 +116,7 @@
                                             <br />
                                             {{groupSchedule[5]
                                             [Object.keys(groupSchedule[5])[0]]
-                                            [Object.keys(groupSchedule[5][Object.keys(groupSchedule[5])[0]])]
+                                            [Object.keys(groupSchedule[5][Object.keys(groupSchedule[5])[0]])[0]]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
@@ -124,7 +128,7 @@
                                             <br />
                                             {{groupSchedule[6]
                                             [Object.keys(groupSchedule[6])[0]]
-                                            [Object.keys(groupSchedule[6][Object.keys(groupSchedule[6])[0]])]
+                                            [Object.keys(groupSchedule[6][Object.keys(groupSchedule[6])[0]])[0]]
                                             ["lessons"][0]
                                             ["date"] | formatOnlyDate
                                             }}
@@ -281,6 +285,8 @@
                             let bMinutes = parseInt(b.substr(0,2)) * 60 + parseInt(b.substr(3,2));
                             return aMinutes < bMinutes ? -1 : 1;
                         });
+
+                        this.loading = false;
 
                         this.groupSchedule = data;
                     });
