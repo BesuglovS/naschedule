@@ -1392,7 +1392,7 @@ class OldApiController extends Controller
 
         $buildingId = $input['buildingId'];
 
-        $calendarsId = Calendar::IdsFromDowAndWeeks($dow, $weeks);
+        $calendarIds = Calendar::IdsFromDowAndWeeks($dow, $weeks);
 
         $rawLessons = DB::table('lessons')
             ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
@@ -1405,7 +1405,7 @@ class OldApiController extends Controller
             ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
             ->where('lessons.state', '=', 1)
             ->where('buildings.id', '=', $buildingId)
-            ->whereIn('calendars.id', $calendarsId)
+            ->whereIn('calendars.id', $calendarIds)
             ->select('lessons.*', 'calendars.date', 'auditoriums.name as auditoriumName',
                 'teachers.fio as teacherFio', 'disciplines.name as disciplineName',
                 'student_groups.name as studentGroupName', 'discipline_teacher.id as disciplineTeacherId',
@@ -1458,6 +1458,73 @@ class OldApiController extends Controller
                 [$lesson->auditoriumName][] = $lessonWeek;
 
             $schedule[$lesson->ring_id][$lesson->auditorium_id][$lesson->discipline_teacher_id]["lessons"][] = $lesson;
+        }
+
+        $buildingAuditoriums = Building::AuditoriumIds($buildingId);
+
+        $rawEvents = DB::table('auditorium_events')
+            ->join('calendars', 'auditorium_events.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'auditorium_events.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'auditorium_events.auditorium_id', '=', 'auditoriums.id')
+            ->whereIn('auditorium_events.calendar_id', $calendarIds)
+            ->whereIn('auditorium_events.auditorium_id', $buildingAuditoriums)
+            ->select('auditorium_events.*',
+                'calendars.date', 'rings.time', 'auditoriums.name as auditoriumName')
+            ->get();
+
+        $eventNameTfdIdDict = array();
+        $eventNameTfdId = -2;
+
+        foreach ($rawEvents as $event) {
+            if (!array_key_exists($event->ring_id, $schedule))
+            {
+                $schedule[$event->ring_id] = array();
+            }
+
+            if (!array_key_exists($event->auditorium_id, $schedule[$event->ring_id]))
+            {
+                $schedule[$event->ring_id][$event->auditorium_id] = array();
+            }
+
+            $eventTfd = -1;
+            if (!array_key_exists($event->name, $eventNameTfdIdDict))
+            {
+                $eventNameTfdIdDict[$event->name] = $eventNameTfdId;
+                $eventTfd = $eventNameTfdId;
+                $eventNameTfdId--;
+            }
+            else {
+                $eventTfd = $eventNameTfdIdDict[$event->name];
+            }
+
+            if (!array_key_exists($eventTfd, $schedule[$event->ring_id][$event->auditorium_id]))
+            {
+                $schedule[$event->ring_id][$event->auditorium_id][$eventTfd] = array();
+                $schedule[$event->ring_id][$event->auditorium_id][$eventTfd]["weeksAndAuds"] = array();
+                $schedule[$event->ring_id][$event->auditorium_id][$eventTfd]["events"] = array();
+            }
+
+            if (!array_key_exists($event->auditoriumName,
+                $schedule[$event->ring_id][$event->auditorium_id][$eventTfd]["weeksAndAuds"]))
+            {
+                $schedule[$event->ring_id][$event->auditorium_id][$eventTfd]["weeksAndAuds"]
+                    [$event->auditoriumName] = array();
+            }
+
+            if (!array_key_exists($event->ring_id, $rings)) {
+                $rings[$event->ring_id] = substr($event->time, 0, 5);
+            }
+
+            if (!array_key_exists($event->auditorium_id, $auditoriums)) {
+                $auditoriums[$event->auditorium_id] = $event->auditoriumName;
+            }
+
+            $eventWeek = Calendar::WeekFromDate($event->date, $css);
+
+            $schedule[$event->ring_id][$event->auditorium_id][$eventTfd]["weeksAndAuds"]
+                [$event->auditoriumName][] = $eventWeek;
+
+            $schedule[$event->ring_id][$event->auditorium_id][$eventTfd]["events"][] = $event;
         }
 
         $result["schedule"] = $schedule;

@@ -66,31 +66,17 @@
                                     <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums">
                                         <template v-if="(buildingEvents[ring.id] !== undefined) && (auditoriumId in buildingEvents[ring.id])">
                                             <template v-for="tfd in
-                                                Object.keys(buildingEvents[ring.id][auditoriumId]).sort((a,b) => {
+                                                Object.keys(buildingEvents[ring.id][auditoriumId])
+                                                    .sort((a,b) => {
                                                         let aMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][a]['weeksAndAuds']).flat());
                                                         let bMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][b]['weeksAndAuds']).flat());
 
-                                                        if (aMin === bMin) {
-                                                            let aGroupName = buildingEvents[ring.id][auditoriumId][a]['lessons'][0]['studentGroupName'];
-                                                            let bGroupName = buildingEvents[ring.id][auditoriumId][b]['lessons'][0]['studentGroupName'];
-
-                                                            let numA = parseInt(aGroupName.split(' ')[0]);
-                                                            let numB = parseInt(bGroupName.split(' ')[0]);
-
-                                                             if (numA === numB) {
-                                                                if (aGroupName === bGroupName) return 0;
-                                                                return (aGroupName < bGroupName) ? -1 : 1;
-                                                            }
-                                                            else
-                                                            {
-                                                                return (numA < numB) ? -1 : 1;
-                                                            }
-                                                        }
-
+                                                        if (aMin === bMin) return 0;
                                                         return aMin < bMin ? -1 : 1;
-                                                })
+                                                    })
                                             ">
-                                                <div :title="
+                                                <div v-if="buildingEvents[ring.id][auditoriumId][tfd]['lessons'] !== undefined"
+                                                    :title="
                                                     buildingEvents[ring.id][auditoriumId][tfd]['lessons'][0]['disciplineName'] + '@' +
                                                     buildingEvents[ring.id][auditoriumId][tfd]['lessons'][0]['teacherFio']
                                                 ">
@@ -98,31 +84,24 @@
                                                     {{combineWeeksToRange(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"]
                                                         [Object.keys(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"])[0]])}}
                                                 </div>
-                                                <template v-if=
-                                                    "Object.keys(buildingEvents[ring.id][auditoriumId]).sort((a,b) => {
+
+                                                <div v-if="buildingEvents[ring.id][auditoriumId][tfd]['events'] !== undefined">
+                                                    <strong>{{buildingEvents[ring.id][auditoriumId][tfd]["events"][0]["name"]}}</strong><br />
+                                                    {{combineWeeksToRange(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"]
+                                                    [Object.keys(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"])[0]])}}
+                                                </div>
+
+
+                                                <template v-if="
+                                                    Object.keys(buildingEvents[ring.id][auditoriumId])
+                                                    .sort((a,b) => {
                                                         let aMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][a]['weeksAndAuds']).flat());
                                                         let bMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][b]['weeksAndAuds']).flat());
 
-                                                        if (aMin === bMin) {
-                                                            let aGroupName = buildingEvents[ring.id][auditoriumId][a]['lessons'][0]['studentGroupName'];
-                                                            let bGroupName = buildingEvents[ring.id][auditoriumId][b]['lessons'][0]['studentGroupName'];
-
-                                                            let numA = parseInt(aGroupName.split(' ')[0]);
-                                                            let numB = parseInt(bGroupName.split(' ')[0]);
-
-                                                             if (numA === numB) {
-                                                                if (aGroupName === bGroupName) return 0;
-                                                                return (aGroupName < bGroupName) ? -1 : 1;
-                                                            }
-                                                            else
-                                                            {
-                                                                return (numA < numB) ? -1 : 1;
-                                                            }
-                                                        }
-
+                                                        if (aMin === bMin) return 0;
                                                         return aMin < bMin ? -1 : 1;
-                                                })[Object.keys(buildingEvents[ring.id][auditoriumId]).length-1]
-                                                    !== tfd">
+                                                    }) [Object.keys(buildingEvents[ring.id][auditoriumId]).length-1] !== tfd
+                                                ">
                                                     <hr>
                                                 </template>
                                             </template>
@@ -130,7 +109,6 @@
                                     </td>
                                 </tr>
                             </table>
-
                         </div>
                     </div>
                 </div>
@@ -142,10 +120,10 @@
 <script>
     export default {
         name: "BuildingEvents",
-        props: {
-            'buildings': Array,
-            'weekCount': Number,
-        },
+        props: [
+            'buildings',
+            'weekCount'
+        ],
         data() {
             return {
                 buildingsList: this.buildings,

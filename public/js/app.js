@@ -1965,34 +1965,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "BuildingEvents",
-  props: {
-    'buildings': Array,
-    'weekCount': Number
-  },
+  props: ['buildings', 'weekCount'],
   data: function data() {
     return {
       buildingsList: this.buildings,
@@ -73577,87 +73552,57 @@ var render = function() {
                                               )
 
                                               if (aMin === bMin) {
-                                                var aGroupName =
-                                                  _vm.buildingEvents[ring.id][
-                                                    auditoriumId
-                                                  ][a]["lessons"][0][
-                                                    "studentGroupName"
-                                                  ]
-                                                var bGroupName =
-                                                  _vm.buildingEvents[ring.id][
-                                                    auditoriumId
-                                                  ][b]["lessons"][0][
-                                                    "studentGroupName"
-                                                  ]
-
-                                                var numA = parseInt(
-                                                  aGroupName.split(" ")[0]
-                                                )
-                                                var numB = parseInt(
-                                                  bGroupName.split(" ")[0]
-                                                )
-
-                                                if (numA === numB) {
-                                                  if (
-                                                    aGroupName === bGroupName
-                                                  ) {
-                                                    return 0
-                                                  }
-                                                  return aGroupName < bGroupName
-                                                    ? -1
-                                                    : 1
-                                                } else {
-                                                  return numA < numB ? -1 : 1
-                                                }
+                                                return 0
                                               }
-
                                               return aMin < bMin ? -1 : 1
                                             }),
                                             function(tfd) {
                                               return [
-                                                _c(
-                                                  "div",
-                                                  {
-                                                    attrs: {
-                                                      title:
-                                                        _vm.buildingEvents[
-                                                          ring.id
-                                                        ][auditoriumId][tfd][
-                                                          "lessons"
-                                                        ][0]["disciplineName"] +
-                                                        "@" +
-                                                        _vm.buildingEvents[
-                                                          ring.id
-                                                        ][auditoriumId][tfd][
-                                                          "lessons"
-                                                        ][0]["teacherFio"]
-                                                    }
-                                                  },
-                                                  [
-                                                    _c("strong", [
-                                                      _vm._v(
-                                                        _vm._s(
-                                                          _vm.buildingEvents[
-                                                            ring.id
-                                                          ][auditoriumId][tfd][
-                                                            "lessons"
-                                                          ][0][
-                                                            "studentGroupName"
-                                                          ]
-                                                        )
-                                                      )
-                                                    ]),
-                                                    _c("br"),
-                                                    _vm._v(
-                                                      "\n                                                " +
-                                                        _vm._s(
-                                                          _vm.combineWeeksToRange(
+                                                _vm.buildingEvents[ring.id][
+                                                  auditoriumId
+                                                ][tfd]["lessons"] !== undefined
+                                                  ? _c(
+                                                      "div",
+                                                      {
+                                                        attrs: {
+                                                          title:
                                                             _vm.buildingEvents[
                                                               ring.id
                                                             ][auditoriumId][
                                                               tfd
-                                                            ]["weeksAndAuds"][
-                                                              Object.keys(
+                                                            ]["lessons"][0][
+                                                              "disciplineName"
+                                                            ] +
+                                                            "@" +
+                                                            _vm.buildingEvents[
+                                                              ring.id
+                                                            ][auditoriumId][
+                                                              tfd
+                                                            ]["lessons"][0][
+                                                              "teacherFio"
+                                                            ]
+                                                        }
+                                                      },
+                                                      [
+                                                        _c("strong", [
+                                                          _vm._v(
+                                                            _vm._s(
+                                                              _vm
+                                                                .buildingEvents[
+                                                                ring.id
+                                                              ][auditoriumId][
+                                                                tfd
+                                                              ]["lessons"][0][
+                                                                "studentGroupName"
+                                                              ]
+                                                            )
+                                                          )
+                                                        ]),
+                                                        _c("br"),
+                                                        _vm._v(
+                                                          "\n                                                " +
+                                                            _vm._s(
+                                                              _vm.combineWeeksToRange(
                                                                 _vm
                                                                   .buildingEvents[
                                                                   ring.id
@@ -73665,15 +73610,71 @@ var render = function() {
                                                                   tfd
                                                                 ][
                                                                   "weeksAndAuds"
+                                                                ][
+                                                                  Object.keys(
+                                                                    _vm
+                                                                      .buildingEvents[
+                                                                      ring.id
+                                                                    ][
+                                                                      auditoriumId
+                                                                    ][tfd][
+                                                                      "weeksAndAuds"
+                                                                    ]
+                                                                  )[0]
                                                                 ]
-                                                              )[0]
+                                                              )
+                                                            ) +
+                                                            "\n                                            "
+                                                        )
+                                                      ]
+                                                    )
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                _vm.buildingEvents[ring.id][
+                                                  auditoriumId
+                                                ][tfd]["events"] !== undefined
+                                                  ? _c("div", [
+                                                      _c("strong", [
+                                                        _vm._v(
+                                                          _vm._s(
+                                                            _vm.buildingEvents[
+                                                              ring.id
+                                                            ][auditoriumId][
+                                                              tfd
+                                                            ]["events"][0][
+                                                              "name"
                                                             ]
                                                           )
-                                                        ) +
-                                                        "\n                                            "
-                                                    )
-                                                  ]
-                                                ),
+                                                        )
+                                                      ]),
+                                                      _c("br"),
+                                                      _vm._v(
+                                                        "\n                                                " +
+                                                          _vm._s(
+                                                            _vm.combineWeeksToRange(
+                                                              _vm
+                                                                .buildingEvents[
+                                                                ring.id
+                                                              ][auditoriumId][
+                                                                tfd
+                                                              ]["weeksAndAuds"][
+                                                                Object.keys(
+                                                                  _vm
+                                                                    .buildingEvents[
+                                                                    ring.id
+                                                                  ][
+                                                                    auditoriumId
+                                                                  ][tfd][
+                                                                    "weeksAndAuds"
+                                                                  ]
+                                                                )[0]
+                                                              ]
+                                                            )
+                                                          ) +
+                                                          "\n                                            "
+                                                      )
+                                                    ])
+                                                  : _vm._e(),
                                                 _vm._v(" "),
                                                 Object.keys(
                                                   _vm.buildingEvents[ring.id][
@@ -73702,44 +73703,8 @@ var render = function() {
                                                   )
 
                                                   if (aMin === bMin) {
-                                                    var aGroupName =
-                                                      _vm.buildingEvents[
-                                                        ring.id
-                                                      ][auditoriumId][a][
-                                                        "lessons"
-                                                      ][0]["studentGroupName"]
-                                                    var bGroupName =
-                                                      _vm.buildingEvents[
-                                                        ring.id
-                                                      ][auditoriumId][b][
-                                                        "lessons"
-                                                      ][0]["studentGroupName"]
-
-                                                    var numA = parseInt(
-                                                      aGroupName.split(" ")[0]
-                                                    )
-                                                    var numB = parseInt(
-                                                      bGroupName.split(" ")[0]
-                                                    )
-
-                                                    if (numA === numB) {
-                                                      if (
-                                                        aGroupName ===
-                                                        bGroupName
-                                                      ) {
-                                                        return 0
-                                                      }
-                                                      return aGroupName <
-                                                        bGroupName
-                                                        ? -1
-                                                        : 1
-                                                    } else {
-                                                      return numA < numB
-                                                        ? -1
-                                                        : 1
-                                                    }
+                                                    return 0
                                                   }
-
                                                   return aMin < bMin ? -1 : 1
                                                 })[
                                                   Object.keys(
@@ -88290,14 +88255,15 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************************************!*\
   !*** ./resources/js/components/FacultySchedule.vue ***!
   \*****************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _FacultySchedule_vue_vue_type_template_id_9bf01800_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true& */ "./resources/js/components/FacultySchedule.vue?vue&type=template&id=9bf01800&scoped=true&");
 /* harmony import */ var _FacultySchedule_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./FacultySchedule.vue?vue&type=script&lang=js& */ "./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _FacultySchedule_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _FacultySchedule_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -88327,7 +88293,7 @@ component.options.__file = "resources/js/components/FacultySchedule.vue"
 /*!******************************************************************************!*\
   !*** ./resources/js/components/FacultySchedule.vue?vue&type=script&lang=js& ***!
   \******************************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
