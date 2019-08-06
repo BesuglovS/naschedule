@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Lesson;
+use App\DomainClasses\Lesson;
+use App\DomainClasses\LessonLogEvent;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LessonController extends Controller
 {
@@ -14,7 +17,7 @@ class LessonController extends Controller
      */
     public function index()
     {
-        //
+        return Lesson::all();
     }
 
     /**
@@ -46,7 +49,7 @@ class LessonController extends Controller
      */
     public function show(Lesson $lesson)
     {
-        //
+        return $lesson;
     }
 
     /**
@@ -81,5 +84,34 @@ class LessonController extends Controller
     public function destroy(Lesson $lesson)
     {
         //
+    }
+
+    public function destroyByIds(Request $request)
+    {
+        $input = $request->all();
+
+        $Ids = explode('|', $input['Ids']);
+
+        $lessons = DB::table('lessons')
+            ->whereIn('lessons.id', $Ids)
+            ->get();
+
+        foreach($lessons as $lesson) {
+            if ($lesson->state == 1) {
+                $newLle = new LessonLogEvent();
+                $newLle->old_lesson_id = $lesson->id;
+                $newLle->new_lesson_id = 0;
+                $newLle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+                $newLle->public_comment = "";
+                $newLle->hidden_comment = "";
+                $newLle->save();
+
+                $l = Lesson::find($lesson->id);
+                $l->state = 0;
+                $l->save();
+            }
+        }
+
+        return $lessons;
     }
 }

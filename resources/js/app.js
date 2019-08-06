@@ -1,7 +1,13 @@
 require('./bootstrap');
 import moment from 'moment'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faEdit } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 window.Vue = require('vue');
+
+library.add(faEdit);
+Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.component('group-session', require('./components/GroupSession.vue').default);
 Vue.component('teacher-schedule', require('./components/TeacherSchedule').default);

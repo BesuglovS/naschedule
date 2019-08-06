@@ -62,4 +62,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/groupSession/{group_id}', 'MainController@groupSessionWithId');
 
     Route::get('/buildingEvents', 'MainController@buildingEvents');
+
+    // Lessons
+    Route::post('/lessonsDestroyByIds', 'LessonController@DestroyByIds');
 });
+
+

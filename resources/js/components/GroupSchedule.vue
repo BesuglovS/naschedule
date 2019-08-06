@@ -166,13 +166,20 @@
                                                             return aMin < bMin ? -1 : 1;
                                                     })
                                             ">
-                                                <strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br />
+                                                <table style="width: 100%; border:none !important;">
+                                                    <tr>
+                                                        <td style="border:none;"><a href="#"><font-awesome-icon icon="edit" /></a></td>
+                                                        <td style="border:none;"><strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br /></td>
+                                                        <td style="border:none;"><button type="button" @click="askForDelete(groupSchedule[dow][ring][tfd]['lessons']);" class="close">×</button></td>
+                                                    </tr>
+                                                </table>
+
                                                 {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
                                                 {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
                                                 <template v-for="auditorium in
                                                     Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])
                                                         .sort((a,b) => {
-                                                            let aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
+                                                            let  aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
                                                             let bMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][b]);
 
                                                             if (aMin === bMin) return 0;
@@ -218,16 +225,29 @@
                 </div>
             </div>
         </div>
+
+        <modal v-if="deletePrompt">
+            <template v-slot:header>Удаление уроков</template>
+            <template v-slot:body>Вы уверены в том, что хотите удалить все эти уроки?</template>
+            <template v-slot:footer>
+                <button style="margin-right:0.5em;" @click="deletePrompt = false;" class="button is-primary">Нет</button>
+                <button style="margin-right:0.5em;" @click="deletePrompt = false; deleteLessons();" class="button is-danger">Да</button>
+            </template>
+        </modal>
     </div>
 </template>
 
 <script>
+    import modal from './Modal'
     export default {
         name: "GroupSchedule",
         props: {
             'studentGroups': Object,
             'groupId': Number,
             'weekCount': Number,
+        },
+        components: {
+            'modal' : modal
         },
         data() {
             return {
@@ -241,7 +261,9 @@
                 scheduleRings: [],
                 selectedWeeks: [],
                 severalWeeks: true,
-                groupSchedule: {}
+                groupSchedule: {},
+                deletePrompt: false,
+                lessonsToDelete: []
             }
         },
         methods: {
@@ -289,6 +311,21 @@
                         this.loading = false;
 
                         this.groupSchedule = data;
+                    });
+            },
+            askForDelete(lessons) {
+                this.lessonsToDelete = lessons;
+                this.deletePrompt = true;
+            },
+            deleteLessons() {
+                let IdsString = this.lessonsToDelete.map(l => l.lessonId).join('|');
+
+                let destroyUrl = '/lessonsDestroyByIds?Ids=' + IdsString;
+
+                axios
+                    .post(destroyUrl)
+                    .then(response => {
+                        this.loadGroupSchedule();
                     });
             },
             loadFullGroupSchedule() {
