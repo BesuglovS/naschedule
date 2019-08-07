@@ -165,4 +165,31 @@ class DisciplineController extends Controller
         Discipline::destroy($discipline->id);
         return redirect('disciplines');
     }
+
+    public function DisciplinesByGroupInfo(Request $request) {
+        $input = $request->all();
+
+        if (!isset($input['groupId']))
+        {
+            return array("error" => "groupId обязательный параметр");
+        }
+
+        $groupId = $input['groupId'];
+
+        $groupIds = StudentGroup::GetGroupsOfStudentFromGroup($groupId);
+
+        $disciplines = DB::table('disciplines')
+            ->whereIn('disciplines.student_group_id', $groupIds)
+            ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
+            ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->select('disciplines.id as disciplineId',
+                'disciplines.name as disciplineName',
+                'teachers.fio as teacherFio',
+                'discipline_teacher.id as tfdId')
+            ->orderBy('disciplineName', 'asc')
+            ->orderBy('teacherFio', 'asc')
+            ->get();
+
+        return $disciplines;
+    }
 }

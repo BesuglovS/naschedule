@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-12">
+            <div class="col-md-12" style="display:flex;">
                 <div class="card">
                     <div class="card-header">Расписание группы</div>
 
@@ -166,11 +166,12 @@
                                                             return aMin < bMin ? -1 : 1;
                                                     })
                                             ">
-                                                <table style="width: 100%; border:none !important;">
+                                                <table style="width: 100%; text-align: center; border:none !important;">
                                                     <tr>
-                                                        <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd]);" href="#"><font-awesome-icon icon="edit" /></a></td>
-                                                        <td style="border:none;"><strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br /></td>
-                                                        <td style="border:none;"><button type="button" @click="askForDelete(groupSchedule[dow][ring][tfd]['lessons']);" class="close">×</button></td>
+                                                        <td style="border:none;">
+                                                            <strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>
+                                                            <button type="button" @click="askForDelete(groupSchedule[dow][ring][tfd]['lessons']);" class="close">×</button>
+                                                        </td>
                                                     </tr>
                                                 </table>
 
@@ -188,6 +189,14 @@
                                                 ">
                                                     {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
                                                 </template>
+
+                                                <table style="width: 100%; text-align: center; border:none !important;">
+                                                    <tr>
+                                                        <td style="border:none;"><a @click.prevent="askForAdd();" href="#"><font-awesome-icon icon="plus-square" /></a></td>
+                                                        <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd]);" href="#"><font-awesome-icon icon="edit" /></a></td>
+                                                    </tr>
+                                                </table>
+
                                                 <template v-if="tfd !== Object.keys(groupSchedule[dow][ring])
                                                     .sort((a,b) => {
                                                             let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
@@ -220,6 +229,28 @@
                                     </td>
                                 </tr>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-left: 1em;">
+                    <div class="card-header">Дисциплины группы</div>
+
+                    <div class="card-body" style="text-align: center;">
+                        <div v-for="discipline in groupDisciplinesWithTeacher">
+                            <button @click="disciplineClicked(discipline)"
+                                    style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 0.8em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                    :class="{
+                                        'isPrimary': discipline.disciplineId !== groupDisciplineSelected.disciplineId,
+                                        'isDanger': discipline.disciplineId === groupDisciplineSelected.disciplineId }">
+                                {{discipline.disciplineName}}
+                                <br />
+                                <span style="font-size:0.6em;">
+                                    {{discipline.teacherFio}}
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -302,7 +333,9 @@
                 showEditWindow: false,
                 lessonsDataToEdit: {},
                 editSelectedWeeks: [],
-                editWeeksAuds: {}
+                editWeeksAuds: {},
+                groupDisciplines: [],
+                groupDisciplineSelected: {}
             }
         },
         methods: {
@@ -339,18 +372,31 @@
                                     rings.push(item);
                             });
 
-                        this.scheduleRings = rings;
-
                         rings.sort((a,b) => {
                             let aMinutes = parseInt(a.substr(0,2)) * 60 + parseInt(a.substr(3,2));
                             let bMinutes = parseInt(b.substr(0,2)) * 60 + parseInt(b.substr(3,2));
                             return aMinutes < bMinutes ? -1 : 1;
                         });
 
+                        this.scheduleRings = rings;
+
                         this.loading = false;
 
                         this.groupSchedule = data;
                     });
+
+                axios
+                    .get('/disciplinesByGroupInfo?groupId=' + this.studentGroupId)
+                    .then(response => {
+                        this.groupDisciplines = response.data;
+
+                        if (this.groupDisciplinesWithTeacher.length > 0) {
+                            this.groupDisciplineSelected = this.groupDisciplinesWithTeacher[0];
+                        }
+                    });
+            },
+            disciplineClicked(discipline) {
+              this.groupDisciplineSelected = discipline;
             },
             askForDelete(lessons) {
                 this.lessonsToDelete = lessons;
@@ -663,6 +709,9 @@
             }
         },
         computed: {
+            groupDisciplinesWithTeacher() {
+              return this.groupDisciplines.filter(d => d.tfdId !== null);
+            },
             auditoriumsSorted() {
               return this.auditoriums
                   .sort((a,b) => {
@@ -698,5 +747,15 @@
 </script>
 
 <style scoped>
+    .isDanger {
+        background-color: #ff3860;
+        border-color: transparent;
+        color: white;
+    }
 
+    .isPrimary {
+        background-color: #7957d5;
+        border-color: transparent;
+        color: white;
+    }
 </style>
