@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DomainClasses\Calendar;
 use App\DomainClasses\Lesson;
 use App\DomainClasses\LessonLogEvent;
 use Carbon\Carbon;
@@ -113,5 +114,121 @@ class LessonController extends Controller
         }
 
         return $lessons;
+    }
+
+    public function WeeksAndAudsEdit(Request $request) {
+        $input = $request->all();
+
+        $add = array();
+        if (!is_null($input['add'])) {
+            $addArray = explode('|', $input['add']);
+            foreach ($addArray as $addItem) {
+                $addItemArray = explode('@', $addItem);
+                $add[$addItemArray[0]] = $addItemArray[1];
+            }
+        }
+
+        $remove = array();
+        if (!is_null($input['remove'])) {
+            $remove = explode('|', $input['remove']);
+        }
+
+        $changeAuditorium = array();
+        if (!is_null($input['changeAuditorium'])) {
+            $changeAuditoriumArray = explode('|', $input['changeAuditorium']);
+            foreach ($changeAuditoriumArray as $caItem) {
+                $caItemArray = explode('@', $caItem);
+                $changeAuditorium[$caItemArray[0]] = $caItemArray[1];
+            }
+        }
+
+        $tfdId = $input['tfdId'];
+        $ringId = $input['ringId'];
+        $dow = $input['dow'];
+
+        $addCalendarIdsByWeek = Calendar::IdsByWeekFromDowAndWeeks($dow, array_keys($add));
+        $removeCalendarIdsByWeek = Calendar::IdsByWeekFromDowAndWeeks($dow, $remove);
+        $changeAuditoriumCalendarIdsByWeek = Calendar::IdsByWeekFromDowAndWeeks($dow, array_keys($changeAuditorium));
+
+        // Add
+        foreach ($add as $addWeek => $addAuditoriumId) {
+            $lesson = new Lesson();
+            $lesson->state = 1;
+            $lesson->discipline_teacher_id = $tfdId;
+            $lesson->calendar_id = $addCalendarIdsByWeek[$addWeek];
+            $lesson->ring_id = $ringId;
+            $lesson->auditorium_id = $add[$addWeek];
+            $lesson->save();
+
+            $lle = new LessonLogEvent();
+            $lle->old_lesson_id = 0;
+            $lle->new_lesson_id = $lesson->id;
+            $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+            $lle->public_comment = "";
+            $lle->hidden_comment = "";
+            $lle->save();
+        }
+
+        // Remove
+        foreach ($remove as $removeWeek) {
+            $lessonCalendarId = $removeCalendarIdsByWeek[$removeWeek];
+
+            $lesson = DB::table('lessons')
+                ->where('lessons.discipline_teacher_id', '=', $tfdId)
+                ->where('lessons.calendar_id', '=', $lessonCalendarId)
+                ->where('lessons.ring_id', '=', $ringId)
+                ->where('lessons.state', '=', 1)
+                ->first();
+
+            if (!is_null($lesson)) {
+                $new_lesson = Lesson::find($lesson->id);
+                $new_lesson->state = 0;
+                $new_lesson->save();
+
+                $lle = new LessonLogEvent();
+                $lle->old_lesson_id = $lesson->id;
+                $lle->new_lesson_id = 0;
+                $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+                $lle->public_comment = "";
+                $lle->hidden_comment = "";
+                $lle->save();
+            }
+        }
+
+        // changeAuditorium
+        foreach ($changeAuditorium as $changeAuditoriumWeek => $changeAuditoriumAuditoriumId) {
+            $lessonCalendarId = $changeAuditoriumCalendarIdsByWeek[$changeAuditoriumWeek];
+
+            $lesson = DB::table('lessons')
+                ->where('lessons.discipline_teacher_id', '=', $tfdId)
+                ->where('lessons.calendar_id', '=', $lessonCalendarId)
+                ->where('lessons.ring_id', '=', $ringId)
+                ->where('lessons.state', '=', 1)
+                ->first();
+
+            if (!is_null($lesson)) {
+                $old_lesson = Lesson::find($lesson->id);
+                $old_lesson->state = 0;
+                $old_lesson->save();
+
+                $new_lesson = new Lesson();
+                $new_lesson->state = 1;
+                $new_lesson->discipline_teacher_id = $tfdId;
+                $new_lesson->calendar_id = $lessonCalendarId;
+                $new_lesson->ring_id = $ringId;
+                $new_lesson->auditorium_id = $changeAuditoriumAuditoriumId;
+                $new_lesson->save();
+
+                $lle = new LessonLogEvent();
+                $lle->old_lesson_id = $old_lesson->id;
+                $lle->new_lesson_id = $new_lesson->id;
+                $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+                $lle->public_comment = "";
+                $lle->hidden_comment = "";
+                $lle->save();
+            }
+        }
+
+        return array('success' => 'Done');
     }
 }

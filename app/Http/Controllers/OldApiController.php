@@ -919,7 +919,7 @@ class OldApiController extends Controller
                 ->whereIn('lessons.calendar_id', $weeksCalendars)
                 ->select('lessons.id as lessonId', 'disciplines.name as discName', 'rings.time as startTime', 'calendars.date as date',
                     'teachers.fio as teacherFIO', 'auditoriums.name as auditoriumName', 'discipline_teacher.id as tfdId',
-                    'student_groups.name as groupName', 'student_groups.id as groupId')
+                    'student_groups.name as groupName', 'student_groups.id as groupId', 'rings.id as ringId')
                 ->get();
 
             $lessons = array("1" => array(), "2" => array(), "3" => array(), "4" => array(),
@@ -932,6 +932,7 @@ class OldApiController extends Controller
             {
                 $lessonWeek = Calendar::WeekFromDate($lesson->date, $semesterStarts);
                 $dow = Carbon::createFromFormat('Y-m-d', $lesson->date)->isoFormat('E');
+                $lesson->dow = $dow;
 
                 $time = mb_substr($lesson->startTime, 0, 5);
                 if (!array_key_exists($time, $lessons[$dow]))
@@ -950,7 +951,6 @@ class OldApiController extends Controller
                     $lessons[$dow][$time][$tfd] = array();
                 }
 
-
                 $lessonAud = $lesson->auditoriumName;
                 if (!array_key_exists("weeksAndAuds", $lessons[$dow][$time][$tfd]))
                 {
@@ -965,6 +965,7 @@ class OldApiController extends Controller
                     $lessons[$dow][$time][$tfd]["weeksAndAuds"][$lessonAud] = array();
                 }
                 $lessons[$dow][$time][$tfd]["weeksAndAuds"][$lessonAud][] = $lessonWeek;
+                $lesson->week = $lessonWeek;
 
                 $lessons[$dow][$time][$tfd]["lessons"][] = $lesson;
             }

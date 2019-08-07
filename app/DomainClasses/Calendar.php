@@ -103,7 +103,26 @@ class Calendar extends Model
             return (in_array($calendarWeek, $weeks)) && ($calendarDow == $dow);
         });
 
-        $result=array_column($result, 'id');
+        $result = array_column($result, 'id');
+
+        return $result;
+    }
+
+    public static function IdsByWeekFromDowAndWeeks($dow, $weeks)
+    {
+        $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
+
+        $calendars = Calendar::all()->toArray();
+
+        $result = array();
+        foreach ($calendars as $calendar) {
+            $calendarWeek = Calendar::WeekFromDate($calendar["date"], $semesterStarts);
+            $calendarDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $calendar["date"]));
+
+            if ((in_array($calendarWeek, $weeks)) && ($calendarDow == $dow)) {
+                $result[$calendarWeek] = $calendar["id"];
+            }
+        }
 
         return $result;
     }

@@ -168,7 +168,7 @@
                                             ">
                                                 <table style="width: 100%; border:none !important;">
                                                     <tr>
-                                                        <td style="border:none;"><a href="#"><font-awesome-icon icon="edit" /></a></td>
+                                                        <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd]);" href="#"><font-awesome-icon icon="edit" /></a></td>
                                                         <td style="border:none;"><strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br /></td>
                                                         <td style="border:none;"><button type="button" @click="askForDelete(groupSchedule[dow][ring][tfd]['lessons']);" class="close">×</button></td>
                                                     </tr>
@@ -234,6 +234,40 @@
                 <button style="margin-right:0.5em;" @click="deletePrompt = false; deleteLessons();" class="button is-danger">Да</button>
             </template>
         </modal>
+
+        <modal v-if="showEditWindow">
+            <template v-slot:header>Редактирование уроков. Недели: {{combineWeeksToRange(editSelectedWeeks)}}</template>
+            <template v-slot:body>
+                <template v-for="half in 2">
+                    <table style="margin: 0 auto;">
+                        <tr>
+                            <td style="text-align: center;" v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)">
+                                <button style="margin-right:0.5em; margin-bottom: 0.5em;"
+                                        @click="editWeekToggled(week + ((half === 2) ? (Math.floor(weeksCount / 2)) : 0))"
+                                        :class="{'button': true,
+                                            'is-primary': !editSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)),
+                                            'is-danger': editSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)) }"
+                                >{{week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)}}</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)" style="padding: 10px;">
+                                <select style="width: 90px; font-size: 1em;" v-model="editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]">
+                                    <option v-for="aud in auditoriumsSorted" :value="aud.id">
+                                        {{aud.name}}
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </template>
+            </template>
+            <template v-slot:footer>
+                <button style="margin-right:0.5em;" @click="showEditWindow = false;" class="button is-primary">Отмена</button>
+                <button style="margin-right:0.5em;" @click="saveLessonsEdit(); showEditWindow = false; " class="button is-danger">Сохранить</button>
+            </template>
+        </modal>
     </div>
 </template>
 
@@ -241,11 +275,12 @@
     import modal from './Modal'
     export default {
         name: "GroupSchedule",
-        props: {
-            'studentGroups': Object,
-            'groupId': Number,
-            'weekCount': Number,
-        },
+        props: [
+            'auditoriums',
+            'studentGroups',
+            'groupId',
+            'weekCount',
+        ],
         components: {
             'modal' : modal
         },
@@ -263,7 +298,11 @@
                 severalWeeks: true,
                 groupSchedule: {},
                 deletePrompt: false,
-                lessonsToDelete: []
+                lessonsToDelete: [],
+                showEditWindow: false,
+                lessonsDataToEdit: {},
+                editSelectedWeeks: [],
+                editWeeksAuds: {}
             }
         },
         methods: {
@@ -317,6 +356,28 @@
                 this.lessonsToDelete = lessons;
                 this.deletePrompt = true;
             },
+            getAuditoriumByName(name) {
+                let auds = this.auditoriums.filter(a => a.name === name);
+                return (auds.length > 0) ? auds[0] : {};
+            },
+            askForEdit(lessonsData) {
+                var r = {};
+                for(let i = 1; i <= this.weeksCount; i++) {
+                    r[i] = -1;
+                }
+
+                for(let key in lessonsData["weeksAndAuds"])
+                {
+                    for(let i = 0; i < lessonsData["weeksAndAuds"][key].length; i++) {
+                        r[lessonsData["weeksAndAuds"][key][i]] = this.getAuditoriumByName(key).id;
+                    }
+                }
+                this.editWeeksAuds = r;
+
+                this.editSelectedWeeks = Object.values(lessonsData['weeksAndAuds']).flat().sort((a,b) => {return a-b;});
+                this.lessonsDataToEdit = lessonsData;
+                this.showEditWindow = true;
+            },
             deleteLessons() {
                 let IdsString = this.lessonsToDelete.map(l => l.lessonId).join('|');
 
@@ -324,6 +385,45 @@
 
                 axios
                     .post(destroyUrl)
+                    .then(response => {
+                        this.loadGroupSchedule();
+                    });
+            },
+            saveLessonsEdit() {
+                let oldWeeks = Object.values(this.lessonsDataToEdit['weeksAndAuds']).flat().sort((a,b) => {return a-b;});
+
+                var r = {};
+
+                for(let key in this.lessonsDataToEdit["weeksAndAuds"])
+                {
+                    for(let i = 0; i < this.lessonsDataToEdit["weeksAndAuds"][key].length; i++) {
+                        r[this.lessonsDataToEdit["weeksAndAuds"][key][i]] = this.getAuditoriumByName(key).id;
+                    }
+                }
+                let oldEditWeeksAuds = r;
+
+                let weeksToAdd = this.editSelectedWeeks.filter(w => !oldWeeks.includes(w));
+                let addString = weeksToAdd.map(w => w + '@' + this.editWeeksAuds[w]).join('|');
+
+                let weeksRemoved = oldWeeks.filter(w => !this.editSelectedWeeks.includes(w));
+                let removeString = weeksRemoved.join('|');
+
+                let changedAuditoriumsString = oldWeeks
+                    .filter(w =>
+                        this.editSelectedWeeks.includes(w) &&
+                        oldEditWeeksAuds[w] !== this.editWeeksAuds[w]
+                    )
+                    .map(w => w + '@' + this.editWeeksAuds[w])
+                    .join('|');
+
+                axios
+                    .post('/lessonsWeeksAndAudsEdit' +
+                        '?tfdId=' + this.lessonsDataToEdit["lessons"][0].tfdId +
+                        '&ringId=' + this.lessonsDataToEdit["lessons"][0].ringId +
+                        '&dow=' + this.lessonsDataToEdit["lessons"][0].dow +
+                        '&add=' + addString +
+                        '&remove=' + removeString +
+                        '&changeAuditorium=' + changedAuditoriumsString)
                     .then(response => {
                         this.loadGroupSchedule();
                     });
@@ -494,10 +594,58 @@
                     else
                     {
                         let index = this.selectedWeeks.indexOf(week);
-                        console.log();
                         this.selectedWeeks.splice(index, 1);
                     }
                     this.loadGroupSchedule();
+                }
+            },
+            editWeekToggled(week) {
+                if (this.editSelectedWeeks.length === 1 && event.shiftKey) {
+                    if (week < this.editSelectedWeeks[0]) {
+                        for(let i = week; i < this.editSelectedWeeks[0]; i++) {
+                            console.log('this.editSelectedWeeks');
+                            console.log(this.editSelectedWeeks);
+                            if (!this.editSelectedWeeks.includes(i) && this.editWeeksAuds[i] === -1  && this.auditoriums.length > 0) {
+                                this.editWeeksAuds[i] = this.auditoriumsSorted[0].id;
+                            }
+                            this.editSelectedWeeks.push(i);
+                        }
+                    }
+
+                    if (week > this.editSelectedWeeks[0]) {
+                        for(let i = this.editSelectedWeeks[0]+1; i <= week; i++) {
+                            if (!this.editSelectedWeeks.includes(i) && this.editWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
+                                this.editWeeksAuds[i] = this.auditoriumsSorted[0].id;
+                            }
+                            this.editSelectedWeeks.push(i);
+                        }
+                    }
+
+                    return;
+                }
+
+                if (event.ctrlKey)
+                {
+                    this.editSelectedWeeks = [];
+                    this.editSelectedWeeks.push(week);
+                    if (this.editWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+                        this.editWeeksAuds[week] = this.auditoriumsSorted[0].id;
+                    }
+
+                    return;
+                }
+
+                if (!this.editSelectedWeeks.includes(week))
+                {
+                    if (this.editWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+                        this.editWeeksAuds[week] = this.auditoriumsSorted[0].id;
+                    }
+                    this.editSelectedWeeks.push(week);
+                }
+                else
+                {
+                    let index = this.editSelectedWeeks.indexOf(week);
+                    this.editSelectedWeeks.splice(index, 1);
                 }
             },
         },
@@ -515,6 +663,13 @@
             }
         },
         computed: {
+            auditoriumsSorted() {
+              return this.auditoriums
+                  .sort((a,b) => {
+                      if (a.name === b.name) return 0;
+                      return a.name < b.name ? -1 : 1;
+                  })
+            },
             groupsSorted() {
                 let result = [];
                 for (var index in this.groups) {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DomainClasses\Auditorium;
 use App\DomainClasses\Building;
 use App\DomainClasses\Calendar;
 use App\DomainClasses\Faculty;
@@ -28,8 +29,9 @@ class MainController extends Controller
         $studentGroups = StudentGroup::allSorted()->toArray();
         $group_id = -1;
         $weekCount = Calendar::WeekCount();
+        $auditoriums = Auditorium::all()->toArray();
 
-        return view('main.groupSchedule', compact('studentGroups', 'group_id', 'weekCount'));
+        return view('main.groupSchedule', compact('studentGroups', 'group_id', 'weekCount', 'auditoriums'));
     }
 
     public function groupScheduleWithId(int $group_id)

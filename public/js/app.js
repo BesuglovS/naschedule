@@ -12569,14 +12569,44 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "GroupSchedule",
-  props: {
-    'studentGroups': Object,
-    'groupId': Number,
-    'weekCount': Number
-  },
+  props: ['auditoriums', 'studentGroups', 'groupId', 'weekCount'],
   components: {
     'modal': _Modal__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
@@ -12594,7 +12624,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       severalWeeks: true,
       groupSchedule: {},
       deletePrompt: false,
-      lessonsToDelete: []
+      lessonsToDelete: [],
+      showEditWindow: false,
+      lessonsDataToEdit: {},
+      editSelectedWeeks: [],
+      editWeeksAuds: {}
     };
   },
   methods: {
@@ -12637,6 +12671,32 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       this.lessonsToDelete = lessons;
       this.deletePrompt = true;
     },
+    getAuditoriumByName: function getAuditoriumByName(name) {
+      var auds = this.auditoriums.filter(function (a) {
+        return a.name === name;
+      });
+      return auds.length > 0 ? auds[0] : {};
+    },
+    askForEdit: function askForEdit(lessonsData) {
+      var r = {};
+
+      for (var i = 1; i <= this.weeksCount; i++) {
+        r[i] = -1;
+      }
+
+      for (var key in lessonsData["weeksAndAuds"]) {
+        for (var _i = 0; _i < lessonsData["weeksAndAuds"][key].length; _i++) {
+          r[lessonsData["weeksAndAuds"][key][_i]] = this.getAuditoriumByName(key).id;
+        }
+      }
+
+      this.editWeeksAuds = r;
+      this.editSelectedWeeks = Object.values(lessonsData['weeksAndAuds']).flat().sort(function (a, b) {
+        return a - b;
+      });
+      this.lessonsDataToEdit = lessonsData;
+      this.showEditWindow = true;
+    },
     deleteLessons: function deleteLessons() {
       var _this2 = this;
 
@@ -12646,6 +12706,40 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       var destroyUrl = '/lessonsDestroyByIds?Ids=' + IdsString;
       axios.post(destroyUrl).then(function (response) {
         _this2.loadGroupSchedule();
+      });
+    },
+    saveLessonsEdit: function saveLessonsEdit() {
+      var _this3 = this;
+
+      var oldWeeks = Object.values(this.lessonsDataToEdit['weeksAndAuds']).flat().sort(function (a, b) {
+        return a - b;
+      });
+      var r = {};
+
+      for (var key in this.lessonsDataToEdit["weeksAndAuds"]) {
+        for (var i = 0; i < this.lessonsDataToEdit["weeksAndAuds"][key].length; i++) {
+          r[this.lessonsDataToEdit["weeksAndAuds"][key][i]] = this.getAuditoriumByName(key).id;
+        }
+      }
+
+      var oldEditWeeksAuds = r;
+      var weeksToAdd = this.editSelectedWeeks.filter(function (w) {
+        return !oldWeeks.includes(w);
+      });
+      var addString = weeksToAdd.map(function (w) {
+        return w + '@' + _this3.editWeeksAuds[w];
+      }).join('|');
+      var weeksRemoved = oldWeeks.filter(function (w) {
+        return !_this3.editSelectedWeeks.includes(w);
+      });
+      var removeString = weeksRemoved.join('|');
+      var changedAuditoriumsString = oldWeeks.filter(function (w) {
+        return _this3.editSelectedWeeks.includes(w) && oldEditWeeksAuds[w] !== _this3.editWeeksAuds[w];
+      }).map(function (w) {
+        return w + '@' + _this3.editWeeksAuds[w];
+      }).join('|');
+      axios.post('/lessonsWeeksAndAudsEdit' + '?tfdId=' + this.lessonsDataToEdit["lessons"][0].tfdId + '&ringId=' + this.lessonsDataToEdit["lessons"][0].ringId + '&dow=' + this.lessonsDataToEdit["lessons"][0].dow + '&add=' + addString + '&remove=' + removeString + '&changeAuditorium=' + changedAuditoriumsString).then(function (response) {
+        _this3.loadGroupSchedule();
       });
     },
     loadFullGroupSchedule: function loadFullGroupSchedule() {
@@ -12691,15 +12785,15 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       prev = false;
       baseNum = max + 3;
 
-      for (var _i = min % 2 === 1 ? min - 2 : min - 1; _i <= max + 3; _i = _i + 2) {
-        if (prev === false && weeks.includes(_i)) {
-          baseNum = _i;
+      for (var _i2 = min % 2 === 1 ? min - 2 : min - 1; _i2 <= max + 3; _i2 = _i2 + 2) {
+        if (prev === false && weeks.includes(_i2)) {
+          baseNum = _i2;
         }
 
-        if (!weeks.includes(_i) && _i - baseNum > 4) {
-          result.push(baseNum + "-" + (_i - 2).toString() + " (нечёт.)");
+        if (!weeks.includes(_i2) && _i2 - baseNum > 4) {
+          result.push(baseNum + "-" + (_i2 - 2).toString() + " (нечёт.)");
 
-          for (var _k = baseNum; _k < _i; _k = _k + 2) {
+          for (var _k = baseNum; _k < _i2; _k = _k + 2) {
             var _index = weeks.indexOf(_k);
 
             if (_index > -1) {
@@ -12708,22 +12802,22 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           }
         }
 
-        if (!weeks.includes(_i)) baseNum = max + 3;
-        prev = weeks.includes(_i);
+        if (!weeks.includes(_i2)) baseNum = max + 3;
+        prev = weeks.includes(_i2);
       }
 
       prev = false;
       baseNum = max + 3;
 
-      for (var _i2 = min % 2 === 0 ? min - 2 : min - 1; _i2 <= max + 3; _i2 = _i2 + 2) {
-        if (prev === false && weeks.includes(_i2)) {
-          baseNum = _i2;
+      for (var _i3 = min % 2 === 0 ? min - 2 : min - 1; _i3 <= max + 3; _i3 = _i3 + 2) {
+        if (prev === false && weeks.includes(_i3)) {
+          baseNum = _i3;
         }
 
-        if (!weeks.includes(_i2) && _i2 - baseNum > 4) {
-          result.push(baseNum + "-" + (_i2 - 2).toString() + " (чёт.)");
+        if (!weeks.includes(_i3) && _i3 - baseNum > 4) {
+          result.push(baseNum + "-" + (_i3 - 2).toString() + " (чёт.)");
 
-          for (var _k2 = baseNum; _k2 < _i2; _k2 = _k2 + 2) {
+          for (var _k2 = baseNum; _k2 < _i3; _k2 = _k2 + 2) {
             var _index2 = weeks.indexOf(_k2);
 
             if (_index2 > -1) {
@@ -12732,8 +12826,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           }
         }
 
-        if (!weeks.includes(_i2)) baseNum = max + 3;
-        prev = weeks.includes(_i2);
+        if (!weeks.includes(_i3)) baseNum = max + 3;
+        prev = weeks.includes(_i3);
       }
 
       for (var _index3 = 0; _index3 < weeks.length; _index3++) {
@@ -12787,8 +12881,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           }
 
           if (week > this.selectedWeeks[0]) {
-            for (var _i3 = this.selectedWeeks[0] + 1; _i3 <= week; _i3++) {
-              this.selectedWeeks.push(_i3);
+            for (var _i4 = this.selectedWeeks[0] + 1; _i4 <= week; _i4++) {
+              this.selectedWeeks.push(_i4);
             }
 
             this.loadGroupSchedule();
@@ -12808,11 +12902,60 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           this.selectedWeeks.push(week);
         } else {
           var index = this.selectedWeeks.indexOf(week);
-          console.log();
           this.selectedWeeks.splice(index, 1);
         }
 
         this.loadGroupSchedule();
+      }
+    },
+    editWeekToggled: function editWeekToggled(week) {
+      if (this.editSelectedWeeks.length === 1 && event.shiftKey) {
+        if (week < this.editSelectedWeeks[0]) {
+          for (var i = week; i < this.editSelectedWeeks[0]; i++) {
+            console.log('this.editSelectedWeeks');
+            console.log(this.editSelectedWeeks);
+
+            if (!this.editSelectedWeeks.includes(i) && this.editWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
+              this.editWeeksAuds[i] = this.auditoriumsSorted[0].id;
+            }
+
+            this.editSelectedWeeks.push(i);
+          }
+        }
+
+        if (week > this.editSelectedWeeks[0]) {
+          for (var _i5 = this.editSelectedWeeks[0] + 1; _i5 <= week; _i5++) {
+            if (!this.editSelectedWeeks.includes(_i5) && this.editWeeksAuds[_i5] === -1 && this.auditoriums.length > 0) {
+              this.editWeeksAuds[_i5] = this.auditoriumsSorted[0].id;
+            }
+
+            this.editSelectedWeeks.push(_i5);
+          }
+        }
+
+        return;
+      }
+
+      if (event.ctrlKey) {
+        this.editSelectedWeeks = [];
+        this.editSelectedWeeks.push(week);
+
+        if (this.editWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+          this.editWeeksAuds[week] = this.auditoriumsSorted[0].id;
+        }
+
+        return;
+      }
+
+      if (!this.editSelectedWeeks.includes(week)) {
+        if (this.editWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+          this.editWeeksAuds[week] = this.auditoriumsSorted[0].id;
+        }
+
+        this.editSelectedWeeks.push(week);
+      } else {
+        var index = this.editSelectedWeeks.indexOf(week);
+        this.editSelectedWeeks.splice(index, 1);
       }
     }
   },
@@ -12829,6 +12972,12 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     }
   },
   computed: {
+    auditoriumsSorted: function auditoriumsSorted() {
+      return this.auditoriums.sort(function (a, b) {
+        if (a.name === b.name) return 0;
+        return a.name < b.name ? -1 : 1;
+      });
+    },
     groupsSorted: function groupsSorted() {
       var result = [];
 
@@ -33911,7 +34060,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.modal-mask[data-v-53ab54d2] {\n    position: fixed;\n    z-index: 9998;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    background-color: rgba(0, 0, 0, .5);\n    display: table;\n    transition: opacity .3s ease;\n}\n.modal-wrapper[data-v-53ab54d2] {\n    display: table-cell;\n    vertical-align: middle;\n}\n.modal-container[data-v-53ab54d2] {\n    width: 300px;\n    margin: 0px auto;\n    padding: 20px 30px;\n    background-color: #fff;\n    border-radius: 2px;\n    box-shadow: 0 2px 8px rgba(0, 0, 0, .33);\n    transition: all .3s ease;\n    font-family: Helvetica, Arial, sans-serif;\n}\n.modal-header h3[data-v-53ab54d2] {\n    margin-top: 0;\n    color: #42b983;\n}\n.modal-body[data-v-53ab54d2] {\n    margin: 20px 0;\n}\n.modal-default-button[data-v-53ab54d2] {\n    float: right;\n}\n\n/*\n * The following styles are auto-applied to elements with\n * transition=\"modal\" when their visibility is toggled\n * by Vue.js.\n *\n * You can easily play with the modal transition by editing\n * these styles.\n */\n.modal-enter[data-v-53ab54d2] {\n    opacity: 0;\n}\n.modal-leave-active[data-v-53ab54d2] {\n    opacity: 0;\n}\n.modal-enter .modal-container[data-v-53ab54d2],\n.modal-leave-active .modal-container[data-v-53ab54d2] {\n    transform: scale(1.1);\n}\n", ""]);
+exports.push([module.i, "\n.modal-mask[data-v-53ab54d2] {\n    position: fixed;\n    z-index: 9998;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    background-color: rgba(0, 0, 0, .5);\n    display: table;\n    transition: opacity .3s ease;\n}\n.modal-wrapper[data-v-53ab54d2] {\n    display: table-cell;\n    vertical-align: middle;\n}\n.modal-container[data-v-53ab54d2] {\n    width: 90%;\n    margin: 0px auto;\n    padding: 20px 30px;\n    background-color: #fff;\n    border-radius: 2px;\n    box-shadow: 0 2px 8px rgba(0, 0, 0, .33);\n    transition: all .3s ease;\n    font-family: Helvetica, Arial, sans-serif;\n}\n.modal-header h3[data-v-53ab54d2] {\n    margin-top: 0;\n    color: #42b983;\n}\n.modal-body[data-v-53ab54d2] {\n    margin: 20px 0;\n}\n.modal-default-button[data-v-53ab54d2] {\n    float: right;\n}\n\n/*\n * The following styles are auto-applied to elements with\n * transition=\"modal\" when their visibility is toggled\n * by Vue.js.\n *\n * You can easily play with the modal transition by editing\n * these styles.\n */\n.modal-enter[data-v-53ab54d2] {\n    opacity: 0;\n}\n.modal-leave-active[data-v-53ab54d2] {\n    opacity: 0;\n}\n.modal-enter .modal-container[data-v-53ab54d2],\n.modal-leave-active .modal-container[data-v-53ab54d2] {\n    transform: scale(1.1);\n}\n", ""]);
 
 // exports
 
@@ -84660,6 +84809,21 @@ var render = function() {
                                                                   {
                                                                     attrs: {
                                                                       href: "#"
+                                                                    },
+                                                                    on: {
+                                                                      click: function(
+                                                                        $event
+                                                                      ) {
+                                                                        $event.preventDefault()
+                                                                        return _vm.askForEdit(
+                                                                          _vm
+                                                                            .groupSchedule[
+                                                                            dow
+                                                                          ][
+                                                                            ring
+                                                                          ][tfd]
+                                                                        )
+                                                                      }
                                                                     }
                                                                   },
                                                                   [
@@ -85003,6 +85167,239 @@ var render = function() {
               null,
               false,
               959367506
+            )
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.showEditWindow
+        ? _c("modal", {
+            scopedSlots: _vm._u(
+              [
+                {
+                  key: "header",
+                  fn: function() {
+                    return [
+                      _vm._v(
+                        "Редактирование уроков. Недели: " +
+                          _vm._s(_vm.combineWeeksToRange(_vm.editSelectedWeeks))
+                      )
+                    ]
+                  },
+                  proxy: true
+                },
+                {
+                  key: "body",
+                  fn: function() {
+                    return [
+                      _vm._l(2, function(half) {
+                        return [
+                          _c("table", { staticStyle: { margin: "0 auto" } }, [
+                            _c(
+                              "tr",
+                              _vm._l(
+                                half === 1
+                                  ? Math.floor(_vm.weeksCount / 2)
+                                  : Math.ceil(_vm.weeksCount / 2),
+                                function(week) {
+                                  return _c(
+                                    "td",
+                                    { staticStyle: { "text-align": "center" } },
+                                    [
+                                      _c(
+                                        "button",
+                                        {
+                                          class: {
+                                            button: true,
+                                            "is-primary": !_vm.editSelectedWeeks.includes(
+                                              week +
+                                                (half === 2
+                                                  ? Math.floor(
+                                                      _vm.weeksCount / 2
+                                                    )
+                                                  : 0)
+                                            ),
+                                            "is-danger": _vm.editSelectedWeeks.includes(
+                                              week +
+                                                (half === 2
+                                                  ? Math.floor(
+                                                      _vm.weeksCount / 2
+                                                    )
+                                                  : 0)
+                                            )
+                                          },
+                                          staticStyle: {
+                                            "margin-right": "0.5em",
+                                            "margin-bottom": "0.5em"
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              _vm.editWeekToggled(
+                                                week +
+                                                  (half === 2
+                                                    ? Math.floor(
+                                                        _vm.weeksCount / 2
+                                                      )
+                                                    : 0)
+                                              )
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(
+                                              week +
+                                                (half === 2
+                                                  ? Math.floor(
+                                                      _vm.weeksCount / 2
+                                                    )
+                                                  : 0)
+                                            )
+                                          )
+                                        ]
+                                      )
+                                    ]
+                                  )
+                                }
+                              ),
+                              0
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "tr",
+                              _vm._l(
+                                half === 1
+                                  ? Math.floor(_vm.weeksCount / 2)
+                                  : Math.ceil(_vm.weeksCount / 2),
+                                function(week) {
+                                  return _c(
+                                    "td",
+                                    { staticStyle: { padding: "10px" } },
+                                    [
+                                      _c(
+                                        "select",
+                                        {
+                                          directives: [
+                                            {
+                                              name: "model",
+                                              rawName: "v-model",
+                                              value:
+                                                _vm.editWeeksAuds[
+                                                  week +
+                                                    (half === 2
+                                                      ? Math.floor(
+                                                          _vm.weeksCount / 2
+                                                        )
+                                                      : 0)
+                                                ],
+                                              expression:
+                                                "editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]"
+                                            }
+                                          ],
+                                          staticStyle: {
+                                            width: "90px",
+                                            "font-size": "1em"
+                                          },
+                                          on: {
+                                            change: function($event) {
+                                              var $$selectedVal = Array.prototype.filter
+                                                .call(
+                                                  $event.target.options,
+                                                  function(o) {
+                                                    return o.selected
+                                                  }
+                                                )
+                                                .map(function(o) {
+                                                  var val =
+                                                    "_value" in o
+                                                      ? o._value
+                                                      : o.value
+                                                  return val
+                                                })
+                                              _vm.$set(
+                                                _vm.editWeeksAuds,
+                                                week +
+                                                  (half === 2
+                                                    ? Math.floor(
+                                                        _vm.weeksCount / 2
+                                                      )
+                                                    : 0),
+                                                $event.target.multiple
+                                                  ? $$selectedVal
+                                                  : $$selectedVal[0]
+                                              )
+                                            }
+                                          }
+                                        },
+                                        _vm._l(_vm.auditoriumsSorted, function(
+                                          aud
+                                        ) {
+                                          return _c(
+                                            "option",
+                                            { domProps: { value: aud.id } },
+                                            [
+                                              _vm._v(
+                                                "\n                                    " +
+                                                  _vm._s(aud.name) +
+                                                  "\n                                "
+                                              )
+                                            ]
+                                          )
+                                        }),
+                                        0
+                                      )
+                                    ]
+                                  )
+                                }
+                              ),
+                              0
+                            )
+                          ])
+                        ]
+                      })
+                    ]
+                  },
+                  proxy: true
+                },
+                {
+                  key: "footer",
+                  fn: function() {
+                    return [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "button is-primary",
+                          staticStyle: { "margin-right": "0.5em" },
+                          on: {
+                            click: function($event) {
+                              _vm.showEditWindow = false
+                            }
+                          }
+                        },
+                        [_vm._v("Отмена")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "button is-danger",
+                          staticStyle: { "margin-right": "0.5em" },
+                          on: {
+                            click: function($event) {
+                              _vm.saveLessonsEdit()
+                              _vm.showEditWindow = false
+                            }
+                          }
+                        },
+                        [_vm._v("Сохранить")]
+                      )
+                    ]
+                  },
+                  proxy: true
+                }
+              ],
+              null,
+              false,
+              332800734
             )
           })
         : _vm._e()
