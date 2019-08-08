@@ -12625,6 +12625,30 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -12661,7 +12685,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       newDow: -1,
       newRingIds: [],
       allRings: [],
-      addLoading: false
+      addLoading: false,
+      newSingleAudId: -1
     };
   },
   methods: {
@@ -12746,6 +12771,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         return a.name === name;
       });
       return auds.length > 0 ? auds[0] : {};
+    },
+    newSingleAudChanged: function newSingleAudChanged() {
+      for (var i = 0; i < this.newSelectedWeeks.length; i++) {
+        this.newWeeksAuds[this.newSelectedWeeks[i]] = this.newSingleAudId;
+      }
     },
     askForEdit: function askForEdit(lessonsData) {
       var r = {};
@@ -84639,32 +84669,40 @@ var render = function() {
                                 _c("td"),
                                 _vm._v(" "),
                                 _vm._l(6, function(dow) {
-                                  return _c("td", [
-                                    _c("strong", [
-                                      _vm._v(_vm._s(_vm.dowRu[dow - 1]))
-                                    ]),
-                                    _vm._v(" "),
-                                    _c(
-                                      "a",
-                                      {
-                                        attrs: { href: "#" },
-                                        on: {
-                                          click: function($event) {
-                                            $event.preventDefault()
-                                            _vm.newDow = dow
-                                            _vm.newRingIds = []
-                                            _vm.askForNew()
-                                          }
-                                        }
-                                      },
-                                      [
-                                        _c("font-awesome-icon", {
-                                          attrs: { icon: "plus-square" }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  ])
+                                  return _c(
+                                    "td",
+                                    [
+                                      _c("strong", [
+                                        _vm._v(_vm._s(_vm.dowRu[dow - 1]))
+                                      ]),
+                                      _vm._v(" "),
+                                      _vm.groupDisciplines.length > 0
+                                        ? [
+                                            _c(
+                                              "a",
+                                              {
+                                                attrs: { href: "#" },
+                                                on: {
+                                                  click: function($event) {
+                                                    $event.preventDefault()
+                                                    _vm.newDow = dow
+                                                    _vm.newRingIds = []
+                                                    _vm.askForNew()
+                                                  }
+                                                }
+                                              },
+                                              [
+                                                _c("font-awesome-icon", {
+                                                  attrs: { icon: "plus-square" }
+                                                })
+                                              ],
+                                              1
+                                            )
+                                          ]
+                                        : _vm._e()
+                                    ],
+                                    2
+                                  )
                                 })
                               ],
                               2
@@ -84701,33 +84739,42 @@ var render = function() {
                                                   }
                                                 },
                                                 [
-                                                  _c(
-                                                    "a",
-                                                    {
-                                                      attrs: { href: "#" },
-                                                      on: {
-                                                        click: function(
-                                                          $event
-                                                        ) {
-                                                          $event.preventDefault()
-                                                          _vm.newDow = dow
-                                                          _vm.setNewRingId(ring)
-                                                          _vm.askForNew()
-                                                        }
-                                                      }
-                                                    },
-                                                    [
-                                                      _c("font-awesome-icon", {
-                                                        attrs: {
-                                                          icon: "plus-square"
-                                                        }
-                                                      }),
-                                                      _vm._v(
-                                                        " Добавить\n                                                "
+                                                  _vm.groupDisciplines.length >
+                                                  0
+                                                    ? _c(
+                                                        "a",
+                                                        {
+                                                          attrs: { href: "#" },
+                                                          on: {
+                                                            click: function(
+                                                              $event
+                                                            ) {
+                                                              $event.preventDefault()
+                                                              _vm.newDow = dow
+                                                              _vm.setNewRingId(
+                                                                ring
+                                                              )
+                                                              _vm.askForNew()
+                                                            }
+                                                          }
+                                                        },
+                                                        [
+                                                          _c(
+                                                            "font-awesome-icon",
+                                                            {
+                                                              attrs: {
+                                                                icon:
+                                                                  "plus-square"
+                                                              }
+                                                            }
+                                                          ),
+                                                          _vm._v(
+                                                            " Добавить\n                                                "
+                                                          )
+                                                        ],
+                                                        1
                                                       )
-                                                    ],
-                                                    1
-                                                  )
+                                                    : _vm._e()
                                                 ]
                                               )
                                             ])
@@ -85576,23 +85623,52 @@ var render = function() {
                   key: "header",
                   fn: function() {
                     return [
-                      _vm._v(
-                        "\n            Новые уроки.\n            " +
-                          _vm._s(_vm.groupDisciplineSelected.disciplineName) +
-                          " @ " +
-                          _vm._s(_vm.groupDisciplineSelected.studentGroupName) +
-                          " = " +
-                          _vm._s(_vm.groupDisciplineSelected.teacherFio) +
-                          "\n            "
+                      _vm._v("\n            Новые уроки.\n            "),
+                      _c(
+                        "select",
+                        {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.groupDisciplineSelected,
+                              expression: "groupDisciplineSelected"
+                            }
+                          ],
+                          on: {
+                            change: function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.groupDisciplineSelected = $event.target
+                                .multiple
+                                ? $$selectedVal
+                                : $$selectedVal[0]
+                            }
+                          }
+                        },
+                        _vm._l(_vm.groupDisciplinesWithTeacher, function(gd) {
+                          return _c("option", { domProps: { value: gd } }, [
+                            _vm._v(
+                              "\n                    " +
+                                _vm._s(gd.disciplineName) +
+                                " @ " +
+                                _vm._s(gd.studentGroupName) +
+                                " = " +
+                                _vm._s(gd.teacherFio) +
+                                "\n                "
+                            )
+                          ])
+                        }),
+                        0
                       ),
-                      _c("br"),
-                      _vm._v(
-                        "\n            Недели: " +
-                          _vm._s(
-                            _vm.combineWeeksToRange(_vm.newSelectedWeeks)
-                          ) +
-                          "\n        "
-                      )
+                      _vm._v(" "),
+                      _c("br")
                     ]
                   },
                   proxy: true
@@ -85601,6 +85677,100 @@ var render = function() {
                   key: "body",
                   fn: function() {
                     return [
+                      _c("table", { staticStyle: { width: "100%" } }, [
+                        _c("tr", [
+                          _c("td", { staticStyle: { width: "50%" } }, [
+                            _c(
+                              "div",
+                              { staticStyle: { "text-align": "left" } },
+                              [
+                                _vm._v(
+                                  "\n                            Недели: " +
+                                    _vm._s(
+                                      _vm.combineWeeksToRange(
+                                        _vm.newSelectedWeeks
+                                      )
+                                    ) +
+                                    "\n                        "
+                                )
+                              ]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "td",
+                            {
+                              staticStyle: {
+                                "text-align": "center",
+                                width: "50%"
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                        Аудитория для всех недель:\n                        "
+                              ),
+                              _c(
+                                "select",
+                                {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.newSingleAudId,
+                                      expression: "newSingleAudId"
+                                    }
+                                  ],
+                                  staticStyle: {
+                                    width: "90px",
+                                    "font-size": "1em"
+                                  },
+                                  on: {
+                                    change: [
+                                      function($event) {
+                                        var $$selectedVal = Array.prototype.filter
+                                          .call($event.target.options, function(
+                                            o
+                                          ) {
+                                            return o.selected
+                                          })
+                                          .map(function(o) {
+                                            var val =
+                                              "_value" in o ? o._value : o.value
+                                            return val
+                                          })
+                                        _vm.newSingleAudId = $event.target
+                                          .multiple
+                                          ? $$selectedVal
+                                          : $$selectedVal[0]
+                                      },
+                                      function($event) {
+                                        return _vm.newSingleAudChanged()
+                                      }
+                                    ]
+                                  }
+                                },
+                                _vm._l(_vm.auditoriumsSorted, function(aud) {
+                                  return _c(
+                                    "option",
+                                    { domProps: { value: aud.id } },
+                                    [
+                                      _vm._v(
+                                        "\n                                " +
+                                          _vm._s(aud.name) +
+                                          "\n                            "
+                                      )
+                                    ]
+                                  )
+                                }),
+                                0
+                              )
+                            ]
+                          )
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c("hr"),
+                      _vm._v(" "),
                       _vm._l(2, function(half) {
                         return [
                           _c("table", { staticStyle: { margin: "0 auto" } }, [
@@ -85897,7 +86067,7 @@ var render = function() {
               ],
               null,
               false,
-              3490587910
+              2339855123
             )
           })
         : _vm._e()

@@ -45,7 +45,9 @@
                                     <td></td>
                                     <td v-for="dow in 6">
                                         <strong>{{dowRu[dow-1]}}</strong>
-                                        <a @click.prevent="newDow = dow; newRingIds = []; askForNew();" href="#"><font-awesome-icon icon="plus-square" /></a>
+                                        <template v-if="groupDisciplines.length > 0">
+                                            <a @click.prevent="newDow = dow; newRingIds = []; askForNew();" href="#"><font-awesome-icon icon="plus-square" /></a>
+                                        </template>
                                     </td>
                                 </tr>
 
@@ -55,7 +57,7 @@
                                         <table style="width: 100%; text-align: center; border:none !important;">
                                             <tr>
                                                 <td style="border:none;">
-                                                    <a @click.prevent="newDow = dow; setNewRingId(ring); askForNew();" href="#">
+                                                    <a v-if="groupDisciplines.length > 0" @click.prevent="newDow = dow; setNewRingId(ring); askForNew();" href="#">
                                                         <font-awesome-icon icon="plus-square" /> Добавить
                                                     </a>
                                                 </td>
@@ -223,11 +225,33 @@
         <modal v-if="showNewWindow">
             <template v-slot:header>
                 Новые уроки.
-                {{groupDisciplineSelected.disciplineName}} @ {{groupDisciplineSelected.studentGroupName}} = {{groupDisciplineSelected.teacherFio}}
+                <select v-model="groupDisciplineSelected">
+                    <option v-for="gd in groupDisciplinesWithTeacher" :value="gd">
+                        {{gd.disciplineName}} @ {{gd.studentGroupName}} = {{gd.teacherFio}}
+                    </option>
+                </select>
                 <br />
-                Недели: {{combineWeeksToRange(newSelectedWeeks)}}
+
             </template>
             <template v-slot:body>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width:50%;">
+                            <div style="text-align: left;">
+                                Недели: {{combineWeeksToRange(newSelectedWeeks)}}
+                            </div>
+                        </td>
+                        <td style="text-align:center; width:50%;">
+                            Аудитория для всех недель:
+                            <select style="width: 90px; font-size: 1em;" v-model="newSingleAudId" @change="newSingleAudChanged();">
+                                <option v-for="aud in auditoriumsSorted" :value="aud.id">
+                                    {{aud.name}}
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                <hr>
                 <template v-for="half in 2">
                     <table style="margin: 0 auto;">
                         <tr>
@@ -334,6 +358,7 @@
                 newRingIds: [],
                 allRings: [],
                 addLoading: false,
+                newSingleAudId: -1,
             }
         },
         methods: {
@@ -426,6 +451,11 @@
             getAuditoriumByName(name) {
                 let auds = this.auditoriums.filter(a => a.name === name);
                 return (auds.length > 0) ? auds[0] : {};
+            },
+            newSingleAudChanged() {
+                for(let i = 0; i < this.newSelectedWeeks.length; i++) {
+                    this.newWeeksAuds[this.newSelectedWeeks[i]] = this.newSingleAudId;
+                }
             },
             askForEdit(lessonsData) {
                 var r = {};
