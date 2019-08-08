@@ -12322,6 +12322,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Modal__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Modal */ "./resources/js/components/Modal.vue");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_1__);
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -12623,17 +12625,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "GroupSchedule",
@@ -12661,7 +12653,15 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       editSelectedWeeks: [],
       editWeeksAuds: {},
       groupDisciplines: [],
-      groupDisciplineSelected: {}
+      groupDisciplineSelected: {},
+      dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+      showNewWindow: false,
+      newSelectedWeeks: [],
+      newWeeksAuds: {},
+      newDow: -1,
+      newRingIds: [],
+      allRings: [],
+      addLoading: false
     };
   },
   methods: {
@@ -12707,8 +12707,35 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         }
       });
     },
+    setNewRingId: function setNewRingId(ring) {
+      var ra = this.allRings.filter(function (r) {
+        return ring === r.Time.substr(0, 5);
+      });
+
+      if (ra.length > 0) {
+        this.newRingIds = [];
+        this.newRingIds.push(ra[0].RingId);
+      }
+    },
+    newRingToggled: function newRingToggled(ring) {
+      if (this.newRingIds.includes(ring.RingId)) {
+        var index = this.newRingIds.indexOf(ring.RingId);
+        this.newRingIds.splice(index, 1);
+      } else {
+        this.newRingIds.push(ring.RingId);
+      }
+    },
     disciplineClicked: function disciplineClicked(discipline) {
       this.groupDisciplineSelected = discipline;
+    },
+    askForNew: function askForNew() {
+      this.newSelectedWeeks = [];
+
+      for (var i = 1; i <= this.weeksCount; i++) {
+        this.newWeeksAuds[i] = -1;
+      }
+
+      this.showNewWindow = true;
     },
     askForDelete: function askForDelete(lessons) {
       this.lessonsToDelete = lessons;
@@ -12751,8 +12778,26 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         _this2.loadGroupSchedule();
       });
     },
-    saveLessonsEdit: function saveLessonsEdit() {
+    saveLessonsNew: function saveLessonsNew() {
       var _this3 = this;
+
+      this.addLoading = true;
+      var tfdId = this.groupDisciplineSelected.tfdId;
+      var dow = this.newDow;
+      var weeks = this.newSelectedWeeks.join('|');
+      var ringIds = this.newRingIds.join('|');
+      var weeksAuds = this.newSelectedWeeks.map(function (w) {
+        return w + '@' + _this3.newWeeksAuds[w];
+      }).join('|');
+      axios.post('/lessonsGroupScheduleAdd' + '?tfdId=' + tfdId + '&dow=' + dow + '&weeks=' + weeks + '&ringIds=' + ringIds + '&weeksAuds=' + weeksAuds).then(function (response) {
+        _this3.addLoading = false;
+        _this3.showNewWindow = false;
+
+        _this3.loadGroupSchedule();
+      });
+    },
+    saveLessonsEdit: function saveLessonsEdit() {
+      var _this4 = this;
 
       var oldWeeks = Object.values(this.lessonsDataToEdit['weeksAndAuds']).flat().sort(function (a, b) {
         return a - b;
@@ -12770,19 +12815,19 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         return !oldWeeks.includes(w);
       });
       var addString = weeksToAdd.map(function (w) {
-        return w + '@' + _this3.editWeeksAuds[w];
+        return w + '@' + _this4.editWeeksAuds[w];
       }).join('|');
       var weeksRemoved = oldWeeks.filter(function (w) {
-        return !_this3.editSelectedWeeks.includes(w);
+        return !_this4.editSelectedWeeks.includes(w);
       });
       var removeString = weeksRemoved.join('|');
       var changedAuditoriumsString = oldWeeks.filter(function (w) {
-        return _this3.editSelectedWeeks.includes(w) && oldEditWeeksAuds[w] !== _this3.editWeeksAuds[w];
+        return _this4.editSelectedWeeks.includes(w) && oldEditWeeksAuds[w] !== _this4.editWeeksAuds[w];
       }).map(function (w) {
-        return w + '@' + _this3.editWeeksAuds[w];
+        return w + '@' + _this4.editWeeksAuds[w];
       }).join('|');
       axios.post('/lessonsWeeksAndAudsEdit' + '?tfdId=' + this.lessonsDataToEdit["lessons"][0].tfdId + '&ringId=' + this.lessonsDataToEdit["lessons"][0].ringId + '&dow=' + this.lessonsDataToEdit["lessons"][0].dow + '&add=' + addString + '&remove=' + removeString + '&changeAuditorium=' + changedAuditoriumsString).then(function (response) {
-        _this3.loadGroupSchedule();
+        _this4.loadGroupSchedule();
       });
     },
     loadFullGroupSchedule: function loadFullGroupSchedule() {
@@ -12955,9 +13000,6 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       if (this.editSelectedWeeks.length === 1 && event.shiftKey) {
         if (week < this.editSelectedWeeks[0]) {
           for (var i = week; i < this.editSelectedWeeks[0]; i++) {
-            console.log('this.editSelectedWeeks');
-            console.log(this.editSelectedWeeks);
-
             if (!this.editSelectedWeeks.includes(i) && this.editWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
               this.editWeeksAuds[i] = this.auditoriumsSorted[0].id;
             }
@@ -13000,9 +13042,67 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         var index = this.editSelectedWeeks.indexOf(week);
         this.editSelectedWeeks.splice(index, 1);
       }
+    },
+    newWeekToggled: function newWeekToggled(week) {
+      if (this.newSelectedWeeks.length === 1 && event.shiftKey) {
+        if (week < this.newSelectedWeeks[0]) {
+          for (var i = week; i < this.newSelectedWeeks[0]; i++) {
+            if (!this.newSelectedWeeks.includes(i) && this.newWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
+              this.newWeeksAuds[i] = this.auditoriumsSorted[0].id;
+            }
+
+            this.newSelectedWeeks.push(i);
+          }
+        }
+
+        if (week > this.newSelectedWeeks[0]) {
+          for (var _i6 = this.newSelectedWeeks[0] + 1; _i6 <= week; _i6++) {
+            if (!this.newSelectedWeeks.includes(_i6) && this.newWeeksAuds[_i6] === -1 && this.auditoriums.length > 0) {
+              this.newWeeksAuds[_i6] = this.auditoriumsSorted[0].id;
+            }
+
+            this.newSelectedWeeks.push(_i6);
+          }
+        }
+
+        return;
+      }
+
+      if (event.ctrlKey) {
+        this.newSelectedWeeks = [];
+        this.newSelectedWeeks.push(week);
+
+        if (this.newWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+          this.newWeeksAuds[week] = this.auditoriumsSorted[0].id;
+        }
+
+        return;
+      }
+
+      if (!this.newSelectedWeeks.includes(week)) {
+        if (this.newWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+          this.newWeeksAuds[week] = this.auditoriumsSorted[0].id;
+        }
+
+        this.newSelectedWeeks.push(week);
+      } else {
+        var index = this.newSelectedWeeks.indexOf(week);
+        this.newSelectedWeeks.splice(index, 1);
+      }
     }
   },
   mounted: function mounted() {
+    var _this5 = this;
+
+    axios.get('/api.php?action=list&listtype=rings').then(function (response) {
+      _this5.allRings = response.data.sort(function (a, b) {
+        if (a.Time === b.Time) return 0;
+        var aMoment = moment__WEBPACK_IMPORTED_MODULE_1___default()(a.Time, "HH:mm:ss");
+        var bMoment = moment__WEBPACK_IMPORTED_MODULE_1___default()(b.Time, "HH:mm:ss");
+        return aMoment < bMoment ? -1 : 1;
+      });
+    });
+
     if (this.studentGroupId === -1) {
       if (this.groups.length !== 0) {
         this.studentGroupId = this.groupsSorted[0].id;
@@ -84525,49 +84625,7 @@ var render = function() {
                         )
                       : _vm._e(),
                     _vm._v(" "),
-                    _vm.groupSchedule[1] &&
-                    _vm.groupSchedule[1].length === 0 &&
-                    (_vm.groupSchedule[2] &&
-                      _vm.groupSchedule[2].length === 0) &&
-                    (_vm.groupSchedule[3] &&
-                      _vm.groupSchedule[3].length === 0) &&
-                    (_vm.groupSchedule[4] &&
-                      _vm.groupSchedule[4].length === 0) &&
-                    (_vm.groupSchedule[5] &&
-                      _vm.groupSchedule[5].length === 0) &&
-                    (_vm.groupSchedule[6] &&
-                      _vm.groupSchedule[6].length === 0) &&
                     _vm.loading === false
-                      ? _c(
-                          "div",
-                          {
-                            staticStyle: {
-                              "text-align": "center",
-                              "font-size": "30px"
-                            }
-                          },
-                          [
-                            _vm._v(
-                              "\n                            Занятий нет\n                        "
-                            )
-                          ]
-                        )
-                      : _vm._e(),
-                    _vm._v(" "),
-                    !(
-                      _vm.groupSchedule[1] &&
-                      _vm.groupSchedule[1].length === 0 &&
-                      (_vm.groupSchedule[2] &&
-                        _vm.groupSchedule[2].length === 0) &&
-                      (_vm.groupSchedule[3] &&
-                        _vm.groupSchedule[3].length === 0) &&
-                      (_vm.groupSchedule[4] &&
-                        _vm.groupSchedule[4].length === 0) &&
-                      (_vm.groupSchedule[5] &&
-                        _vm.groupSchedule[5].length === 0) &&
-                      (_vm.groupSchedule[6] &&
-                        _vm.groupSchedule[6].length === 0)
-                    ) && _vm.loading === false
                       ? _c(
                           "table",
                           {
@@ -84575,237 +84633,42 @@ var render = function() {
                             staticStyle: { "margin-top": "2em" }
                           },
                           [
-                            _c("tr", [
-                              _c("td"),
-                              _vm._v(" "),
-                              _vm.groupSchedule[1] &&
-                              _vm.groupSchedule[1].length !== 0
-                                ? _c(
-                                    "td",
-                                    [
-                                      _c("strong", [_vm._v("Понедельник")]),
-                                      _vm._v(" "),
-                                      !this.severalWeeks
-                                        ? [
-                                            _c("br"),
-                                            _vm._v(
-                                              "\n                                        " +
-                                                _vm._s(
-                                                  _vm._f("formatOnlyDate")(
-                                                    _vm.groupSchedule[1][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[1]
-                                                      )[0]
-                                                    ][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[1][
-                                                          Object.keys(
-                                                            _vm.groupSchedule[1]
-                                                          )[0]
-                                                        ]
-                                                      )[0]
-                                                    ]["lessons"][0]["date"]
-                                                  )
-                                                ) +
-                                                "\n                                    "
-                                            )
-                                          ]
-                                        : _vm._e()
-                                    ],
-                                    2
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
-                              _vm.groupSchedule[2] &&
-                              _vm.groupSchedule[2].length !== 0
-                                ? _c(
-                                    "td",
-                                    [
-                                      _c("strong", [_vm._v("Вторник")]),
-                                      _vm._v(" "),
-                                      !this.severalWeeks
-                                        ? [
-                                            _c("br"),
-                                            _vm._v(
-                                              "\n                                        " +
-                                                _vm._s(
-                                                  _vm._f("formatOnlyDate")(
-                                                    _vm.groupSchedule[2][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[2]
-                                                      )[0]
-                                                    ][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[2][
-                                                          Object.keys(
-                                                            _vm.groupSchedule[2]
-                                                          )[0]
-                                                        ]
-                                                      )[0]
-                                                    ]["lessons"][0]["date"]
-                                                  )
-                                                ) +
-                                                "\n                                    "
-                                            )
-                                          ]
-                                        : _vm._e()
-                                    ],
-                                    2
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
-                              _vm.groupSchedule[3] &&
-                              _vm.groupSchedule[3].length !== 0
-                                ? _c(
-                                    "td",
-                                    [
-                                      _c("strong", [_vm._v("Среда")]),
-                                      _vm._v(" "),
-                                      !this.severalWeeks
-                                        ? [
-                                            _c("br"),
-                                            _vm._v(
-                                              "\n                                        " +
-                                                _vm._s(
-                                                  _vm._f("formatOnlyDate")(
-                                                    _vm.groupSchedule[3][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[3]
-                                                      )[0]
-                                                    ][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[3][
-                                                          Object.keys(
-                                                            _vm.groupSchedule[3]
-                                                          )[0]
-                                                        ]
-                                                      )[0]
-                                                    ]["lessons"][0]["date"]
-                                                  )
-                                                ) +
-                                                "\n                                    "
-                                            )
-                                          ]
-                                        : _vm._e()
-                                    ],
-                                    2
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
-                              _vm.groupSchedule[4] &&
-                              _vm.groupSchedule[4].length !== 0
-                                ? _c(
-                                    "td",
-                                    [
-                                      _c("strong", [_vm._v("Четверг")]),
-                                      _vm._v(" "),
-                                      !this.severalWeeks
-                                        ? [
-                                            _c("br"),
-                                            _vm._v(
-                                              "\n                                        " +
-                                                _vm._s(
-                                                  _vm._f("formatOnlyDate")(
-                                                    _vm.groupSchedule[4][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[4]
-                                                      )[0]
-                                                    ][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[4][
-                                                          Object.keys(
-                                                            _vm.groupSchedule[4]
-                                                          )[0]
-                                                        ]
-                                                      )[0]
-                                                    ]["lessons"][0]["date"]
-                                                  )
-                                                ) +
-                                                "\n                                    "
-                                            )
-                                          ]
-                                        : _vm._e()
-                                    ],
-                                    2
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
-                              _vm.groupSchedule[5] &&
-                              _vm.groupSchedule[5].length !== 0
-                                ? _c(
-                                    "td",
-                                    [
-                                      _c("strong", [_vm._v("Пятница")]),
-                                      _vm._v(" "),
-                                      !this.severalWeeks
-                                        ? [
-                                            _c("br"),
-                                            _vm._v(
-                                              "\n                                        " +
-                                                _vm._s(
-                                                  _vm._f("formatOnlyDate")(
-                                                    _vm.groupSchedule[5][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[5]
-                                                      )[0]
-                                                    ][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[5][
-                                                          Object.keys(
-                                                            _vm.groupSchedule[5]
-                                                          )[0]
-                                                        ]
-                                                      )[0]
-                                                    ]["lessons"][0]["date"]
-                                                  )
-                                                ) +
-                                                "\n                                    "
-                                            )
-                                          ]
-                                        : _vm._e()
-                                    ],
-                                    2
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
-                              _vm.groupSchedule[6] &&
-                              _vm.groupSchedule[6].length !== 0
-                                ? _c(
-                                    "td",
-                                    [
-                                      _c("strong", [_vm._v("Суббота")]),
-                                      _vm._v(" "),
-                                      !this.severalWeeks
-                                        ? [
-                                            _c("br"),
-                                            _vm._v(
-                                              "\n                                        " +
-                                                _vm._s(
-                                                  _vm._f("formatOnlyDate")(
-                                                    _vm.groupSchedule[6][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[6]
-                                                      )[0]
-                                                    ][
-                                                      Object.keys(
-                                                        _vm.groupSchedule[6][
-                                                          Object.keys(
-                                                            _vm.groupSchedule[6]
-                                                          )[0]
-                                                        ]
-                                                      )[0]
-                                                    ]["lessons"][0]["date"]
-                                                  )
-                                                ) +
-                                                "\n                                    "
-                                            )
-                                          ]
-                                        : _vm._e()
-                                    ],
-                                    2
-                                  )
-                                : _vm._e()
-                            ]),
+                            _c(
+                              "tr",
+                              [
+                                _c("td"),
+                                _vm._v(" "),
+                                _vm._l(6, function(dow) {
+                                  return _c("td", [
+                                    _c("strong", [
+                                      _vm._v(_vm._s(_vm.dowRu[dow - 1]))
+                                    ]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "a",
+                                      {
+                                        attrs: { href: "#" },
+                                        on: {
+                                          click: function($event) {
+                                            $event.preventDefault()
+                                            _vm.newDow = dow
+                                            _vm.newRingIds = []
+                                            _vm.askForNew()
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _c("font-awesome-icon", {
+                                          attrs: { icon: "plus-square" }
+                                        })
+                                      ],
+                                      1
+                                    )
+                                  ])
+                                })
+                              ],
+                              2
+                            ),
                             _vm._v(" "),
                             _vm._l(this.scheduleRings, function(ring) {
                               return _c(
@@ -84816,369 +84679,75 @@ var render = function() {
                                   ]),
                                   _vm._v(" "),
                                   _vm._l(6, function(dow) {
-                                    return Object.keys(_vm.groupSchedule[dow])
-                                      .length !== 0
-                                      ? _c("td", [
-                                          _vm.groupSchedule[dow][ring] !==
-                                          undefined
-                                            ? _c(
-                                                "div",
+                                    return _c(
+                                      "td",
+                                      [
+                                        _c(
+                                          "table",
+                                          {
+                                            staticStyle: {
+                                              width: "100%",
+                                              "text-align": "center",
+                                              border: "none !important"
+                                            }
+                                          },
+                                          [
+                                            _c("tr", [
+                                              _c(
+                                                "td",
                                                 {
                                                   staticStyle: {
                                                     border: "none"
                                                   }
                                                 },
                                                 [
-                                                  _vm._l(
-                                                    Object.keys(
-                                                      _vm.groupSchedule[dow][
-                                                        ring
-                                                      ]
-                                                    ).sort(function(a, b) {
-                                                      var aMin = Math.min.apply(
-                                                        Math,
-                                                        Object.values(
-                                                          _vm.groupSchedule[
-                                                            dow
-                                                          ][ring][a][
-                                                            "weeksAndAuds"
-                                                          ]
-                                                        ).flat()
-                                                      )
-                                                      var bMin = Math.min.apply(
-                                                        Math,
-                                                        Object.values(
-                                                          _vm.groupSchedule[
-                                                            dow
-                                                          ][ring][b][
-                                                            "weeksAndAuds"
-                                                          ]
-                                                        ).flat()
-                                                      )
-
-                                                      if (aMin === bMin) {
-                                                        var aGroupName =
-                                                          _vm.groupSchedule[
-                                                            dow
-                                                          ][ring][a][
-                                                            "lessons"
-                                                          ][0]["groupName"]
-                                                        var bGroupName =
-                                                          _vm.groupSchedule[
-                                                            dow
-                                                          ][ring][b][
-                                                            "lessons"
-                                                          ][0]["groupName"]
-
-                                                        var numA = parseInt(
-                                                          aGroupName.split(
-                                                            " "
-                                                          )[0]
-                                                        )
-                                                        var numB = parseInt(
-                                                          bGroupName.split(
-                                                            " "
-                                                          )[0]
-                                                        )
-
-                                                        if (numA === numB) {
-                                                          if (
-                                                            aGroupName ===
-                                                            bGroupName
-                                                          ) {
-                                                            return 0
-                                                          }
-                                                          return aGroupName <
-                                                            bGroupName
-                                                            ? -1
-                                                            : 1
-                                                        } else {
-                                                          return numA < numB
-                                                            ? -1
-                                                            : 1
+                                                  _c(
+                                                    "a",
+                                                    {
+                                                      attrs: { href: "#" },
+                                                      on: {
+                                                        click: function(
+                                                          $event
+                                                        ) {
+                                                          $event.preventDefault()
+                                                          _vm.newDow = dow
+                                                          _vm.setNewRingId(ring)
+                                                          _vm.askForNew()
                                                         }
                                                       }
-
-                                                      return aMin < bMin
-                                                        ? -1
-                                                        : 1
-                                                    }),
-                                                    function(tfd) {
-                                                      return [
-                                                        _c(
-                                                          "table",
-                                                          {
-                                                            staticStyle: {
-                                                              width: "100%",
-                                                              "text-align":
-                                                                "center",
-                                                              border:
-                                                                "none !important"
-                                                            }
-                                                          },
-                                                          [
-                                                            _c("tr", [
-                                                              _c(
-                                                                "td",
-                                                                {
-                                                                  staticStyle: {
-                                                                    border:
-                                                                      "none"
-                                                                  }
-                                                                },
-                                                                [
-                                                                  _c("strong", [
-                                                                    _vm._v(
-                                                                      _vm._s(
-                                                                        _vm
-                                                                          .groupSchedule[
-                                                                          dow
-                                                                        ][ring][
-                                                                          tfd
-                                                                        ][
-                                                                          "lessons"
-                                                                        ][0][
-                                                                          "groupName"
-                                                                        ]
-                                                                      )
-                                                                    )
-                                                                  ]),
-                                                                  _vm._v(" "),
-                                                                  _c(
-                                                                    "button",
-                                                                    {
-                                                                      staticClass:
-                                                                        "close",
-                                                                      attrs: {
-                                                                        type:
-                                                                          "button"
-                                                                      },
-                                                                      on: {
-                                                                        click: function(
-                                                                          $event
-                                                                        ) {
-                                                                          return _vm.askForDelete(
-                                                                            _vm
-                                                                              .groupSchedule[
-                                                                              dow
-                                                                            ][
-                                                                              ring
-                                                                            ][
-                                                                              tfd
-                                                                            ][
-                                                                              "lessons"
-                                                                            ]
-                                                                          )
-                                                                        }
-                                                                      }
-                                                                    },
-                                                                    [
-                                                                      _vm._v(
-                                                                        "×"
-                                                                      )
-                                                                    ]
-                                                                  )
-                                                                ]
-                                                              )
-                                                            ])
-                                                          ]
-                                                        ),
-                                                        _vm._v(
-                                                          "\n\n                                            " +
-                                                            _vm._s(
-                                                              _vm.groupSchedule[
-                                                                dow
-                                                              ][ring][tfd][
-                                                                "lessons"
-                                                              ][0]["discName"]
-                                                            ) +
-                                                            " "
-                                                        ),
-                                                        _c("br"),
-                                                        _vm._v(
-                                                          "\n                                            " +
-                                                            _vm._s(
-                                                              _vm.groupSchedule[
-                                                                dow
-                                                              ][ring][tfd][
-                                                                "lessons"
-                                                              ][0]["teacherFIO"]
-                                                            ) +
-                                                            " "
-                                                        ),
-                                                        _c("br"),
-                                                        _vm._v(" "),
-                                                        _vm._l(
-                                                          Object.keys(
-                                                            _vm.groupSchedule[
-                                                              dow
-                                                            ][ring][tfd][
-                                                              "weeksAndAuds"
-                                                            ]
-                                                          ).sort(function(
-                                                            a,
-                                                            b
-                                                          ) {
-                                                            var aMin = Math.min.apply(
-                                                              Math,
-                                                              _vm.groupSchedule[
-                                                                dow
-                                                              ][ring][tfd][
-                                                                "weeksAndAuds"
-                                                              ][a]
-                                                            )
-                                                            var bMin = Math.min.apply(
-                                                              Math,
-                                                              _vm.groupSchedule[
-                                                                dow
-                                                              ][ring][tfd][
-                                                                "weeksAndAuds"
-                                                              ][b]
-                                                            )
-
-                                                            if (aMin === bMin) {
-                                                              return 0
-                                                            }
-                                                            return aMin < bMin
-                                                              ? -1
-                                                              : 1
-                                                          }),
-                                                          function(auditorium) {
-                                                            return [
-                                                              _vm._v(
-                                                                "\n                                                " +
-                                                                  _vm._s(
-                                                                    _vm.combineWeeksToRange(
-                                                                      _vm
-                                                                        .groupSchedule[
-                                                                        dow
-                                                                      ][ring][
-                                                                        tfd
-                                                                      ][
-                                                                        "weeksAndAuds"
-                                                                      ][
-                                                                        auditorium
-                                                                      ]
-                                                                    )
-                                                                  ) +
-                                                                  " - " +
-                                                                  _vm._s(
-                                                                    auditorium
-                                                                  )
-                                                              ),
-                                                              _c("br")
-                                                            ]
-                                                          }
-                                                        ),
-                                                        _vm._v(" "),
-                                                        _c(
-                                                          "table",
-                                                          {
-                                                            staticStyle: {
-                                                              width: "100%",
-                                                              "text-align":
-                                                                "center",
-                                                              border:
-                                                                "none !important"
-                                                            }
-                                                          },
-                                                          [
-                                                            _c("tr", [
-                                                              _c(
-                                                                "td",
-                                                                {
-                                                                  staticStyle: {
-                                                                    border:
-                                                                      "none"
-                                                                  }
-                                                                },
-                                                                [
-                                                                  _c(
-                                                                    "a",
-                                                                    {
-                                                                      attrs: {
-                                                                        href:
-                                                                          "#"
-                                                                      },
-                                                                      on: {
-                                                                        click: function(
-                                                                          $event
-                                                                        ) {
-                                                                          $event.preventDefault()
-                                                                          return _vm.askForAdd()
-                                                                        }
-                                                                      }
-                                                                    },
-                                                                    [
-                                                                      _c(
-                                                                        "font-awesome-icon",
-                                                                        {
-                                                                          attrs: {
-                                                                            icon:
-                                                                              "plus-square"
-                                                                          }
-                                                                        }
-                                                                      )
-                                                                    ],
-                                                                    1
-                                                                  )
-                                                                ]
-                                                              ),
-                                                              _vm._v(" "),
-                                                              _c(
-                                                                "td",
-                                                                {
-                                                                  staticStyle: {
-                                                                    border:
-                                                                      "none"
-                                                                  }
-                                                                },
-                                                                [
-                                                                  _c(
-                                                                    "a",
-                                                                    {
-                                                                      attrs: {
-                                                                        href:
-                                                                          "#"
-                                                                      },
-                                                                      on: {
-                                                                        click: function(
-                                                                          $event
-                                                                        ) {
-                                                                          $event.preventDefault()
-                                                                          return _vm.askForEdit(
-                                                                            _vm
-                                                                              .groupSchedule[
-                                                                              dow
-                                                                            ][
-                                                                              ring
-                                                                            ][
-                                                                              tfd
-                                                                            ]
-                                                                          )
-                                                                        }
-                                                                      }
-                                                                    },
-                                                                    [
-                                                                      _c(
-                                                                        "font-awesome-icon",
-                                                                        {
-                                                                          attrs: {
-                                                                            icon:
-                                                                              "edit"
-                                                                          }
-                                                                        }
-                                                                      )
-                                                                    ],
-                                                                    1
-                                                                  )
-                                                                ]
-                                                              )
-                                                            ])
-                                                          ]
-                                                        ),
-                                                        _vm._v(" "),
-                                                        tfd !==
+                                                    },
+                                                    [
+                                                      _c("font-awesome-icon", {
+                                                        attrs: {
+                                                          icon: "plus-square"
+                                                        }
+                                                      }),
+                                                      _vm._v(
+                                                        " Добавить\n                                                "
+                                                      )
+                                                    ],
+                                                    1
+                                                  )
+                                                ]
+                                              )
+                                            ])
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        Object.keys(_vm.groupSchedule[dow])
+                                          .length !== 0
+                                          ? [
+                                              _vm.groupSchedule[dow][ring] !==
+                                              undefined
+                                                ? _c(
+                                                    "div",
+                                                    {
+                                                      staticStyle: {
+                                                        border: "none"
+                                                      }
+                                                    },
+                                                    [
+                                                      _vm._l(
                                                         Object.keys(
                                                           _vm.groupSchedule[
                                                             dow
@@ -85251,24 +84820,368 @@ var render = function() {
                                                           return aMin < bMin
                                                             ? -1
                                                             : 1
-                                                        })[
-                                                          Object.keys(
-                                                            _vm.groupSchedule[
-                                                              dow
-                                                            ][ring]
-                                                          ).length - 1
-                                                        ]
-                                                          ? [_c("hr")]
-                                                          : _vm._e()
-                                                      ]
-                                                    }
+                                                        }),
+                                                        function(tfd) {
+                                                          return [
+                                                            _c(
+                                                              "table",
+                                                              {
+                                                                staticStyle: {
+                                                                  width: "100%",
+                                                                  "text-align":
+                                                                    "center",
+                                                                  border:
+                                                                    "none !important"
+                                                                }
+                                                              },
+                                                              [
+                                                                _c("tr", [
+                                                                  _c(
+                                                                    "td",
+                                                                    {
+                                                                      staticStyle: {
+                                                                        border:
+                                                                          "none"
+                                                                      }
+                                                                    },
+                                                                    [
+                                                                      _c(
+                                                                        "a",
+                                                                        {
+                                                                          attrs: {
+                                                                            href:
+                                                                              "#"
+                                                                          },
+                                                                          on: {
+                                                                            click: function(
+                                                                              $event
+                                                                            ) {
+                                                                              $event.preventDefault()
+                                                                              return _vm.askForEdit(
+                                                                                _vm
+                                                                                  .groupSchedule[
+                                                                                  dow
+                                                                                ][
+                                                                                  ring
+                                                                                ][
+                                                                                  tfd
+                                                                                ]
+                                                                              )
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        [
+                                                                          _c(
+                                                                            "font-awesome-icon",
+                                                                            {
+                                                                              attrs: {
+                                                                                icon:
+                                                                                  "edit"
+                                                                              }
+                                                                            }
+                                                                          )
+                                                                        ],
+                                                                        1
+                                                                      )
+                                                                    ]
+                                                                  ),
+                                                                  _vm._v(" "),
+                                                                  _c(
+                                                                    "td",
+                                                                    {
+                                                                      staticStyle: {
+                                                                        border:
+                                                                          "none"
+                                                                      }
+                                                                    },
+                                                                    [
+                                                                      _c(
+                                                                        "strong",
+                                                                        [
+                                                                          _vm._v(
+                                                                            _vm._s(
+                                                                              _vm
+                                                                                .groupSchedule[
+                                                                                dow
+                                                                              ][
+                                                                                ring
+                                                                              ][
+                                                                                tfd
+                                                                              ][
+                                                                                "lessons"
+                                                                              ][0][
+                                                                                "groupName"
+                                                                              ]
+                                                                            )
+                                                                          )
+                                                                        ]
+                                                                      )
+                                                                    ]
+                                                                  ),
+                                                                  _vm._v(" "),
+                                                                  _c(
+                                                                    "td",
+                                                                    {
+                                                                      staticStyle: {
+                                                                        border:
+                                                                          "none"
+                                                                      }
+                                                                    },
+                                                                    [
+                                                                      _c(
+                                                                        "button",
+                                                                        {
+                                                                          staticClass:
+                                                                            "close",
+                                                                          attrs: {
+                                                                            type:
+                                                                              "button"
+                                                                          },
+                                                                          on: {
+                                                                            click: function(
+                                                                              $event
+                                                                            ) {
+                                                                              return _vm.askForDelete(
+                                                                                _vm
+                                                                                  .groupSchedule[
+                                                                                  dow
+                                                                                ][
+                                                                                  ring
+                                                                                ][
+                                                                                  tfd
+                                                                                ][
+                                                                                  "lessons"
+                                                                                ]
+                                                                              )
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        [
+                                                                          _vm._v(
+                                                                            "×"
+                                                                          )
+                                                                        ]
+                                                                      )
+                                                                    ]
+                                                                  )
+                                                                ])
+                                                              ]
+                                                            ),
+                                                            _vm._v(
+                                                              "\n\n                                                " +
+                                                                _vm._s(
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][tfd][
+                                                                    "lessons"
+                                                                  ][0][
+                                                                    "discName"
+                                                                  ]
+                                                                ) +
+                                                                " "
+                                                            ),
+                                                            _c("br"),
+                                                            _vm._v(
+                                                              "\n                                                " +
+                                                                _vm._s(
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][tfd][
+                                                                    "lessons"
+                                                                  ][0][
+                                                                    "teacherFIO"
+                                                                  ]
+                                                                ) +
+                                                                " "
+                                                            ),
+                                                            _c("br"),
+                                                            _vm._v(" "),
+                                                            _vm._l(
+                                                              Object.keys(
+                                                                _vm
+                                                                  .groupSchedule[
+                                                                  dow
+                                                                ][ring][tfd][
+                                                                  "weeksAndAuds"
+                                                                ]
+                                                              ).sort(function(
+                                                                a,
+                                                                b
+                                                              ) {
+                                                                var aMin = Math.min.apply(
+                                                                  Math,
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][tfd][
+                                                                    "weeksAndAuds"
+                                                                  ][a]
+                                                                )
+                                                                var bMin = Math.min.apply(
+                                                                  Math,
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][tfd][
+                                                                    "weeksAndAuds"
+                                                                  ][b]
+                                                                )
+
+                                                                if (
+                                                                  aMin === bMin
+                                                                ) {
+                                                                  return 0
+                                                                }
+                                                                return aMin <
+                                                                  bMin
+                                                                  ? -1
+                                                                  : 1
+                                                              }),
+                                                              function(
+                                                                auditorium
+                                                              ) {
+                                                                return [
+                                                                  _vm._v(
+                                                                    "\n                                                    " +
+                                                                      _vm._s(
+                                                                        _vm.combineWeeksToRange(
+                                                                          _vm
+                                                                            .groupSchedule[
+                                                                            dow
+                                                                          ][
+                                                                            ring
+                                                                          ][
+                                                                            tfd
+                                                                          ][
+                                                                            "weeksAndAuds"
+                                                                          ][
+                                                                            auditorium
+                                                                          ]
+                                                                        )
+                                                                      ) +
+                                                                      " - " +
+                                                                      _vm._s(
+                                                                        auditorium
+                                                                      )
+                                                                  ),
+                                                                  _c("br")
+                                                                ]
+                                                              }
+                                                            ),
+                                                            _vm._v(" "),
+                                                            tfd !==
+                                                            Object.keys(
+                                                              _vm.groupSchedule[
+                                                                dow
+                                                              ][ring]
+                                                            ).sort(function(
+                                                              a,
+                                                              b
+                                                            ) {
+                                                              var aMin = Math.min.apply(
+                                                                Math,
+                                                                Object.values(
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][a][
+                                                                    "weeksAndAuds"
+                                                                  ]
+                                                                ).flat()
+                                                              )
+                                                              var bMin = Math.min.apply(
+                                                                Math,
+                                                                Object.values(
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][b][
+                                                                    "weeksAndAuds"
+                                                                  ]
+                                                                ).flat()
+                                                              )
+
+                                                              if (
+                                                                aMin === bMin
+                                                              ) {
+                                                                var aGroupName =
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][a][
+                                                                    "lessons"
+                                                                  ][0][
+                                                                    "groupName"
+                                                                  ]
+                                                                var bGroupName =
+                                                                  _vm
+                                                                    .groupSchedule[
+                                                                    dow
+                                                                  ][ring][b][
+                                                                    "lessons"
+                                                                  ][0][
+                                                                    "groupName"
+                                                                  ]
+
+                                                                var numA = parseInt(
+                                                                  aGroupName.split(
+                                                                    " "
+                                                                  )[0]
+                                                                )
+                                                                var numB = parseInt(
+                                                                  bGroupName.split(
+                                                                    " "
+                                                                  )[0]
+                                                                )
+
+                                                                if (
+                                                                  numA === numB
+                                                                ) {
+                                                                  if (
+                                                                    aGroupName ===
+                                                                    bGroupName
+                                                                  ) {
+                                                                    return 0
+                                                                  }
+                                                                  return aGroupName <
+                                                                    bGroupName
+                                                                    ? -1
+                                                                    : 1
+                                                                } else {
+                                                                  return numA <
+                                                                    numB
+                                                                    ? -1
+                                                                    : 1
+                                                                }
+                                                              }
+
+                                                              return aMin < bMin
+                                                                ? -1
+                                                                : 1
+                                                            })[
+                                                              Object.keys(
+                                                                _vm
+                                                                  .groupSchedule[
+                                                                  dow
+                                                                ][ring]
+                                                              ).length - 1
+                                                            ]
+                                                              ? [_c("hr")]
+                                                              : _vm._e()
+                                                          ]
+                                                        }
+                                                      )
+                                                    ],
+                                                    2
                                                   )
-                                                ],
-                                                2
-                                              )
-                                            : _vm._e()
-                                        ])
-                                      : _vm._e()
+                                                : _vm._e()
+                                            ]
+                                          : _vm._e()
+                                      ],
+                                      2
+                                    )
                                   })
                                 ],
                                 2
@@ -85651,6 +85564,340 @@ var render = function() {
               null,
               false,
               332800734
+            )
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.showNewWindow
+        ? _c("modal", {
+            scopedSlots: _vm._u(
+              [
+                {
+                  key: "header",
+                  fn: function() {
+                    return [
+                      _vm._v(
+                        "\n            Новые уроки.\n            " +
+                          _vm._s(_vm.groupDisciplineSelected.disciplineName) +
+                          " @ " +
+                          _vm._s(_vm.groupDisciplineSelected.studentGroupName) +
+                          " = " +
+                          _vm._s(_vm.groupDisciplineSelected.teacherFio) +
+                          "\n            "
+                      ),
+                      _c("br"),
+                      _vm._v(
+                        "\n            Недели: " +
+                          _vm._s(
+                            _vm.combineWeeksToRange(_vm.newSelectedWeeks)
+                          ) +
+                          "\n        "
+                      )
+                    ]
+                  },
+                  proxy: true
+                },
+                {
+                  key: "body",
+                  fn: function() {
+                    return [
+                      _vm._l(2, function(half) {
+                        return [
+                          _c("table", { staticStyle: { margin: "0 auto" } }, [
+                            _c(
+                              "tr",
+                              _vm._l(
+                                half === 1
+                                  ? Math.floor(_vm.weeksCount / 2)
+                                  : Math.ceil(_vm.weeksCount / 2),
+                                function(week) {
+                                  return _c(
+                                    "td",
+                                    { staticStyle: { "text-align": "center" } },
+                                    [
+                                      _c(
+                                        "button",
+                                        {
+                                          class: {
+                                            button: true,
+                                            "is-primary": !_vm.newSelectedWeeks.includes(
+                                              week +
+                                                (half === 2
+                                                  ? Math.floor(
+                                                      _vm.weeksCount / 2
+                                                    )
+                                                  : 0)
+                                            ),
+                                            "is-danger": _vm.newSelectedWeeks.includes(
+                                              week +
+                                                (half === 2
+                                                  ? Math.floor(
+                                                      _vm.weeksCount / 2
+                                                    )
+                                                  : 0)
+                                            )
+                                          },
+                                          staticStyle: {
+                                            "margin-right": "0.5em",
+                                            "margin-bottom": "0.5em"
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              _vm.newWeekToggled(
+                                                week +
+                                                  (half === 2
+                                                    ? Math.floor(
+                                                        _vm.weeksCount / 2
+                                                      )
+                                                    : 0)
+                                              )
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _vm._v(
+                                            _vm._s(
+                                              week +
+                                                (half === 2
+                                                  ? Math.floor(
+                                                      _vm.weeksCount / 2
+                                                    )
+                                                  : 0)
+                                            )
+                                          )
+                                        ]
+                                      )
+                                    ]
+                                  )
+                                }
+                              ),
+                              0
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "tr",
+                              _vm._l(
+                                half === 1
+                                  ? Math.floor(_vm.weeksCount / 2)
+                                  : Math.ceil(_vm.weeksCount / 2),
+                                function(week) {
+                                  return _c(
+                                    "td",
+                                    { staticStyle: { padding: "10px" } },
+                                    [
+                                      _c(
+                                        "select",
+                                        {
+                                          directives: [
+                                            {
+                                              name: "model",
+                                              rawName: "v-model",
+                                              value:
+                                                _vm.newWeeksAuds[
+                                                  week +
+                                                    (half === 2
+                                                      ? Math.floor(
+                                                          _vm.weeksCount / 2
+                                                        )
+                                                      : 0)
+                                                ],
+                                              expression:
+                                                "newWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]"
+                                            }
+                                          ],
+                                          staticStyle: {
+                                            width: "90px",
+                                            "font-size": "1em"
+                                          },
+                                          on: {
+                                            change: function($event) {
+                                              var $$selectedVal = Array.prototype.filter
+                                                .call(
+                                                  $event.target.options,
+                                                  function(o) {
+                                                    return o.selected
+                                                  }
+                                                )
+                                                .map(function(o) {
+                                                  var val =
+                                                    "_value" in o
+                                                      ? o._value
+                                                      : o.value
+                                                  return val
+                                                })
+                                              _vm.$set(
+                                                _vm.newWeeksAuds,
+                                                week +
+                                                  (half === 2
+                                                    ? Math.floor(
+                                                        _vm.weeksCount / 2
+                                                      )
+                                                    : 0),
+                                                $event.target.multiple
+                                                  ? $$selectedVal
+                                                  : $$selectedVal[0]
+                                              )
+                                            }
+                                          }
+                                        },
+                                        _vm._l(_vm.auditoriumsSorted, function(
+                                          aud
+                                        ) {
+                                          return _c(
+                                            "option",
+                                            { domProps: { value: aud.id } },
+                                            [
+                                              _vm._v(
+                                                "\n                                    " +
+                                                  _vm._s(aud.name) +
+                                                  "\n                                "
+                                              )
+                                            ]
+                                          )
+                                        }),
+                                        0
+                                      )
+                                    ]
+                                  )
+                                }
+                              ),
+                              0
+                            )
+                          ])
+                        ]
+                      }),
+                      _vm._v(" "),
+                      _c("hr"),
+                      _vm._v(" "),
+                      _c("table", { staticStyle: { margin: "0 auto" } }, [
+                        _c("tr", [
+                          _c(
+                            "td",
+                            _vm._l(6, function(dow) {
+                              return _c(
+                                "button",
+                                {
+                                  class: {
+                                    button: true,
+                                    "is-primary": dow !== _vm.newDow,
+                                    "is-danger": dow === _vm.newDow
+                                  },
+                                  staticStyle: {
+                                    "margin-right": "1em",
+                                    "margin-bottom": "0.5em",
+                                    "text-align": "center"
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.newDow = dow
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            " +
+                                      _vm._s(_vm.dowRu[dow - 1]) +
+                                      "\n                        "
+                                  )
+                                ]
+                              )
+                            }),
+                            0
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "td",
+                            _vm._l(_vm.allRings, function(ring) {
+                              return _c(
+                                "button",
+                                {
+                                  class: {
+                                    button: true,
+                                    "is-primary": !_vm.newRingIds.includes(
+                                      ring.RingId
+                                    ),
+                                    "is-danger": _vm.newRingIds.includes(
+                                      ring.RingId
+                                    )
+                                  },
+                                  staticStyle: {
+                                    "margin-right": "1em",
+                                    "margin-bottom": "0.5em",
+                                    "text-align": "center"
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.newRingToggled(ring)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            " +
+                                      _vm._s(ring.Time.substr(0, 5)) +
+                                      "\n                        "
+                                  )
+                                ]
+                              )
+                            }),
+                            0
+                          )
+                        ])
+                      ])
+                    ]
+                  },
+                  proxy: true
+                },
+                {
+                  key: "footer",
+                  fn: function() {
+                    return [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "button is-primary",
+                          staticStyle: { "margin-right": "0.5em" },
+                          on: {
+                            click: function($event) {
+                              _vm.showNewWindow = false
+                            }
+                          }
+                        },
+                        [_vm._v("Отмена")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "button is-danger",
+                          staticStyle: { "margin-right": "0.5em" },
+                          on: {
+                            click: function($event) {
+                              return _vm.saveLessonsNew()
+                            }
+                          }
+                        },
+                        [
+                          !_vm.addLoading ? [_vm._v("Добавить")] : _vm._e(),
+                          _vm._v(" "),
+                          _vm.addLoading
+                            ? [
+                                _c("font-awesome-icon", {
+                                  attrs: { icon: "spinner" }
+                                })
+                              ]
+                            : _vm._e()
+                        ],
+                        2
+                      )
+                    ]
+                  },
+                  proxy: true
+                }
+              ],
+              null,
+              false,
+              3490587910
             )
           })
         : _vm._e()
@@ -98847,9 +99094,11 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 
 
+
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 _fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__["library"].add(_fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_2__["faEdit"]);
 _fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__["library"].add(_fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_2__["faPlusSquare"]);
+_fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__["library"].add(_fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_2__["faSpinner"]);
 Vue.component('font-awesome-icon', _fortawesome_vue_fontawesome__WEBPACK_IMPORTED_MODULE_3__["FontAwesomeIcon"]);
 Vue.component('group-session', __webpack_require__(/*! ./components/GroupSession.vue */ "./resources/js/components/GroupSession.vue")["default"]);
 Vue.component('teacher-schedule', __webpack_require__(/*! ./components/TeacherSchedule */ "./resources/js/components/TeacherSchedule.vue")["default"]);

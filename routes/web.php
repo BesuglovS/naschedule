@@ -67,5 +67,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/lessonsDestroyByIds', 'LessonController@DestroyByIds');
     Route::post('/lessonsWeeksAndAudsEdit', 'LessonController@WeeksAndAudsEdit');
     Route::get('/disciplinesByGroupInfo', 'DisciplineController@DisciplinesByGroupInfo');
+    Route::post('/lessonsGroupScheduleAdd', 'LessonController@GroupScheduleAdd');
 });
 

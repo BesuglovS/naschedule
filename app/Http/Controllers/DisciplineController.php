@@ -182,9 +182,11 @@ class DisciplineController extends Controller
             ->whereIn('disciplines.student_group_id', $groupIds)
             ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
             ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
             ->select('disciplines.id as disciplineId',
                 'disciplines.name as disciplineName',
                 'teachers.fio as teacherFio',
+                'student_groups.name as studentGroupName',
                 'discipline_teacher.id as tfdId')
             ->orderBy('disciplineName', 'asc')
             ->orderBy('teacherFio', 'asc')

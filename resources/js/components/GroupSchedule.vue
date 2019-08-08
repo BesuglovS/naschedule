@@ -39,193 +39,113 @@
                                 Загрузка ...
                             </div>
 
-                            <div v-if="
-                            (groupSchedule[1] && groupSchedule[1].length === 0) &&
-                            (groupSchedule[2] && groupSchedule[2].length === 0) &&
-                            (groupSchedule[3] && groupSchedule[3].length === 0) &&
-                            (groupSchedule[4] && groupSchedule[4].length === 0) &&
-                            (groupSchedule[5] && groupSchedule[5].length === 0) &&
-                            (groupSchedule[6] && groupSchedule[6].length === 0) && loading === false
-                        " style="text-align: center; font-size: 30px">
-                                Занятий нет
-                            </div>
 
-                            <table v-if=" !(
-                            (groupSchedule[1] && groupSchedule[1].length === 0) &&
-                            (groupSchedule[2] && groupSchedule[2].length === 0) &&
-                            (groupSchedule[3] && groupSchedule[3].length === 0) &&
-                            (groupSchedule[4] && groupSchedule[4].length === 0) &&
-                            (groupSchedule[5] && groupSchedule[5].length === 0) &&
-                            (groupSchedule[6] && groupSchedule[6].length === 0)) && loading === false
-                        "
-
-                                   style="margin-top: 2em;" class="table td-center is-bordered">
+                            <table v-if="loading === false" style="margin-top: 2em;" class="table td-center is-bordered">
                                 <tr>
                                     <td></td>
-                                    <td v-if="groupSchedule[1] && groupSchedule[1].length !== 0">
-                                        <strong>Понедельник</strong>
-                                        <template v-if="!this.severalWeeks">
-                                            <br />
-                                            {{groupSchedule[1]
-                                            [Object.keys(groupSchedule[1])[0]]
-                                            [Object.keys(groupSchedule[1][Object.keys(groupSchedule[1])[0]])[0]]
-                                            ["lessons"][0]
-                                            ["date"] | formatOnlyDate
-                                            }}
-                                        </template>
-                                    </td>
-                                    <td v-if="groupSchedule[2] && groupSchedule[2].length !== 0">
-                                        <strong>Вторник</strong>
-                                        <template v-if="!this.severalWeeks">
-                                            <br />
-                                            {{groupSchedule[2]
-                                            [Object.keys(groupSchedule[2])[0]]
-                                            [Object.keys(groupSchedule[2][Object.keys(groupSchedule[2])[0]])[0]]
-                                            ["lessons"][0]
-                                            ["date"] | formatOnlyDate
-                                            }}
-                                        </template>
-                                    </td>
-                                    <td v-if="groupSchedule[3] && groupSchedule[3].length !== 0">
-                                        <strong>Среда</strong>
-                                        <template v-if="!this.severalWeeks">
-                                            <br />
-                                            {{groupSchedule[3]
-                                            [Object.keys(groupSchedule[3])[0]]
-                                            [Object.keys(groupSchedule[3][Object.keys(groupSchedule[3])[0]])[0]]
-                                            ["lessons"][0]
-                                            ["date"] | formatOnlyDate
-                                            }}
-                                        </template>
-                                    </td>
-                                    <td v-if="groupSchedule[4] && groupSchedule[4].length !== 0">
-                                        <strong>Четверг</strong>
-                                        <template v-if="!this.severalWeeks">
-                                            <br />
-                                            {{groupSchedule[4]
-                                            [Object.keys(groupSchedule[4])[0]]
-                                            [Object.keys(groupSchedule[4][Object.keys(groupSchedule[4])[0]])[0]]
-                                            ["lessons"][0]
-                                            ["date"] | formatOnlyDate
-                                            }}
-                                        </template>
-                                    </td>
-                                    <td v-if="groupSchedule[5] && groupSchedule[5].length !== 0">
-                                        <strong>Пятница</strong>
-                                        <template v-if="!this.severalWeeks">
-                                            <br />
-                                            {{groupSchedule[5]
-                                            [Object.keys(groupSchedule[5])[0]]
-                                            [Object.keys(groupSchedule[5][Object.keys(groupSchedule[5])[0]])[0]]
-                                            ["lessons"][0]
-                                            ["date"] | formatOnlyDate
-                                            }}
-                                        </template>
-                                    </td>
-                                    <td v-if="groupSchedule[6] && groupSchedule[6].length !== 0">
-                                        <strong>Суббота</strong>
-                                        <template v-if="!this.severalWeeks">
-                                            <br />
-                                            {{groupSchedule[6]
-                                            [Object.keys(groupSchedule[6])[0]]
-                                            [Object.keys(groupSchedule[6][Object.keys(groupSchedule[6])[0]])[0]]
-                                            ["lessons"][0]
-                                            ["date"] | formatOnlyDate
-                                            }}
-                                        </template>
+                                    <td v-for="dow in 6">
+                                        <strong>{{dowRu[dow-1]}}</strong>
+                                        <a @click.prevent="newDow = dow; newRingIds = []; askForNew();" href="#"><font-awesome-icon icon="plus-square" /></a>
                                     </td>
                                 </tr>
 
                                 <tr v-for="ring in this.scheduleRings">
                                     <td><strong>{{ring}}</strong></td>
-                                    <td v-if="Object.keys(groupSchedule[dow]).length !== 0" v-for="dow in 6">
-                                        <div style="border: none;" v-if="groupSchedule[dow][ring] !== undefined">
-                                            <template v-for="tfd in
-                                                Object.keys(groupSchedule[dow][ring])
-                                                .sort((a,b) => {
-                                                            let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
-                                                            let bMin = Math.min(...Object.values(groupSchedule[dow][ring][b]['weeksAndAuds']).flat());
+                                    <td v-for="dow in 6">
+                                        <table style="width: 100%; text-align: center; border:none !important;">
+                                            <tr>
+                                                <td style="border:none;">
+                                                    <a @click.prevent="newDow = dow; setNewRingId(ring); askForNew();" href="#">
+                                                        <font-awesome-icon icon="plus-square" /> Добавить
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <template v-if="Object.keys(groupSchedule[dow]).length !== 0">
+                                            <div style="border: none;" v-if="groupSchedule[dow][ring] !== undefined">
+                                                <template v-for="tfd in
+                                                    Object.keys(groupSchedule[dow][ring])
+                                                    .sort((a,b) => {
+                                                                let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
+                                                                let bMin = Math.min(...Object.values(groupSchedule[dow][ring][b]['weeksAndAuds']).flat());
 
-                                                            if (aMin === bMin) {
-                                                                let aGroupName = groupSchedule[dow][ring][a]['lessons'][0]['groupName'];
-                                                                let bGroupName = groupSchedule[dow][ring][b]['lessons'][0]['groupName'];
+                                                                if (aMin === bMin) {
+                                                                    let aGroupName = groupSchedule[dow][ring][a]['lessons'][0]['groupName'];
+                                                                    let bGroupName = groupSchedule[dow][ring][b]['lessons'][0]['groupName'];
 
-                                                                let numA = parseInt(aGroupName.split(' ')[0]);
-                                                                let numB = parseInt(bGroupName.split(' ')[0]);
+                                                                    let numA = parseInt(aGroupName.split(' ')[0]);
+                                                                    let numB = parseInt(bGroupName.split(' ')[0]);
 
-                                                                if (numA === numB) {
-                                                                    if (aGroupName === bGroupName) return 0;
-                                                                    return (aGroupName < bGroupName) ? -1 : 1;
+                                                                    if (numA === numB) {
+                                                                        if (aGroupName === bGroupName) return 0;
+                                                                        return (aGroupName < bGroupName) ? -1 : 1;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        return (numA < numB) ? -1 : 1;
+                                                                    }
                                                                 }
-                                                                else
-                                                                {
-                                                                    return (numA < numB) ? -1 : 1;
-                                                                }
-                                                            }
 
-                                                            return aMin < bMin ? -1 : 1;
-                                                    })
-                                            ">
-                                                <table style="width: 100%; text-align: center; border:none !important;">
-                                                    <tr>
-                                                        <td style="border:none;">
-                                                            <strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>
-                                                            <button type="button" @click="askForDelete(groupSchedule[dow][ring][tfd]['lessons']);" class="close">×</button>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-
-                                                {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
-                                                {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
-                                                <template v-for="auditorium in
-                                                    Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])
-                                                        .sort((a,b) => {
-                                                            let  aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
-                                                            let bMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][b]);
-
-                                                            if (aMin === bMin) return 0;
-                                                            return aMin < bMin ? -1 : 1;
+                                                                return aMin < bMin ? -1 : 1;
                                                         })
                                                 ">
-                                                    {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
-                                                </template>
+                                                    <table style="width: 100%; text-align: center; border:none !important;">
+                                                        <tr>
+                                                            <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd]);" href="#"><font-awesome-icon icon="edit" /></a></td>
+                                                            <td style="border:none;">
+                                                                <strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>
+                                                            </td>
+                                                            <td style="border:none;">
+                                                                <button type="button" @click="askForDelete(groupSchedule[dow][ring][tfd]['lessons']);" class="close">×</button>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
 
-                                                <table style="width: 100%; text-align: center; border:none !important;">
-                                                    <tr>
-                                                        <td style="border:none;"><a @click.prevent="askForAdd();" href="#"><font-awesome-icon icon="plus-square" /></a></td>
-                                                        <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd]);" href="#"><font-awesome-icon icon="edit" /></a></td>
-                                                    </tr>
-                                                </table>
+                                                    {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
+                                                    {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
+                                                    <template v-for="auditorium in
+                                                        Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])
+                                                            .sort((a,b) => {
+                                                                let  aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
+                                                                let bMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][b]);
 
-                                                <template v-if="tfd !== Object.keys(groupSchedule[dow][ring])
-                                                    .sort((a,b) => {
-                                                            let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
-                                                            let bMin = Math.min(...Object.values(groupSchedule[dow][ring][b]['weeksAndAuds']).flat());
+                                                                if (aMin === bMin) return 0;
+                                                                return aMin < bMin ? -1 : 1;
+                                                            })
+                                                    ">
+                                                        {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
+                                                    </template>
 
-                                                            if (aMin === bMin) {
-                                                                let aGroupName = groupSchedule[dow][ring][a]['lessons'][0]['groupName'];
-                                                                let bGroupName = groupSchedule[dow][ring][b]['lessons'][0]['groupName'];
+                                                    <template v-if="tfd !== Object.keys(groupSchedule[dow][ring])
+                                                        .sort((a,b) => {
+                                                                let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
+                                                                let bMin = Math.min(...Object.values(groupSchedule[dow][ring][b]['weeksAndAuds']).flat());
 
-                                                                let numA = parseInt(aGroupName.split(' ')[0]);
-                                                                let numB = parseInt(bGroupName.split(' ')[0]);
+                                                                if (aMin === bMin) {
+                                                                    let aGroupName = groupSchedule[dow][ring][a]['lessons'][0]['groupName'];
+                                                                    let bGroupName = groupSchedule[dow][ring][b]['lessons'][0]['groupName'];
 
-                                                                if (numA === numB) {
-                                                                    if (aGroupName === bGroupName) return 0;
-                                                                    return (aGroupName < bGroupName) ? -1 : 1;
+                                                                    let numA = parseInt(aGroupName.split(' ')[0]);
+                                                                    let numB = parseInt(bGroupName.split(' ')[0]);
+
+                                                                    if (numA === numB) {
+                                                                        if (aGroupName === bGroupName) return 0;
+                                                                        return (aGroupName < bGroupName) ? -1 : 1;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        return (numA < numB) ? -1 : 1;
+                                                                    }
                                                                 }
-                                                                else
-                                                                {
-                                                                    return (numA < numB) ? -1 : 1;
-                                                                }
-                                                            }
 
-                                                            return aMin < bMin ? -1 : 1;
-                                                    })
-                                                    [Object.keys(groupSchedule[dow][ring]).length-1]">
-                                                    <hr>
+                                                                return aMin < bMin ? -1 : 1;
+                                                        })
+                                                        [Object.keys(groupSchedule[dow][ring]).length-1]">
+                                                        <hr>
+                                                    </template>
                                                 </template>
-                                            </template>
-                                        </div>
+                                            </div>
+                                        </template>
                                     </td>
                                 </tr>
                             </table>
@@ -299,11 +219,81 @@
                 <button style="margin-right:0.5em;" @click="saveLessonsEdit(); showEditWindow = false; " class="button is-danger">Сохранить</button>
             </template>
         </modal>
+
+        <modal v-if="showNewWindow">
+            <template v-slot:header>
+                Новые уроки.
+                {{groupDisciplineSelected.disciplineName}} @ {{groupDisciplineSelected.studentGroupName}} = {{groupDisciplineSelected.teacherFio}}
+                <br />
+                Недели: {{combineWeeksToRange(newSelectedWeeks)}}
+            </template>
+            <template v-slot:body>
+                <template v-for="half in 2">
+                    <table style="margin: 0 auto;">
+                        <tr>
+                            <td style="text-align: center;" v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)">
+                                <button style="margin-right:0.5em; margin-bottom: 0.5em;"
+                                        @click="newWeekToggled(week + ((half === 2) ? (Math.floor(weeksCount / 2)) : 0))"
+                                        :class="{'button': true,
+                                            'is-primary': !newSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)),
+                                            'is-danger': newSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)) }"
+                                >{{week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)}}</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)" style="padding: 10px;">
+                                <select style="width: 90px; font-size: 1em;" v-model="newWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]">
+                                    <option v-for="aud in auditoriumsSorted" :value="aud.id">
+                                        {{aud.name}}
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </template>
+
+                <hr>
+
+                <table style="margin: 0 auto;">
+                    <tr>
+                        <td>
+                            <button v-for="dow in 6"
+                                    @click="newDow = dow;"
+                                    style="margin-right:1em; margin-bottom: 0.5em; text-align:center;"
+                                    :class="{'button': true,
+                                    'is-primary': dow !== newDow,
+                                    'is-danger': dow === newDow }">
+                                {{dowRu[dow-1]}}
+                            </button>
+                        </td>
+                        <td>
+                            <button @click="newRingToggled(ring);"
+                                    v-for="ring in allRings"
+                                    style="margin-right:1em; margin-bottom: 0.5em; text-align:center;"
+                                    :class="{'button': true,
+                                    'is-primary': !newRingIds.includes(ring.RingId),
+                                    'is-danger': newRingIds.includes(ring.RingId) }">
+                                {{ring.Time.substr(0,5)}}
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </template>
+            <template v-slot:footer>
+                <button style="margin-right:0.5em;" @click="showNewWindow = false;" class="button is-primary">Отмена</button>
+                <button style="margin-right:0.5em;" @click="saveLessonsNew();" class="button is-danger">
+                    <template v-if="!addLoading">Добавить</template>
+                    <template v-if="addLoading"><font-awesome-icon icon="spinner" /></template>
+                </button>
+            </template>
+        </modal>
     </div>
 </template>
 
 <script>
     import modal from './Modal'
+    import moment from "moment";
     export default {
         name: "GroupSchedule",
         props: [
@@ -335,7 +325,15 @@
                 editSelectedWeeks: [],
                 editWeeksAuds: {},
                 groupDisciplines: [],
-                groupDisciplineSelected: {}
+                groupDisciplineSelected: {},
+                dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+                showNewWindow: false,
+                newSelectedWeeks: [],
+                newWeeksAuds: {},
+                newDow: -1,
+                newRingIds: [],
+                allRings: [],
+                addLoading: false,
             }
         },
         methods: {
@@ -395,8 +393,31 @@
                         }
                     });
             },
+            setNewRingId(ring) {
+                let ra = this.allRings.filter(r => ring === r.Time.substr(0,5));
+                if (ra.length > 0) {
+                    this.newRingIds = [];
+                    this.newRingIds.push(ra[0].RingId);
+                }
+            },
+            newRingToggled(ring) {
+                if (this.newRingIds.includes(ring.RingId)) {
+                    let index = this.newRingIds.indexOf(ring.RingId);
+                    this.newRingIds.splice(index,1);
+                }
+                else {
+                    this.newRingIds.push(ring.RingId);
+                }
+            },
             disciplineClicked(discipline) {
               this.groupDisciplineSelected = discipline;
+            },
+            askForNew() {
+                this.newSelectedWeeks = [];
+                for(let i = 1; i <= this.weeksCount; i++) {
+                    this.newWeeksAuds[i] = -1;
+                }
+                this.showNewWindow = true;
             },
             askForDelete(lessons) {
                 this.lessonsToDelete = lessons;
@@ -434,6 +455,29 @@
                     .then(response => {
                         this.loadGroupSchedule();
                     });
+            },
+            saveLessonsNew() {
+                this.addLoading = true;
+                let tfdId = this.groupDisciplineSelected.tfdId;
+                let dow = this.newDow;
+                let weeks = this.newSelectedWeeks.join('|');
+                let ringIds = this.newRingIds.join('|');
+                let weeksAuds = this.newSelectedWeeks.map(w => w + '@' + this.newWeeksAuds[w]).join('|');
+
+                axios
+                    .post('/lessonsGroupScheduleAdd' +
+                        '?tfdId=' + tfdId +
+                        '&dow=' + dow +
+                        '&weeks=' + weeks +
+                        '&ringIds=' + ringIds +
+                        '&weeksAuds=' + weeksAuds
+                    )
+                    .then(response => {
+                        this.addLoading = false;
+                        this.showNewWindow = false;
+                        this.loadGroupSchedule();
+                    });
+
             },
             saveLessonsEdit() {
                 let oldWeeks = Object.values(this.lessonsDataToEdit['weeksAndAuds']).flat().sort((a,b) => {return a-b;});
@@ -649,8 +693,6 @@
                 if (this.editSelectedWeeks.length === 1 && event.shiftKey) {
                     if (week < this.editSelectedWeeks[0]) {
                         for(let i = week; i < this.editSelectedWeeks[0]; i++) {
-                            console.log('this.editSelectedWeeks');
-                            console.log(this.editSelectedWeeks);
                             if (!this.editSelectedWeeks.includes(i) && this.editWeeksAuds[i] === -1  && this.auditoriums.length > 0) {
                                 this.editWeeksAuds[i] = this.auditoriumsSorted[0].id;
                             }
@@ -694,8 +736,68 @@
                     this.editSelectedWeeks.splice(index, 1);
                 }
             },
+            newWeekToggled(week) {
+                if (this.newSelectedWeeks.length === 1 && event.shiftKey) {
+                    if (week < this.newSelectedWeeks[0]) {
+                        for(let i = week; i < this.newSelectedWeeks[0]; i++) {
+                            if (!this.newSelectedWeeks.includes(i) && this.newWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
+                                this.newWeeksAuds[i] = this.auditoriumsSorted[0].id;
+                            }
+                            this.newSelectedWeeks.push(i);
+                        }
+                    }
+
+                    if (week > this.newSelectedWeeks[0]) {
+                        for(let i = this.newSelectedWeeks[0]+1; i <= week; i++) {
+                            if (!this.newSelectedWeeks.includes(i) && this.newWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
+                                this.newWeeksAuds[i] = this.auditoriumsSorted[0].id;
+                            }
+                            this.newSelectedWeeks.push(i);
+                        }
+                    }
+
+                    return;
+                }
+
+                if (event.ctrlKey)
+                {
+                    this.newSelectedWeeks = [];
+                    this.newSelectedWeeks.push(week);
+                    if (this.newWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+                        this.newWeeksAuds[week] = this.auditoriumsSorted[0].id;
+                    }
+
+                    return;
+                }
+
+                if (!this.newSelectedWeeks.includes(week))
+                {
+                    if (this.newWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
+                        this.newWeeksAuds[week] = this.auditoriumsSorted[0].id;
+                    }
+                    this.newSelectedWeeks.push(week);
+                }
+                else
+                {
+                    let index = this.newSelectedWeeks.indexOf(week);
+                    this.newSelectedWeeks.splice(index, 1);
+                }
+            },
         },
         mounted() {
+            axios
+                .get('/api.php?action=list&listtype=rings')
+                .then(response => {
+                    this.allRings = response.data.sort((a,b) => {
+                        if (a.Time === b.Time) return 0;
+
+                        let aMoment = moment(a.Time,"HH:mm:ss");
+                        let bMoment = moment(b.Time,"HH:mm:ss");
+
+                        return aMoment < bMoment ? -1 : 1;
+                    });
+                });
+
             if (this.studentGroupId === -1)
             {
                 if (this.groups.length !== 0) {
