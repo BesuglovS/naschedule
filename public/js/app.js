@@ -12649,6 +12649,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -12686,7 +12689,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       newRingIds: [],
       allRings: [],
       addLoading: false,
-      newSingleAudId: -1
+      newSingleAudId: -1,
+      freeAuds: {}
     };
   },
   methods: {
@@ -12743,24 +12747,35 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
     },
     newRingToggled: function newRingToggled(ring) {
+      var _this2 = this;
+
       if (this.newRingIds.includes(ring.RingId)) {
         var index = this.newRingIds.indexOf(ring.RingId);
         this.newRingIds.splice(index, 1);
       } else {
         this.newRingIds.push(ring.RingId);
       }
+
+      axios.get('/api.php?action=freeAuditoriums' + '&dows=' + this.newDows.join('|') + '&ringIds=' + this.newRingIds.join('|')).then(function (response) {
+        _this2.freeAuds = response.data;
+      });
     },
     disciplineClicked: function disciplineClicked(discipline) {
       this.groupDisciplineSelected = discipline;
     },
     askForNew: function askForNew() {
+      var _this3 = this;
+
       this.newSelectedWeeks = [];
 
       for (var i = 1; i <= this.weeksCount; i++) {
         this.newWeeksAuds[i] = -1;
       }
 
-      this.showNewWindow = true;
+      axios.get('/api.php?action=freeAuditoriums' + '&dows=' + this.newDows.join('|') + '&ringIds=' + this.newRingIds.join('|')).then(function (response) {
+        _this3.freeAuds = response.data;
+        _this3.showNewWindow = true;
+      });
     },
     askForDelete: function askForDelete(lessons) {
       this.lessonsToDelete = lessons;
@@ -12778,12 +12793,20 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
     },
     newDowToggled: function newDowToggled(dow) {
+      var _this4 = this;
+
       if (this.newDows.includes(dow)) {
-        var index = this.newDows.indexOf(dow);
-        this.newDows.splice(index, 1);
+        if (this.newDows.length !== 1) {
+          var index = this.newDows.indexOf(dow);
+          this.newDows.splice(index, 1);
+        }
       } else {
         this.newDows.push(dow);
       }
+
+      axios.get('/api.php?action=freeAuditoriums' + '&dows=' + this.newDows.join('|') + '&ringIds=' + this.newRingIds.join('|')).then(function (response) {
+        _this4.freeAuds = response.data;
+      });
     },
     askForEdit: function askForEdit(lessonsData) {
       var r = {};
@@ -12806,18 +12829,18 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       this.showEditWindow = true;
     },
     deleteLessons: function deleteLessons() {
-      var _this2 = this;
+      var _this5 = this;
 
       var IdsString = this.lessonsToDelete.map(function (l) {
         return l.lessonId;
       }).join('|');
       var destroyUrl = '/lessonsDestroyByIds?Ids=' + IdsString;
       axios.post(destroyUrl).then(function (response) {
-        _this2.loadGroupSchedule();
+        _this5.loadGroupSchedule();
       });
     },
     saveLessonsNew: function saveLessonsNew() {
-      var _this3 = this;
+      var _this6 = this;
 
       this.addLoading = true;
       var tfdId = this.groupDisciplineSelected.tfdId;
@@ -12825,17 +12848,17 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       var weeks = this.newSelectedWeeks.join('|');
       var ringIds = this.newRingIds.join('|');
       var weeksAuds = this.newSelectedWeeks.map(function (w) {
-        return w + '@' + _this3.newWeeksAuds[w];
+        return w + '@' + _this6.newWeeksAuds[w];
       }).join('|');
       axios.post('/lessonsGroupScheduleAdd' + '?tfdId=' + tfdId + '&dows=' + dows + '&weeks=' + weeks + '&ringIds=' + ringIds + '&weeksAuds=' + weeksAuds).then(function (response) {
-        _this3.addLoading = false;
-        _this3.showNewWindow = false;
+        _this6.addLoading = false;
+        _this6.showNewWindow = false;
 
-        _this3.loadGroupSchedule();
+        _this6.loadGroupSchedule();
       });
     },
     saveLessonsEdit: function saveLessonsEdit() {
-      var _this4 = this;
+      var _this7 = this;
 
       var oldWeeks = Object.values(this.lessonsDataToEdit['weeksAndAuds']).flat().sort(function (a, b) {
         return a - b;
@@ -12853,19 +12876,19 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         return !oldWeeks.includes(w);
       });
       var addString = weeksToAdd.map(function (w) {
-        return w + '@' + _this4.editWeeksAuds[w];
+        return w + '@' + _this7.editWeeksAuds[w];
       }).join('|');
       var weeksRemoved = oldWeeks.filter(function (w) {
-        return !_this4.editSelectedWeeks.includes(w);
+        return !_this7.editSelectedWeeks.includes(w);
       });
       var removeString = weeksRemoved.join('|');
       var changedAuditoriumsString = oldWeeks.filter(function (w) {
-        return _this4.editSelectedWeeks.includes(w) && oldEditWeeksAuds[w] !== _this4.editWeeksAuds[w];
+        return _this7.editSelectedWeeks.includes(w) && oldEditWeeksAuds[w] !== _this7.editWeeksAuds[w];
       }).map(function (w) {
-        return w + '@' + _this4.editWeeksAuds[w];
+        return w + '@' + _this7.editWeeksAuds[w];
       }).join('|');
       axios.post('/lessonsWeeksAndAudsEdit' + '?tfdId=' + this.lessonsDataToEdit["lessons"][0].tfdId + '&ringId=' + this.lessonsDataToEdit["lessons"][0].ringId + '&dow=' + this.lessonsDataToEdit["lessons"][0].dow + '&add=' + addString + '&remove=' + removeString + '&changeAuditorium=' + changedAuditoriumsString).then(function (response) {
-        _this4.loadGroupSchedule();
+        _this7.loadGroupSchedule();
       });
     },
     loadFullGroupSchedule: function loadFullGroupSchedule() {
@@ -13127,13 +13150,50 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         var index = this.newSelectedWeeks.indexOf(week);
         this.newSelectedWeeks.splice(index, 1);
       }
+    },
+    newLessonsWeeksAudsFree: function newLessonsWeeksAudsFree(week) {
+      var first = true;
+      var resultIds = [];
+
+      for (var dowIndex = 0; dowIndex < this.newDows.length; dowIndex++) {
+        var dow = this.newDows[dowIndex];
+
+        for (var ringIdIndex = 0; ringIdIndex < this.newRingIds.length; ringIdIndex++) {
+          var ringId = this.newRingIds[ringIdIndex];
+
+          if (first) {
+            resultIds = this.freeAuds[dow][week][ringId];
+            first = false;
+          } else {
+            for (var ri = 0; ri < resultIds.length; ri++) {
+              if (this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
+                resultIds.splice(ri, 1);
+                ri--;
+              }
+            }
+          }
+        }
+      }
+
+      var audsInfo = [];
+
+      for (var i = 0; i < this.auditoriumsSorted.length; i++) {
+        var aud = this.auditoriumsSorted[i];
+        audsInfo.push({
+          'id': aud.id,
+          'name': aud.name,
+          'free': resultIds.includes(aud.id)
+        });
+      }
+
+      return audsInfo;
     }
   },
   mounted: function mounted() {
-    var _this5 = this;
+    var _this8 = this;
 
     axios.get('/api.php?action=list&listtype=rings').then(function (response) {
-      _this5.allRings = response.data.sort(function (a, b) {
+      _this8.allRings = response.data.sort(function (a, b) {
         if (a.Time === b.Time) return 0;
         var aMoment = moment__WEBPACK_IMPORTED_MODULE_1___default()(a.Time, "HH:mm:ss");
         var bMoment = moment__WEBPACK_IMPORTED_MODULE_1___default()(b.Time, "HH:mm:ss");
@@ -13153,6 +13213,47 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     }
   },
   computed: {
+    newLessonsAllWeeksAudsFree: function newLessonsAllWeeksAudsFree() {
+      var first = true;
+      var resultIds = [];
+
+      for (var dowIndex = 0; dowIndex < this.newDows.length; dowIndex++) {
+        var dow = this.newDows[dowIndex];
+
+        for (var weekIndex = 0; weekIndex < this.newSelectedWeeks.length; weekIndex++) {
+          var week = this.newSelectedWeeks[weekIndex];
+
+          for (var ringIdIndex = 0; ringIdIndex < this.newRingIds.length; ringIdIndex++) {
+            var ringId = this.newRingIds[ringIdIndex];
+
+            if (first) {
+              resultIds = this.freeAuds[dow][week][ringId];
+              first = false;
+            } else {
+              for (var ri = 0; ri < resultIds.length; ri++) {
+                if (this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
+                  resultIds.splice(ri, 1);
+                  ri--;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      var audsInfo = [];
+
+      for (var i = 0; i < this.auditoriumsSorted.length; i++) {
+        var aud = this.auditoriumsSorted[i];
+        audsInfo.push({
+          'id': aud.id,
+          'name': aud.name,
+          'free': resultIds.includes(aud.id)
+        });
+      }
+
+      return audsInfo;
+    },
     groupDisciplinesWithTeacher: function groupDisciplinesWithTeacher() {
       return this.groupDisciplines.filter(function (d) {
         return d.tfdId !== null;
@@ -85719,7 +85820,7 @@ var render = function() {
                             },
                             [
                               _vm._v(
-                                "\n                        Аудитория для всех недель:\n                        "
+                                "\n                        Аудитория для всех выбранных недель:\n                        "
                               ),
                               _c(
                                 "select",
@@ -85761,10 +85862,19 @@ var render = function() {
                                     ]
                                   }
                                 },
-                                _vm._l(_vm.auditoriumsSorted, function(aud) {
+                                _vm._l(_vm.newLessonsAllWeeksAudsFree, function(
+                                  aud
+                                ) {
                                   return _c(
                                     "option",
-                                    { domProps: { value: aud.id } },
+                                    {
+                                      style: {
+                                        backgroundColor: aud.free
+                                          ? "white"
+                                          : "#ffdddd"
+                                      },
+                                      domProps: { value: aud.id }
+                                    },
                                     [
                                       _vm._v(
                                         "\n                                " +
@@ -85922,21 +86032,29 @@ var render = function() {
                                             }
                                           }
                                         },
-                                        _vm._l(_vm.auditoriumsSorted, function(
-                                          aud
-                                        ) {
-                                          return _c(
-                                            "option",
-                                            { domProps: { value: aud.id } },
-                                            [
-                                              _vm._v(
-                                                "\n                                    " +
-                                                  _vm._s(aud.name) +
-                                                  "\n                                "
-                                              )
-                                            ]
-                                          )
-                                        }),
+                                        _vm._l(
+                                          _vm.newLessonsWeeksAudsFree(week),
+                                          function(aud) {
+                                            return _c(
+                                              "option",
+                                              {
+                                                style: {
+                                                  backgroundColor: aud.free
+                                                    ? "white"
+                                                    : "#ffdddd"
+                                                },
+                                                domProps: { value: aud.id }
+                                              },
+                                              [
+                                                _vm._v(
+                                                  "\n                                    " +
+                                                    _vm._s(aud.name) +
+                                                    "\n                                "
+                                                )
+                                              ]
+                                            )
+                                          }
+                                        ),
                                         0
                                       )
                                     ]
@@ -86079,7 +86197,7 @@ var render = function() {
               ],
               null,
               false,
-              401066286
+              3635745508
             )
           })
         : _vm._e()

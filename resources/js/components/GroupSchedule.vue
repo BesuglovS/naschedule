@@ -242,9 +242,11 @@
                             </div>
                         </td>
                         <td style="text-align:center; width:50%;">
-                            Аудитория для всех недель:
+                            Аудитория для всех выбранных недель:
                             <select style="width: 90px; font-size: 1em;" v-model="newSingleAudId" @change="newSingleAudChanged();">
-                                <option v-for="aud in auditoriumsSorted" :value="aud.id">
+                                <option v-for="aud in newLessonsAllWeeksAudsFree"
+                                        v-bind:style="{ backgroundColor : (aud.free) ? 'white' : '#ffdddd' }"
+                                        :value="aud.id">
                                     {{aud.name}}
                                 </option>
                             </select>
@@ -268,7 +270,8 @@
                         <tr>
                             <td v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)" style="padding: 10px;">
                                 <select style="width: 90px; font-size: 1em;" v-model="newWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]">
-                                    <option v-for="aud in auditoriumsSorted" :value="aud.id">
+                                    <option v-for="aud in newLessonsWeeksAudsFree(week)" :value="aud.id"
+                                            v-bind:style="{ backgroundColor : (aud.free) ? 'white' : '#ffdddd' }">
                                         {{aud.name}}
                                     </option>
                                 </select>
@@ -359,6 +362,7 @@
                 allRings: [],
                 addLoading: false,
                 newSingleAudId: -1,
+                freeAuds: {},
             }
         },
         methods: {
@@ -433,6 +437,14 @@
                 else {
                     this.newRingIds.push(ring.RingId);
                 }
+
+                axios
+                    .get('/api.php?action=freeAuditoriums' +
+                        '&dows=' + this.newDows.join('|') +
+                        '&ringIds=' + this.newRingIds.join('|'))
+                    .then(response => {
+                        this.freeAuds = response.data;
+                    });
             },
             disciplineClicked(discipline) {
               this.groupDisciplineSelected = discipline;
@@ -442,7 +454,15 @@
                 for(let i = 1; i <= this.weeksCount; i++) {
                     this.newWeeksAuds[i] = -1;
                 }
-                this.showNewWindow = true;
+
+                axios
+                    .get('/api.php?action=freeAuditoriums' +
+                        '&dows=' + this.newDows.join('|') +
+                        '&ringIds=' + this.newRingIds.join('|'))
+                    .then(response => {
+                        this.freeAuds = response.data;
+                        this.showNewWindow = true;
+                    });
             },
             askForDelete(lessons) {
                 this.lessonsToDelete = lessons;
@@ -459,12 +479,22 @@
             },
             newDowToggled(dow) {
                 if (this.newDows.includes(dow)) {
-                    let index = this.newDows.indexOf(dow);
-                    this.newDows.splice(index,1);
+                    if (this.newDows.length !== 1) {
+                        let index = this.newDows.indexOf(dow);
+                        this.newDows.splice(index, 1);
+                    }
                 }
                 else {
                     this.newDows.push(dow);
                 }
+
+                axios
+                    .get('/api.php?action=freeAuditoriums' +
+                        '&dows=' + this.newDows.join('|') +
+                        '&ringIds=' + this.newRingIds.join('|'))
+                    .then(response => {
+                        this.freeAuds = response.data;
+                    });
             },
             askForEdit(lessonsData) {
                 var r = {};
@@ -822,6 +852,43 @@
                     this.newSelectedWeeks.splice(index, 1);
                 }
             },
+            newLessonsWeeksAudsFree(week) {
+                let first = true;
+                let resultIds = [];
+
+                for(let dowIndex = 0; dowIndex < this.newDows.length; dowIndex++) {
+                    let dow = this.newDows[dowIndex];
+
+                    for(let ringIdIndex = 0; ringIdIndex < this.newRingIds.length; ringIdIndex++) {
+                        let ringId = this.newRingIds[ringIdIndex];
+                        if (first) {
+                            resultIds = this.freeAuds[dow][week][ringId];
+                            first = false;
+                        } else {
+                            for(let ri = 0; ri < resultIds.length; ri++)
+                            {
+                                if (this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
+                                    resultIds.splice(ri,1);
+                                    ri--;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let audsInfo = [];
+                for(let i=0; i < this.auditoriumsSorted.length; i++) {
+                    let aud = this.auditoriumsSorted[i];
+
+                    audsInfo.push({
+                        'id': aud.id,
+                        'name': aud.name,
+                        'free': resultIds.includes(aud.id)
+                    });
+                }
+
+                return audsInfo;
+            },
         },
         mounted() {
             axios
@@ -850,6 +917,45 @@
             }
         },
         computed: {
+            newLessonsAllWeeksAudsFree() {
+                let first = true;
+                let resultIds = [];
+
+                for(let dowIndex = 0; dowIndex < this.newDows.length; dowIndex++) {
+                    let dow = this.newDows[dowIndex];
+                    for(let weekIndex = 0; weekIndex < this.newSelectedWeeks.length; weekIndex++) {
+                        let week = this.newSelectedWeeks[weekIndex];
+                        for(let ringIdIndex = 0; ringIdIndex < this.newRingIds.length; ringIdIndex++) {
+                            let ringId = this.newRingIds[ringIdIndex];
+                            if (first) {
+                                resultIds = this.freeAuds[dow][week][ringId];
+                                first = false;
+                            } else {
+                                for(let ri = 0; ri < resultIds.length; ri++)
+                                {
+                                    if (this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
+                                        resultIds.splice(ri,1);
+                                        ri--;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let audsInfo = [];
+                for(let i=0; i < this.auditoriumsSorted.length; i++) {
+                    let aud = this.auditoriumsSorted[i];
+
+                    audsInfo.push({
+                        'id': aud.id,
+                        'name': aud.name,
+                        'free': resultIds.includes(aud.id)
+                    });
+                }
+
+                return audsInfo;
+            },
             groupDisciplinesWithTeacher() {
               return this.groupDisciplines.filter(d => d.tfdId !== null);
             },
