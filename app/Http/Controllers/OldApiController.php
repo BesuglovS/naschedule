@@ -38,7 +38,7 @@ class OldApiController extends Controller
         $allowed_actions = array("list", "groupsBundle", "bundle", "update", "dailySchedule", "groupExams",
             "weekSchedule", "weeksSchedule", "groupSchedule", "TeacherWeekSchedule", "TeacherSchedule",
             "disciplineLessons", "LastLessons", "teacherLessons", "teacherWeeksSchedule", "teacherExams",
-            "facultyWeeksSchedule", "buildingEvents");
+            "facultyWeeksSchedule", "buildingEvents", "freeAuditoriums");
 
         if (!in_array($action, $allowed_actions))
         {
@@ -119,6 +119,7 @@ class OldApiController extends Controller
             case "teacherExams":            return $this->GetTeacherExams($input);
             case "facultyWeeksSchedule":    return $this->GetFacultyWeeksSchedule($input);
             case "buildingEvents":          return $this->GetBuildingEvents($input);
+            case "freeAuditoriums":         return $this->GetFreeAuditoriums($input);
         }
 
         return array("error" => "Whoops, looks like something went wrong :-)");
@@ -1531,6 +1532,64 @@ class OldApiController extends Controller
         $result["schedule"] = $schedule;
         $result["rings"] = $rings;
         $result["auditoriums"] = $auditoriums;
+
+        return $result;
+    }
+
+    private function GetFreeAuditoriums($input)
+    {
+        if ((!isset($input['dows'])) || (!isset($input['ringIds'])))
+        {
+            return array("error" => "dows и ringIds обязательные параметры");
+        }
+
+        $dows = explode('|', $input['dows']);
+        $ringIds = explode('|', $input['ringIds']);
+
+        $weeks = range(1, Calendar::WeekCount());
+
+        $calendarsIdsByWeekAndDow = Calendar::IdsByWeekAndDowFromDowsAndWeeks($dows, $weeks);
+
+        $calendarsIds = array_merge(...array_values($calendarsIdsByWeekAndDow));
+
+        $targetLessons = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->where('lessons.state', '=', 1)
+            ->whereIn('lessons.calendar_id', $calendarsIds)
+            ->whereIn('lessons.ring_id', $ringIds)
+            ->select('lessons.*', 'calendars.date as calendarsDate')
+            ->get();
+
+        $auditoriums = Auditorium::all();
+
+        $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
+        $result = array();
+
+        foreach($dows as $dow) {
+            $result[$dow] = array();
+
+            foreach ($weeks as $week) {
+                $result[$dow][$week] = array();
+
+                foreach ($ringIds as $ringId) {
+                    $result[$dow][$week][$ringId] = array();
+
+                    foreach ($auditoriums as $auditorium) {
+                        $result[$dow][$week][$ringId][] = $auditorium->id;
+                    }
+                }
+            }
+        }
+
+        foreach ($targetLessons as $lesson) {
+            $lessonWeek = Calendar::WeekFromDate($lesson->calendarsDate, $semesterStarts);
+            $lessonDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $lesson->calendarsDate));
+            $lessonRing = $lesson->ring_id;
+
+            if (($key = array_search($lesson->auditorium_id, $result[$lessonDow][$lessonWeek][$lessonRing])) !== false) {
+                array_splice($result[$lessonDow][$lessonWeek][$lessonRing], $key, 1);
+            }
+        }
 
         return $result;
     }
