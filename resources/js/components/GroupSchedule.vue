@@ -93,7 +93,7 @@
                                                 ">
                                                     <table style="width: 100%; text-align: center; border:none !important;">
                                                         <tr>
-                                                            <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd]);" href="#"><font-awesome-icon icon="edit" /></a></td>
+                                                            <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd], dow, ring);" href="#"><font-awesome-icon icon="edit" /></a></td>
                                                             <td style="border:none;">
                                                                 <strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>
                                                             </td>
@@ -207,7 +207,9 @@
                         <tr>
                             <td v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)" style="padding: 10px;">
                                 <select style="width: 90px; font-size: 1em;" v-model="editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]">
-                                    <option v-for="aud in auditoriumsSorted" :value="aud.id">
+                                    <option v-for="aud in editLessonsWeeksAudsFree(week)"
+                                            v-bind:style="{ backgroundColor : (aud.free) ? 'white' : '#ffdddd' }"
+                                            :value="aud.id">
                                         {{aud.name}}
                                     </option>
                                 </select>
@@ -363,6 +365,7 @@
                 addLoading: false,
                 newSingleAudId: -1,
                 freeAuds: {},
+                editFreeAuds: {},
             }
         },
         methods: {
@@ -428,6 +431,10 @@
                     this.newRingIds = [];
                     this.newRingIds.push(ra[0].RingId);
                 }
+            },
+            getRingFromAllRingsByFiveTime(time) {
+                let ra = this.allRings.filter(r => time === r.Time.substr(0,5));
+                return (ra.length > 0) ? ra[0] : null;
             },
             newRingToggled(ring) {
                 if (this.newRingIds.includes(ring.RingId)) {
@@ -496,7 +503,7 @@
                         this.freeAuds = response.data;
                     });
             },
-            askForEdit(lessonsData) {
+            askForEdit(lessonsData, dow, time) {
                 var r = {};
                 for(let i = 1; i <= this.weeksCount; i++) {
                     r[i] = -1;
@@ -510,9 +517,17 @@
                 }
                 this.editWeeksAuds = r;
 
-                this.editSelectedWeeks = Object.values(lessonsData['weeksAndAuds']).flat().sort((a,b) => {return a-b;});
-                this.lessonsDataToEdit = lessonsData;
-                this.showEditWindow = true;
+                axios
+                    .get('/api.php?action=freeAuditoriums' +
+                        '&dows=' + dow +
+                        '&ringIds=' + this.getRingFromAllRingsByFiveTime(time).RingId)
+                    .then(response => {
+                        this.editFreeAuds = response.data;
+
+                        this.editSelectedWeeks = Object.values(lessonsData['weeksAndAuds']).flat().sort((a,b) => {return a-b;});
+                        this.lessonsDataToEdit = lessonsData;
+                        this.showEditWindow = true;
+                    });
             },
             deleteLessons() {
                 let IdsString = this.lessonsToDelete.map(l => l.lessonId).join('|');
@@ -878,6 +893,27 @@
 
                 let audsInfo = [];
                 for(let i=0; i < this.auditoriumsSorted.length; i++) {
+                    let aud = this.auditoriumsSorted[i];
+
+                    audsInfo.push({
+                        'id': aud.id,
+                        'name': aud.name,
+                        'free': resultIds.includes(aud.id)
+                    });
+                }
+
+                return audsInfo;
+            },
+            editLessonsWeeksAudsFree(week) {
+                let resultIds = [];
+
+                let dow = this.lessonsDataToEdit["lessons"][0].dow;
+                let ringId = this.lessonsDataToEdit["lessons"][0].ringId;
+
+                resultIds = (this.editFreeAuds !== undefined) ? this.editFreeAuds[dow][week][ringId] : [];
+
+                let audsInfo = [];
+                for (let i = 0; i < this.auditoriumsSorted.length; i++) {
                     let aud = this.auditoriumsSorted[i];
 
                     audsInfo.push({
