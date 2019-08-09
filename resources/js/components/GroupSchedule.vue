@@ -46,7 +46,7 @@
                                     <td v-for="dow in 6">
                                         <strong>{{dowRu[dow-1]}}</strong>
                                         <template v-if="groupDisciplines.length > 0">
-                                            <a @click.prevent="newDow = dow; newRingIds = []; askForNew();" href="#"><font-awesome-icon icon="plus-square" /></a>
+                                            <a @click.prevent="newDows = []; newDows.push(dow); newRingIds = []; askForNew();" href="#"><font-awesome-icon icon="plus-square" /></a>
                                         </template>
                                     </td>
                                 </tr>
@@ -57,7 +57,7 @@
                                         <table style="width: 100%; text-align: center; border:none !important;">
                                             <tr>
                                                 <td style="border:none;">
-                                                    <a v-if="groupDisciplines.length > 0" @click.prevent="newDow = dow; setNewRingId(ring); askForNew();" href="#">
+                                                    <a v-if="groupDisciplines.length > 0" @click.prevent="newDows = []; newDows.push(dow); setNewRingId(ring); askForNew();" href="#">
                                                         <font-awesome-icon icon="plus-square" /> Добавить
                                                     </a>
                                                 </td>
@@ -283,11 +283,11 @@
                     <tr>
                         <td>
                             <button v-for="dow in 6"
-                                    @click="newDow = dow;"
+                                    @click="newDowToggled(dow);"
                                     style="margin-right:1em; margin-bottom: 0.5em; text-align:center;"
                                     :class="{'button': true,
-                                    'is-primary': dow !== newDow,
-                                    'is-danger': dow === newDow }">
+                                    'is-primary': !newDows.includes(dow),
+                                    'is-danger': newDows.includes(dow)}">
                                 {{dowRu[dow-1]}}
                             </button>
                         </td>
@@ -297,7 +297,7 @@
                                     style="margin-right:1em; margin-bottom: 0.5em; text-align:center;"
                                     :class="{'button': true,
                                     'is-primary': !newRingIds.includes(ring.RingId),
-                                    'is-danger': newRingIds.includes(ring.RingId) }">
+                                    'is-danger': newRingIds.includes(ring.RingId)}">
                                 {{ring.Time.substr(0,5)}}
                             </button>
                         </td>
@@ -354,7 +354,7 @@
                 showNewWindow: false,
                 newSelectedWeeks: [],
                 newWeeksAuds: {},
-                newDow: -1,
+                newDows: [],
                 newRingIds: [],
                 allRings: [],
                 addLoading: false,
@@ -457,6 +457,15 @@
                     this.newWeeksAuds[this.newSelectedWeeks[i]] = this.newSingleAudId;
                 }
             },
+            newDowToggled(dow) {
+                if (this.newDows.includes(dow)) {
+                    let index = this.newDows.indexOf(dow);
+                    this.newDows.splice(index,1);
+                }
+                else {
+                    this.newDows.push(dow);
+                }
+            },
             askForEdit(lessonsData) {
                 var r = {};
                 for(let i = 1; i <= this.weeksCount; i++) {
@@ -489,7 +498,7 @@
             saveLessonsNew() {
                 this.addLoading = true;
                 let tfdId = this.groupDisciplineSelected.tfdId;
-                let dow = this.newDow;
+                let dows = this.newDows.join('|');
                 let weeks = this.newSelectedWeeks.join('|');
                 let ringIds = this.newRingIds.join('|');
                 let weeksAuds = this.newSelectedWeeks.map(w => w + '@' + this.newWeeksAuds[w]).join('|');
@@ -497,7 +506,7 @@
                 axios
                     .post('/lessonsGroupScheduleAdd' +
                         '?tfdId=' + tfdId +
-                        '&dow=' + dow +
+                        '&dows=' + dows +
                         '&weeks=' + weeks +
                         '&ringIds=' + ringIds +
                         '&weeksAuds=' + weeksAuds

@@ -235,14 +235,19 @@ class LessonController extends Controller
     public function GroupScheduleAdd(Request $request) {
         $input = $request->all();
 
-        if ((!isset($input['tfdId'])) || (!isset($input['dow']))  || (!isset($input['weeks']))
+        if ((!isset($input['tfdId'])) || (!isset($input['dows']))  || (!isset($input['weeks']))
             || (!isset($input['ringIds']))  || (!isset($input['weeksAuds'])))
         {
-            return array("error" => "tfdId, dow, weeks, ringIds и weeksAuds обязательные параметры");
+            return array("error" => "tfdId, dows, weeks, ringIds и weeksAuds обязательные параметры");
         }
 
         $tfdId = $input['tfdId'];
-        $dow = $input['dow'];
+
+        $dows = explode('|', $input['dows']);
+        usort($dows, function($a, $b){
+            if ($a === $b) return 0;
+            return ($a < $b) ? -1 : 1;
+        });
 
         $weeks = explode('|', $input['weeks']);
         usort($weeks, function($a, $b){
@@ -259,25 +264,27 @@ class LessonController extends Controller
             $weeksAuds[$waItemArray[0]] = $waItemArray[1];
         }
 
-        $calendarByWeekIds = Calendar::IdsByWeekFromDowAndWeeks($dow, $weeks);
+        $calendarByWeekAndDowIds = Calendar::IdsByWeekAndDowFromDowsAndWeeks($dows, $weeks);
 
         foreach ($weeks as $week) {
-            foreach ($ringIds as $ringId) {
-                $lesson = new Lesson();
-                $lesson->state = 1;
-                $lesson->discipline_teacher_id = $tfdId;
-                $lesson->calendar_id = $calendarByWeekIds[$week];
-                $lesson->ring_id = $ringId;
-                $lesson->auditorium_id = $weeksAuds[$week];
-                $lesson->save();
+            foreach ($dows as $dow) {
+                foreach ($ringIds as $ringId) {
+                    $lesson = new Lesson();
+                    $lesson->state = 1;
+                    $lesson->discipline_teacher_id = $tfdId;
+                    $lesson->calendar_id = $calendarByWeekAndDowIds[$week][$dow];
+                    $lesson->ring_id = $ringId;
+                    $lesson->auditorium_id = $weeksAuds[$week];
+                    $lesson->save();
 
-                $lle = new LessonLogEvent();
-                $lle->old_lesson_id = 0;
-                $lle->new_lesson_id = $lesson->id;
-                $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
-                $lle->public_comment = "";
-                $lle->hidden_comment = "";
-                $lle->save();
+                    $lle = new LessonLogEvent();
+                    $lle->old_lesson_id = 0;
+                    $lle->new_lesson_id = $lesson->id;
+                    $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+                    $lle->public_comment = "";
+                    $lle->hidden_comment = "";
+                    $lle->save();
+                }
             }
         }
     }

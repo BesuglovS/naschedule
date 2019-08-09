@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="wiki-nayanova-edu">
+    <serverData>
+      <paths name="wiki-nayanova-edu">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/wiki.nayanova.edu/www" local="$PROJECT_DIR$/public" web="/" />
+            <mapping deploy="/wiki.nayanova.edu/wne" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/wiki.nayanova.edu/wne/.env" />
+            <excludedPath local="true" path="$PROJECT_DIR$/.env" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

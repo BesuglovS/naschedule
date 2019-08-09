@@ -12682,7 +12682,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       showNewWindow: false,
       newSelectedWeeks: [],
       newWeeksAuds: {},
-      newDow: -1,
+      newDows: [],
       newRingIds: [],
       allRings: [],
       addLoading: false,
@@ -12777,6 +12777,14 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         this.newWeeksAuds[this.newSelectedWeeks[i]] = this.newSingleAudId;
       }
     },
+    newDowToggled: function newDowToggled(dow) {
+      if (this.newDows.includes(dow)) {
+        var index = this.newDows.indexOf(dow);
+        this.newDows.splice(index, 1);
+      } else {
+        this.newDows.push(dow);
+      }
+    },
     askForEdit: function askForEdit(lessonsData) {
       var r = {};
 
@@ -12813,13 +12821,13 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
       this.addLoading = true;
       var tfdId = this.groupDisciplineSelected.tfdId;
-      var dow = this.newDow;
+      var dows = this.newDows.join('|');
       var weeks = this.newSelectedWeeks.join('|');
       var ringIds = this.newRingIds.join('|');
       var weeksAuds = this.newSelectedWeeks.map(function (w) {
         return w + '@' + _this3.newWeeksAuds[w];
       }).join('|');
-      axios.post('/lessonsGroupScheduleAdd' + '?tfdId=' + tfdId + '&dow=' + dow + '&weeks=' + weeks + '&ringIds=' + ringIds + '&weeksAuds=' + weeksAuds).then(function (response) {
+      axios.post('/lessonsGroupScheduleAdd' + '?tfdId=' + tfdId + '&dows=' + dows + '&weeks=' + weeks + '&ringIds=' + ringIds + '&weeksAuds=' + weeksAuds).then(function (response) {
         _this3.addLoading = false;
         _this3.showNewWindow = false;
 
@@ -84685,7 +84693,8 @@ var render = function() {
                                                 on: {
                                                   click: function($event) {
                                                     $event.preventDefault()
-                                                    _vm.newDow = dow
+                                                    _vm.newDows = []
+                                                    _vm.newDows.push(dow)
                                                     _vm.newRingIds = []
                                                     _vm.askForNew()
                                                   }
@@ -84750,7 +84759,10 @@ var render = function() {
                                                               $event
                                                             ) {
                                                               $event.preventDefault()
-                                                              _vm.newDow = dow
+                                                              _vm.newDows = []
+                                                              _vm.newDows.push(
+                                                                dow
+                                                              )
                                                               _vm.setNewRingId(
                                                                 ring
                                                               )
@@ -85949,8 +85961,8 @@ var render = function() {
                                 {
                                   class: {
                                     button: true,
-                                    "is-primary": dow !== _vm.newDow,
-                                    "is-danger": dow === _vm.newDow
+                                    "is-primary": !_vm.newDows.includes(dow),
+                                    "is-danger": _vm.newDows.includes(dow)
                                   },
                                   staticStyle: {
                                     "margin-right": "1em",
@@ -85959,7 +85971,7 @@ var render = function() {
                                   },
                                   on: {
                                     click: function($event) {
-                                      _vm.newDow = dow
+                                      return _vm.newDowToggled(dow)
                                     }
                                   }
                                 },
@@ -86067,7 +86079,7 @@ var render = function() {
               ],
               null,
               false,
-              2339855123
+              401066286
             )
           })
         : _vm._e()

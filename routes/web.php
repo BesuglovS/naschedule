@@ -69,4 +69,3 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/disciplinesByGroupInfo', 'DisciplineController@DisciplinesByGroupInfo');
     Route::post('/lessonsGroupScheduleAdd', 'LessonController@GroupScheduleAdd');
 });
-
