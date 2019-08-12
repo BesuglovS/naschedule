@@ -20,6 +20,12 @@
                 @endforeach
             </select>
 
+            <select name="attestation">
+                @foreach(\App\DomainClasses\Discipline::all_attestation() as $attestation)
+                    <option value="{{$attestation->id}}">{{$attestation->name}}</option>
+                @endforeach
+            </select>
+
             <button type="submit" class="button is-primary">Создать</button>
         </form>
 

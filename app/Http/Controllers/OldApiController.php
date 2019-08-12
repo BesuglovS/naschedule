@@ -395,21 +395,43 @@ class OldApiController extends Controller
      */
     private function GetDisciplinesList($input)
     {
-        if (!isset($input['teacherId']))
-        {
-            $result = Discipline::all();
-        }
-        else
+        if (isset($input['teacherId']))
         {
             $teacherId = $input['teacherId'];
 
             $result = DB::table('disciplines')
-            ->join('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
-            ->where('discipline_teacher.teacher_id', '=', $teacherId)
-            ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
-                'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
-                'disciplines.student_group_id')
-            ->get();
+                ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
+                ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+                ->where('discipline_teacher.teacher_id', '=', $teacherId)
+                ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
+                    'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
+                    'disciplines.student_group_id', 'student_groups.name as groupName',
+                    'teachers.id as teacherId', 'teachers.fio as teacherFio')
+                ->get();
+        }
+        else
+        {
+            if (isset($input['groupId']))
+            {
+                $groupId = $input['groupId'];
+
+                $groupIds = StudentGroup::GetGroupsOfStudentFromGroup($groupId);
+
+                $result = DB::table('disciplines')
+                    ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                    ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
+                    ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+                    ->whereIn('disciplines.student_group_id', $groupIds)
+                    ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
+                        'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
+                        'disciplines.student_group_id', 'student_groups.name as groupName',
+                        'teachers.id as teacherId', 'teachers.fio as teacherFio')
+                    ->get();
+            }
+            else {
+                $result = Discipline::all();
+            }
         }
 
         $result->map(function ($disc) {
