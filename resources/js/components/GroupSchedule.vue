@@ -208,7 +208,9 @@
                             <td v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)" style="padding: 10px;">
                                 <select style="width: 90px; font-size: 1em;" v-model="editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]">
                                     <option v-for="aud in editLessonsWeeksAudsFree(week)"
-                                            v-bind:style="{ backgroundColor : (aud.free) ? 'white' : '#ffdddd' }"
+                                            v-bind:style="{ backgroundColor :
+                                                (aud.id === editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]) ? ('#ddffdd') :
+                                                ((aud.free) ? 'white' : '#ffdddd') }"
                                             :value="aud.id">
                                         {{aud.name}}
                                     </option>

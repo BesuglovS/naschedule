@@ -12654,6 +12654,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -85695,9 +85697,20 @@ var render = function() {
                                               "option",
                                               {
                                                 style: {
-                                                  backgroundColor: aud.free
-                                                    ? "white"
-                                                    : "#ffdddd"
+                                                  backgroundColor:
+                                                    aud.id ===
+                                                    _vm.editWeeksAuds[
+                                                      week +
+                                                        (half === 2
+                                                          ? Math.floor(
+                                                              _vm.weeksCount / 2
+                                                            )
+                                                          : 0)
+                                                    ]
+                                                      ? "#ddffdd"
+                                                      : aud.free
+                                                      ? "white"
+                                                      : "#ffdddd"
                                                 },
                                                 domProps: { value: aud.id }
                                               },
@@ -85765,7 +85778,7 @@ var render = function() {
               ],
               null,
               false,
-              174765872
+              2530688567
             )
           })
         : _vm._e(),

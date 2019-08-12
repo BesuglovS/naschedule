@@ -1548,21 +1548,10 @@ class OldApiController extends Controller
 
         $weeks = range(1, Calendar::WeekCount());
 
-        $calendarsIdsByWeekAndDow = Calendar::IdsByWeekAndDowFromDowsAndWeeks($dows, $weeks);
-
-        $calendarsIds = array_merge(...array_values($calendarsIdsByWeekAndDow));
-
-        $targetLessons = DB::table('lessons')
-            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
-            ->where('lessons.state', '=', 1)
-            ->whereIn('lessons.calendar_id', $calendarsIds)
-            ->whereIn('lessons.ring_id', $ringIds)
-            ->select('lessons.*', 'calendars.date as calendarsDate')
-            ->get();
-
         $auditoriums = Auditorium::all();
 
         $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
+
         $result = array();
 
         foreach($dows as $dow) {
@@ -1581,6 +1570,17 @@ class OldApiController extends Controller
             }
         }
 
+        $calendarsIdsByWeekAndDow = Calendar::IdsByWeekAndDowFromDowsAndWeeks($dows, $weeks);
+        $calendarsIds = array_merge(...array_values($calendarsIdsByWeekAndDow));
+
+        $targetLessons = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->where('lessons.state', '=', 1)
+            ->whereIn('lessons.calendar_id', $calendarsIds)
+            ->whereIn('lessons.ring_id', $ringIds)
+            ->select('lessons.*', 'calendars.date as calendarsDate')
+            ->get();
+
         foreach ($targetLessons as $lesson) {
             $lessonWeek = Calendar::WeekFromDate($lesson->calendarsDate, $semesterStarts);
             $lessonDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $lesson->calendarsDate));
@@ -1588,6 +1588,23 @@ class OldApiController extends Controller
 
             if (($key = array_search($lesson->auditorium_id, $result[$lessonDow][$lessonWeek][$lessonRing])) !== false) {
                 array_splice($result[$lessonDow][$lessonWeek][$lessonRing], $key, 1);
+            }
+        }
+
+        $targetAuditoriumEvents = DB::table('auditorium_events')
+            ->join('calendars', 'auditorium_events.calendar_id', '=', 'calendars.id')
+            ->whereIn('auditorium_events.calendar_id', $calendarsIds)
+            ->whereIn('auditorium_events.ring_id', $ringIds)
+            ->select('auditorium_events.*', 'calendars.date as calendarsDate')
+            ->get();
+
+        foreach ($targetAuditoriumEvents as $auditoriumEvent) {
+            $auditoriumEventWeek = Calendar::WeekFromDate($auditoriumEvent->calendarsDate, $semesterStarts);
+            $auditoriumEventDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $auditoriumEvent->calendarsDate));
+            $auditoriumEventRing = $auditoriumEvent->ring_id;
+
+            if (($key = array_search($auditoriumEvent->auditorium_id, $result[$auditoriumEventDow][$auditoriumEventWeek][$auditoriumEventRing])) !== false) {
+                array_splice($result[$auditoriumEventDow][$auditoriumEventWeek][$auditoriumEventRing], $key, 1);
             }
         }
 
