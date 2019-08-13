@@ -11938,9 +11938,21 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "DisciplineList",
-  props: ['studentGroups'],
+  props: ['studentGroups', 'groupId'],
   data: function data() {
     return {
       groups: this.studentGroups,
@@ -11950,7 +11962,8 @@ __webpack_require__.r(__webpack_exports__);
       groupDisciplines: [],
       dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
       attestation: ["нет", "зачёт", "экзамен", "зачёт и экзамен", "зачёт с оценкой"],
-      errorMessage: ""
+      errorMessage: "",
+      copyStudentGroupId: -1
     };
   },
   methods: {
@@ -11972,16 +11985,38 @@ __webpack_require__.r(__webpack_exports__);
         "_method": "DELETE"
       }).then(function (response) {
         if (response.data.error !== undefined) {
+          _this2.loading = false;
           _this2.errorMessage = "Дисциплину нельзя удалить. Ей назначен преподаватель.";
+        } else {
+          _this2.loadGroupDisciplines();
         }
+      });
+    },
+    copyDisciplines: function copyDisciplines() {
+      var _this3 = this;
 
-        _this2.loadGroupDisciplines();
+      this.loading = true;
+      axios.post('/disciplinesCopyFromGroupToGroup?sourceGroupId=' + this.copyStudentGroupId + '&destinationGroupId=' + this.studentGroupId).then(function (response) {
+        _this3.loadGroupDisciplines();
       });
     }
   },
   mounted: function mounted() {
+    var _this4 = this;
+
     if (this.groups.length !== 0) {
-      this.studentGroupId = this.groupsSorted[0].id;
+      var group = this.groupsSorted.filter(function (g) {
+        return g.id === _this4.groupId;
+      });
+
+      if (this.groupId !== "-1" && group.length !== 0) {
+        this.studentGroupId = this.groupId;
+        this.copyStudentGroupId = this.groupsSorted[0].id;
+      } else {
+        this.studentGroupId = this.groupsSorted[0].id;
+        this.copyStudentGroupId = this.groupsSorted[0].id;
+      }
+
       this.loadGroupDisciplines();
     }
   },
@@ -84285,6 +84320,59 @@ var render = function() {
               0
             ),
             _vm._v(" "),
+            _c("span", { staticStyle: { "margin-left": "2em" } }, [
+              _vm._v(
+                "\n                        Cкопировать дисциплины из группы\n                        "
+              ),
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.copyStudentGroupId,
+                      expression: "copyStudentGroupId"
+                    }
+                  ],
+                  on: {
+                    change: function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.copyStudentGroupId = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    }
+                  }
+                },
+                _vm._l(_vm.groupsSorted, function(sg) {
+                  return _c("option", { domProps: { value: sg.id } }, [
+                    _vm._v(_vm._s(sg.name))
+                  ])
+                }),
+                0
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  staticClass: "button is-primary",
+                  on: {
+                    click: function($event) {
+                      return _vm.copyDisciplines()
+                    }
+                  }
+                },
+                [_vm._v("Скопировать")]
+              )
+            ]),
+            _vm._v(" "),
             _vm.errorMessage !== ""
               ? _c(
                   "div",
@@ -84321,6 +84409,20 @@ var render = function() {
                   [
                     _vm._v(
                       "\n                        Загрузка ...\n                    "
+                    )
+                  ]
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.loading === false && _vm.groupDisciplines.length === 0
+              ? _c(
+                  "div",
+                  {
+                    staticStyle: { "font-size": "2em", "text-align": "center" }
+                  },
+                  [
+                    _vm._v(
+                      "\n                        Дисциплин нет\n                    "
                     )
                   ]
                 )

@@ -11,13 +11,25 @@
                             <option v-for="sg in groupsSorted" :value="sg.id">{{sg.name}}</option>
                         </select>
 
+                        <span style="margin-left: 2em;">
+                            Cкопировать дисциплины из группы
+                            <select v-model="copyStudentGroupId">
+                                <option v-for="sg in groupsSorted" :value="sg.id">{{sg.name}}</option>
+                            </select>
+                            <button @click="copyDisciplines()" class="button is-primary">Скопировать</button>
+                        </span>
+
                         <div v-if="errorMessage !== ''" class="alert alert-danger alert-block" style="margin-top: 1em;">
-                            <button type="button" class="close" @click="errorMessage = '';" data-dismiss="alert">×</button>
+                            <button type="button" class="close" @click="errorMessage = ''" data-dismiss="alert">×</button>
                             <strong>{{ errorMessage }}</strong>
                         </div>
 
                         <div v-if="loading === true" style="font-size: 2em; text-align: center">
                             Загрузка ...
+                        </div>
+
+                        <div v-if="loading === false && groupDisciplines.length === 0" style="font-size: 2em; text-align: center">
+                            Дисциплин нет
                         </div>
 
                         <table v-if="loading === false" style="margin: 10px" class="table td-center is-bordered">
@@ -33,7 +45,7 @@
                                 <td><a :href="'/disciplines/' + discipline.DisciplineId + '/edit'" class="button is-primary">Редактировать</a></td>
 
                                 <td>
-                                    <button @click="deleteDiscipline(discipline);" class="button is-danger">Удалить</button>
+                                    <button @click="deleteDiscipline(discipline)" class="button is-danger">Удалить</button>
                                 </td>
                             </tr>
                         </table>
@@ -53,6 +65,7 @@
         name: "DisciplineList",
         props: [
             'studentGroups',
+            'groupId',
         ],
         data() {
             return {
@@ -64,6 +77,7 @@
                 dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
                 attestation: ["нет", "зачёт", "экзамен", "зачёт и экзамен", "зачёт с оценкой"],
                 errorMessage: "",
+                copyStudentGroupId: -1
             }
         },
         methods: {
@@ -84,17 +98,34 @@
                 axios.post(url, {"_method" : "DELETE"})
                     .then(response => {
                         if (response.data.error !== undefined) {
+                            this.loading = false;
                             this.errorMessage = "Дисциплину нельзя удалить. Ей назначен преподаватель.";
+                        } else {
+                            this.loadGroupDisciplines();
                         }
-
-                        this.loadGroupDisciplines();
                     });
 
+            },
+            copyDisciplines() {
+                this.loading = true;
+
+                axios
+                    .post('/disciplinesCopyFromGroupToGroup?sourceGroupId=' + this.copyStudentGroupId + '&destinationGroupId=' + this.studentGroupId)
+                    .then(response => {
+                        this.loadGroupDisciplines();
+                    });
             },
         },
         mounted() {
             if (this.groups.length !== 0) {
-                this.studentGroupId = this.groupsSorted[0].id;
+                let group = this.groupsSorted.filter(g => g.id === this.groupId);
+                if ((this.groupId !== "-1") && (group.length !== 0)) {
+                    this.studentGroupId = this.groupId;
+                    this.copyStudentGroupId = this.groupsSorted[0].id;
+                } else {
+                    this.studentGroupId = this.groupsSorted[0].id;
+                    this.copyStudentGroupId = this.groupsSorted[0].id;
+                }
 
                 this.loadGroupDisciplines();
             }

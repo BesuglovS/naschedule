@@ -120,6 +120,13 @@ class Discipline extends Model
         return static::IdsFromGroupIdsStraight($groupIds);
     }
 
+    public static function ListFromGroupId($groupId) {
+        $groupIds = StudentGroup::GetGroupsOfStudentFromGroup($groupId);
+        return DB::table('disciplines')
+            ->whereIn('student_group_id', $groupIds)
+            ->get();
+    }
+
     public static function IdsFromGroupIdsStraight($groupIds) {
         return DB::table('disciplines')
             ->whereIn('student_group_id', $groupIds)

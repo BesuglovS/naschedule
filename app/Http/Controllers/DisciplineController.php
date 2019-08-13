@@ -15,11 +15,19 @@ class DisciplineController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $input = $request->all();
+
+        $groupId = -1;
+        if (isset($input['groupId']))
+        {
+            $groupId = $input["groupId"];
+        }
+
         $studentGroups = StudentGroup::allSorted()->toArray();
 
-        return view('disciplines.index', compact('studentGroups'));
+        return view('disciplines.index', compact('studentGroups', 'groupId'));
     }
 
     /**
@@ -54,7 +62,7 @@ class DisciplineController extends Controller
 
         $newDiscipline->save();
 
-        return redirect('/disciplines');
+        return redirect('disciplines?groupId=' . $newDiscipline->student_group_id);
     }
 
     /**
@@ -112,7 +120,7 @@ class DisciplineController extends Controller
         $discipline->student_group_id = $request->student_group_id;
         $discipline->save();
 
-        return redirect('disciplines');
+        return redirect('disciplines?groupId=' . $discipline->student_group_id);
     }
 
     /**
@@ -168,5 +176,47 @@ class DisciplineController extends Controller
             ->get();
 
         return $disciplines;
+    }
+
+    public function CopyFromGroupToGroup(Request $request) {
+        $input = $request->all();
+
+        if (!isset($input['sourceGroupId']) || !isset($input['destinationGroupId']))
+        {
+            return array("error" => "sourceGroupId и destinationGroupId обязательные параметр");
+        }
+
+        $sourceGroupId = $input['sourceGroupId'];
+        $destinationGroupId = $input['destinationGroupId'];
+
+        $sourceGroupDisciplines = Discipline::ListFromGroupId($sourceGroupId)->toArray();
+        $sourceGroupDisciplineNames =  array_values(array_unique(array_column($sourceGroupDisciplines, 'name')));
+        sort($sourceGroupDisciplineNames);
+
+        $result = array();
+        foreach ($sourceGroupDisciplineNames as $disciplineName) {
+            $sourceDiscipline = null;
+            foreach($sourceGroupDisciplines as $discipline) {
+                if ($discipline->name == $disciplineName) {
+                    $sourceDiscipline = $discipline;
+                    break;
+                }
+            }
+
+            $newDiscipline = new Discipline();
+            $newDiscipline->name = $disciplineName;
+            $newDiscipline->attestation = $sourceDiscipline->attestation;
+            $newDiscipline->student_group_id = $destinationGroupId;
+
+            $newDiscipline->auditorium_hours = "0";
+            $newDiscipline->auditorium_hours_per_week = "0";
+            $newDiscipline->lecture_hours = "0";
+            $newDiscipline->practical_hours = "0";
+
+            $newDiscipline->save();
+            $result[] = $newDiscipline;
+        }
+
+        return $result;
     }
 }
