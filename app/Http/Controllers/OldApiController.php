@@ -1103,14 +1103,21 @@ class OldApiController extends Controller
 
     private function GetTeacherWeeksSchedule($input)
     {
-        if ((!isset($input['teacherId'])) || (!isset($input['weeks'])))
+        if (!isset($input['teacherId']))
         {
-            return array("error" => "teacherId и weeks обязательные параметры");
+            return array("error" => "teacherId обязательный параметр");
         }
-
         $teacherId = $input['teacherId'];
-        $weeks = explode('|', $input['weeks']);
-        sort($weeks);
+
+        $weeks = array();
+        if (!isset($input['weeks']))
+        {
+            $weekCount = Calendar::WeekCount();
+            $weeks = range(1, $weekCount);
+        } else {
+            $weeks = explode('|', $input['weeks']);
+            sort($weeks);
+        }
 
         $semesterStarts = ConfigOption::SemesterStarts();
 

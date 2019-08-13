@@ -58,8 +58,12 @@
                                             <tr>
                                                 <td style="border:none;">
                                                     <a v-if="groupDisciplines.length > 0" @click.prevent="newDows = []; newDows.push(dow); setNewRingId(ring); askForNew();" href="#">
-                                                        <font-awesome-icon icon="plus-square" /> Добавить
+                                                        <font-awesome-icon icon="plus-square" />
                                                     </a>
+                                                </td>
+
+                                                <td v-if="teacherBusy(dow,ring).length !== 0" style="border:none; border-radius: 5px; background-color: #ffdddd; font-size: 0.6em; vertical-align: middle;">
+                                                    {{teacherBusy(dow,ring)}}
                                                 </td>
                                             </tr>
                                         </table>
@@ -228,8 +232,8 @@
 
         <modal v-if="showNewWindow">
             <template v-slot:header>
-                Новые уроки.
-                <select v-model="groupDisciplineSelected">
+                <span style="font-size: 2em;">Новые уроки</span>
+                <select v-model="groupDisciplineSelected" @change="newTfdChanged(groupDisciplineSelected)">
                     <option v-for="gd in groupDisciplinesWithTeacher" :value="gd">
                         {{gd.disciplineName}} @ {{gd.studentGroupName}} = {{gd.teacherFio}}
                     </option>
@@ -368,6 +372,8 @@
                 newSingleAudId: -1,
                 freeAuds: {},
                 editFreeAuds: {},
+                disciplineTeacherSchedule: {},
+                newTfdBusyLoading: false,
             }
         },
         methods: {
@@ -423,8 +429,33 @@
                         this.groupDisciplines = response.data;
 
                         if (this.groupDisciplinesWithTeacher.length > 0) {
-                            this.groupDisciplineSelected = this.groupDisciplinesWithTeacher[0];
+                            this.disciplineClicked(this.groupDisciplinesWithTeacher[0]);
                         }
+                    });
+            },
+            teacherBusy(dow, ring) {
+                if (this.disciplineTeacherSchedule[dow] === undefined || this.disciplineTeacherSchedule[dow][ring] === undefined) {
+                    return [];
+                }
+                let result = [];
+
+                for(let tfdId in this.disciplineTeacherSchedule[dow][ring]) {
+                    Object.values(this.disciplineTeacherSchedule[dow][ring][tfdId]['weeksAndAuds']).flat()
+                        .forEach(item =>{
+                            if ((result.indexOf(item) === -1) && (this.selectedWeeks.includes(item) || (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)))
+                                result.push(item);
+                        });
+                }
+                return (result.length === 0) ? "[]" : this.combineWeeksToRange(result);
+            },
+            newTfdChanged(groupDisciplineSelected) {
+                this.newTfdBusyLoading = true;
+
+                axios
+                    .get('/api.php?action=teacherWeeksSchedule&teacherId=' + groupDisciplineSelected.teacherId + '&compactResult')
+                    .then(response => {
+                        this.disciplineTeacherSchedule = response.data;
+                        this.newTfdBusyLoading = false;
                     });
             },
             setNewRingId(ring) {
@@ -457,6 +488,12 @@
             },
             disciplineClicked(discipline) {
               this.groupDisciplineSelected = discipline;
+
+              axios
+                  .get('/api.php?action=teacherWeeksSchedule&teacherId=' + this.groupDisciplineSelected.teacherId + '&compactResult')
+                  .then(response => {
+                      this.disciplineTeacherSchedule = response.data;
+                  });
             },
             askForNew() {
                 this.newSelectedWeeks = [];

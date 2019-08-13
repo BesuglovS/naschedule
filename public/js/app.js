@@ -12841,6 +12841,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -12880,7 +12884,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       addLoading: false,
       newSingleAudId: -1,
       freeAuds: {},
-      editFreeAuds: {}
+      editFreeAuds: {},
+      disciplineTeacherSchedule: {},
+      newTfdBusyLoading: false
     };
   },
   methods: {
@@ -12922,8 +12928,34 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         _this.groupDisciplines = response.data;
 
         if (_this.groupDisciplinesWithTeacher.length > 0) {
-          _this.groupDisciplineSelected = _this.groupDisciplinesWithTeacher[0];
+          _this.disciplineClicked(_this.groupDisciplinesWithTeacher[0]);
         }
+      });
+    },
+    teacherBusy: function teacherBusy(dow, ring) {
+      var _this2 = this;
+
+      if (this.disciplineTeacherSchedule[dow] === undefined || this.disciplineTeacherSchedule[dow][ring] === undefined) {
+        return [];
+      }
+
+      var result = [];
+
+      for (var tfdId in this.disciplineTeacherSchedule[dow][ring]) {
+        Object.values(this.disciplineTeacherSchedule[dow][ring][tfdId]['weeksAndAuds']).flat().forEach(function (item) {
+          if (result.indexOf(item) === -1 && (_this2.selectedWeeks.includes(item) || _this2.selectedWeeks.length === 1 && _this2.selectedWeeks[0] === -1)) result.push(item);
+        });
+      }
+
+      return result.length === 0 ? "[]" : this.combineWeeksToRange(result);
+    },
+    newTfdChanged: function newTfdChanged(groupDisciplineSelected) {
+      var _this3 = this;
+
+      this.newTfdBusyLoading = true;
+      axios.get('/api.php?action=teacherWeeksSchedule&teacherId=' + groupDisciplineSelected.teacherId + '&compactResult').then(function (response) {
+        _this3.disciplineTeacherSchedule = response.data;
+        _this3.newTfdBusyLoading = false;
       });
     },
     setNewRingId: function setNewRingId(ring) {
@@ -12943,7 +12975,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       return ra.length > 0 ? ra[0] : null;
     },
     newRingToggled: function newRingToggled(ring) {
-      var _this2 = this;
+      var _this4 = this;
 
       if (this.newRingIds.includes(ring.RingId)) {
         var index = this.newRingIds.indexOf(ring.RingId);
@@ -12953,14 +12985,19 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
 
       axios.get('/api.php?action=freeAuditoriums' + '&dows=' + this.newDows.join('|') + '&ringIds=' + this.newRingIds.join('|')).then(function (response) {
-        _this2.freeAuds = response.data;
+        _this4.freeAuds = response.data;
       });
     },
     disciplineClicked: function disciplineClicked(discipline) {
+      var _this5 = this;
+
       this.groupDisciplineSelected = discipline;
+      axios.get('/api.php?action=teacherWeeksSchedule&teacherId=' + this.groupDisciplineSelected.teacherId + '&compactResult').then(function (response) {
+        _this5.disciplineTeacherSchedule = response.data;
+      });
     },
     askForNew: function askForNew() {
-      var _this3 = this;
+      var _this6 = this;
 
       this.newSelectedWeeks = [];
 
@@ -12969,8 +13006,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
 
       axios.get('/api.php?action=freeAuditoriums' + '&dows=' + this.newDows.join('|') + '&ringIds=' + this.newRingIds.join('|')).then(function (response) {
-        _this3.freeAuds = response.data;
-        _this3.showNewWindow = true;
+        _this6.freeAuds = response.data;
+        _this6.showNewWindow = true;
       });
     },
     askForDelete: function askForDelete(lessons) {
@@ -12989,7 +13026,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
     },
     newDowToggled: function newDowToggled(dow) {
-      var _this4 = this;
+      var _this7 = this;
 
       if (this.newDows.includes(dow)) {
         if (this.newDows.length !== 1) {
@@ -13001,11 +13038,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }
 
       axios.get('/api.php?action=freeAuditoriums' + '&dows=' + this.newDows.join('|') + '&ringIds=' + this.newRingIds.join('|')).then(function (response) {
-        _this4.freeAuds = response.data;
+        _this7.freeAuds = response.data;
       });
     },
     askForEdit: function askForEdit(lessonsData, dow, time) {
-      var _this5 = this;
+      var _this8 = this;
 
       var r = {};
 
@@ -13021,27 +13058,27 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
       this.editWeeksAuds = r;
       axios.get('/api.php?action=freeAuditoriums' + '&dows=' + dow + '&ringIds=' + this.getRingFromAllRingsByFiveTime(time).RingId).then(function (response) {
-        _this5.editFreeAuds = response.data;
-        _this5.editSelectedWeeks = Object.values(lessonsData['weeksAndAuds']).flat().sort(function (a, b) {
+        _this8.editFreeAuds = response.data;
+        _this8.editSelectedWeeks = Object.values(lessonsData['weeksAndAuds']).flat().sort(function (a, b) {
           return a - b;
         });
-        _this5.lessonsDataToEdit = lessonsData;
-        _this5.showEditWindow = true;
+        _this8.lessonsDataToEdit = lessonsData;
+        _this8.showEditWindow = true;
       });
     },
     deleteLessons: function deleteLessons() {
-      var _this6 = this;
+      var _this9 = this;
 
       var IdsString = this.lessonsToDelete.map(function (l) {
         return l.lessonId;
       }).join('|');
       var destroyUrl = '/lessonsDestroyByIds?Ids=' + IdsString;
       axios.post(destroyUrl).then(function (response) {
-        _this6.loadGroupSchedule();
+        _this9.loadGroupSchedule();
       });
     },
     saveLessonsNew: function saveLessonsNew() {
-      var _this7 = this;
+      var _this10 = this;
 
       this.addLoading = true;
       var tfdId = this.groupDisciplineSelected.tfdId;
@@ -13049,17 +13086,17 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       var weeks = this.newSelectedWeeks.join('|');
       var ringIds = this.newRingIds.join('|');
       var weeksAuds = this.newSelectedWeeks.map(function (w) {
-        return w + '@' + _this7.newWeeksAuds[w];
+        return w + '@' + _this10.newWeeksAuds[w];
       }).join('|');
       axios.post('/lessonsGroupScheduleAdd' + '?tfdId=' + tfdId + '&dows=' + dows + '&weeks=' + weeks + '&ringIds=' + ringIds + '&weeksAuds=' + weeksAuds).then(function (response) {
-        _this7.addLoading = false;
-        _this7.showNewWindow = false;
+        _this10.addLoading = false;
+        _this10.showNewWindow = false;
 
-        _this7.loadGroupSchedule();
+        _this10.loadGroupSchedule();
       });
     },
     saveLessonsEdit: function saveLessonsEdit() {
-      var _this8 = this;
+      var _this11 = this;
 
       var oldWeeks = Object.values(this.lessonsDataToEdit['weeksAndAuds']).flat().sort(function (a, b) {
         return a - b;
@@ -13077,19 +13114,19 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         return !oldWeeks.includes(w);
       });
       var addString = weeksToAdd.map(function (w) {
-        return w + '@' + _this8.editWeeksAuds[w];
+        return w + '@' + _this11.editWeeksAuds[w];
       }).join('|');
       var weeksRemoved = oldWeeks.filter(function (w) {
-        return !_this8.editSelectedWeeks.includes(w);
+        return !_this11.editSelectedWeeks.includes(w);
       });
       var removeString = weeksRemoved.join('|');
       var changedAuditoriumsString = oldWeeks.filter(function (w) {
-        return _this8.editSelectedWeeks.includes(w) && oldEditWeeksAuds[w] !== _this8.editWeeksAuds[w];
+        return _this11.editSelectedWeeks.includes(w) && oldEditWeeksAuds[w] !== _this11.editWeeksAuds[w];
       }).map(function (w) {
-        return w + '@' + _this8.editWeeksAuds[w];
+        return w + '@' + _this11.editWeeksAuds[w];
       }).join('|');
       axios.post('/lessonsWeeksAndAudsEdit' + '?tfdId=' + this.lessonsDataToEdit["lessons"][0].tfdId + '&ringId=' + this.lessonsDataToEdit["lessons"][0].ringId + '&dow=' + this.lessonsDataToEdit["lessons"][0].dow + '&add=' + addString + '&remove=' + removeString + '&changeAuditorium=' + changedAuditoriumsString).then(function (response) {
-        _this8.loadGroupSchedule();
+        _this11.loadGroupSchedule();
       });
     },
     loadFullGroupSchedule: function loadFullGroupSchedule() {
@@ -13409,10 +13446,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     }
   },
   mounted: function mounted() {
-    var _this9 = this;
+    var _this12 = this;
 
     axios.get('/api.php?action=list&listtype=rings').then(function (response) {
-      _this9.allRings = response.data.sort(function (a, b) {
+      _this12.allRings = response.data.sort(function (a, b) {
         if (a.Time === b.Time) return 0;
         var aMoment = moment__WEBPACK_IMPORTED_MODULE_1___default()(a.Time, "HH:mm:ss");
         var bMoment = moment__WEBPACK_IMPORTED_MODULE_1___default()(b.Time, "HH:mm:ss");
@@ -85373,16 +85410,43 @@ var render = function() {
                                                                   "plus-square"
                                                               }
                                                             }
-                                                          ),
-                                                          _vm._v(
-                                                            " Добавить\n                                                "
                                                           )
                                                         ],
                                                         1
                                                       )
                                                     : _vm._e()
                                                 ]
-                                              )
+                                              ),
+                                              _vm._v(" "),
+                                              _vm.teacherBusy(dow, ring)
+                                                .length !== 0
+                                                ? _c(
+                                                    "td",
+                                                    {
+                                                      staticStyle: {
+                                                        border: "none",
+                                                        "border-radius": "5px",
+                                                        "background-color":
+                                                          "#ffdddd",
+                                                        "font-size": "0.6em",
+                                                        "vertical-align":
+                                                          "middle"
+                                                      }
+                                                    },
+                                                    [
+                                                      _vm._v(
+                                                        "\n                                                " +
+                                                          _vm._s(
+                                                            _vm.teacherBusy(
+                                                              dow,
+                                                              ring
+                                                            )
+                                                          ) +
+                                                          "\n                                            "
+                                                      )
+                                                    ]
+                                                  )
+                                                : _vm._e()
                                             ])
                                           ]
                                         ),
@@ -86250,7 +86314,10 @@ var render = function() {
                   key: "header",
                   fn: function() {
                     return [
-                      _vm._v("\n            Новые уроки.\n            "),
+                      _c("span", { staticStyle: { "font-size": "2em" } }, [
+                        _vm._v("Новые уроки")
+                      ]),
+                      _vm._v(" "),
                       _c(
                         "select",
                         {
@@ -86263,20 +86330,27 @@ var render = function() {
                             }
                           ],
                           on: {
-                            change: function($event) {
-                              var $$selectedVal = Array.prototype.filter
-                                .call($event.target.options, function(o) {
-                                  return o.selected
-                                })
-                                .map(function(o) {
-                                  var val = "_value" in o ? o._value : o.value
-                                  return val
-                                })
-                              _vm.groupDisciplineSelected = $event.target
-                                .multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
-                            }
+                            change: [
+                              function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.groupDisciplineSelected = $event.target
+                                  .multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              },
+                              function($event) {
+                                return _vm.newTfdChanged(
+                                  _vm.groupDisciplineSelected
+                                )
+                              }
+                            ]
                           }
                         },
                         _vm._l(_vm.groupDisciplinesWithTeacher, function(gd) {
@@ -86711,7 +86785,7 @@ var render = function() {
               ],
               null,
               false,
-              3635745508
+              1562909583
             )
           })
         : _vm._e()
