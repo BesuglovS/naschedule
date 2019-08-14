@@ -12847,6 +12847,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -12872,6 +12877,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       lessonsToDelete: [],
       showEditWindow: false,
       lessonsDataToEdit: {},
+      editDow: "",
+      editRing: "",
       editSelectedWeeks: [],
       editWeeksAuds: {},
       groupDisciplines: [],
@@ -12888,6 +12895,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       freeAuds: {},
       editFreeAuds: {},
       disciplineTeacherSchedule: {},
+      editDisciplineTeacherSchedule: {},
       newTfdBusyLoading: false
     };
   },
@@ -12934,17 +12942,17 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         }
       });
     },
-    teacherBusy: function teacherBusy(dow, ring) {
+    teacherBusy: function teacherBusy(teacherSchedule, dow, ring) {
       var _this2 = this;
 
-      if (this.disciplineTeacherSchedule[dow] === undefined || this.disciplineTeacherSchedule[dow][ring] === undefined) {
+      if (teacherSchedule[dow] === undefined || teacherSchedule[dow][ring] === undefined) {
         return [];
       }
 
       var result = [];
 
-      for (var tfdId in this.disciplineTeacherSchedule[dow][ring]) {
-        Object.values(this.disciplineTeacherSchedule[dow][ring][tfdId]['weeksAndAuds']).flat().forEach(function (item) {
+      for (var tfdId in teacherSchedule[dow][ring]) {
+        Object.values(teacherSchedule[dow][ring][tfdId]['weeksAndAuds']).flat().forEach(function (item) {
           if (result.indexOf(item) === -1 && (_this2.selectedWeeks.includes(item) || _this2.selectedWeeks.length === 1 && _this2.selectedWeeks[0] === -1)) result.push(item);
         });
       }
@@ -13075,9 +13083,23 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         _this8.freeAuds = response.data;
       });
     },
+    timeFromRingId: function timeFromRingId(ringId) {
+      var ringArray = this.allRings.filter(function (r) {
+        return r.RingId == ringId;
+      });
+      return ringArray.length !== 0 ? ringArray[0].time.substr(0, 5) : "";
+    },
+    ringFromTime: function ringFromTime(time) {
+      var ringArray = this.allRings.filter(function (r) {
+        return r.Time.substr(0, 5) === time;
+      });
+      return ringArray.length !== 0 ? ringArray[0] : "";
+    },
     askForEdit: function askForEdit(lessonsData, dow, time) {
       var _this9 = this;
 
+      this.editDow = dow;
+      this.editRing = this.ringFromTime(time);
       var r = {};
 
       for (var i = 1; i <= this.weeksCount; i++) {
@@ -13098,6 +13120,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         });
         _this9.lessonsDataToEdit = lessonsData;
         _this9.showEditWindow = true;
+      });
+      axios.get('/api.php?action=teacherWeeksSchedule&teacherId=' + lessonsData.lessons[0].teacherId + '&compactResult').then(function (response) {
+        _this9.editDisciplineTeacherSchedule = response.data;
       });
     },
     deleteLessons: function deleteLessons() {
@@ -85453,8 +85478,11 @@ var render = function() {
                                                 ]
                                               ),
                                               _vm._v(" "),
-                                              _vm.teacherBusy(dow, ring)
-                                                .length !== 0
+                                              _vm.teacherBusy(
+                                                _vm.disciplineTeacherSchedule,
+                                                dow,
+                                                ring
+                                              ).length !== 0
                                                 ? _c(
                                                     "td",
                                                     {
@@ -85473,6 +85501,7 @@ var render = function() {
                                                         "\n                                                " +
                                                           _vm._s(
                                                             _vm.teacherBusy(
+                                                              _vm.disciplineTeacherSchedule,
                                                               dow,
                                                               ring
                                                             )
@@ -86098,9 +86127,54 @@ var render = function() {
                   fn: function() {
                     return [
                       _vm._v(
-                        "Редактирование уроков. Недели: " +
-                          _vm._s(_vm.combineWeeksToRange(_vm.editSelectedWeeks))
-                      )
+                        "\n            Редактирование уроков. Недели: " +
+                          _vm._s(
+                            _vm.combineWeeksToRange(_vm.editSelectedWeeks)
+                          ) +
+                          " |\n            " +
+                          _vm._s(_vm.lessonsDataToEdit.lessons[0].discName) +
+                          " + " +
+                          _vm._s(_vm.lessonsDataToEdit.lessons[0].teacherFIO) +
+                          " @ " +
+                          _vm._s(_vm.lessonsDataToEdit.lessons[0].groupName) +
+                          " |\n            " +
+                          _vm._s(_vm.dowRu[_vm.editDow - 1]) +
+                          " + " +
+                          _vm._s(_vm.editRing.Time.substr(0, 5)) +
+                          "\n            "
+                      ),
+                      _vm.teacherBusy(
+                        _vm.editDisciplineTeacherSchedule,
+                        _vm.editDow,
+                        _vm.editRing.Time.substr(0, 5)
+                      ).length !== 0
+                        ? _c(
+                            "span",
+                            {
+                              staticStyle: {
+                                border: "none",
+                                "border-radius": "5px",
+                                "background-color": "#ffdddd",
+                                "font-size": "1em",
+                                padding: "8px",
+                                "vertical-align": "middle"
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                " +
+                                  _vm._s(
+                                    _vm.teacherBusy(
+                                      _vm.editDisciplineTeacherSchedule,
+                                      _vm.editDow,
+                                      _vm.editRing.Time.substr(0, 5)
+                                    )
+                                  ) +
+                                  "\n            "
+                              )
+                            ]
+                          )
+                        : _vm._e()
                     ]
                   },
                   proxy: true
@@ -86109,190 +86183,135 @@ var render = function() {
                   key: "body",
                   fn: function() {
                     return [
-                      _vm._l(2, function(half) {
-                        return [
-                          _c("table", { staticStyle: { margin: "0 auto" } }, [
-                            _c(
-                              "tr",
-                              _vm._l(
-                                half === 1
-                                  ? Math.floor(_vm.weeksCount / 2)
-                                  : Math.ceil(_vm.weeksCount / 2),
-                                function(week) {
-                                  return _c(
-                                    "td",
-                                    { staticStyle: { "text-align": "center" } },
-                                    [
-                                      _c(
-                                        "button",
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            width: "100%",
+                            margin: "0",
+                            padding: "0",
+                            display: "flex",
+                            "flex-direction": "row",
+                            "flex-wrap": "wrap"
+                          }
+                        },
+                        _vm._l(_vm.weeksCount, function(week) {
+                          return _c(
+                            "div",
+                            {
+                              staticStyle: {
+                                "text-align": "center",
+                                width: "auto",
+                                "margin-right": "1em",
+                                "margin-bottom": "1em"
+                              }
+                            },
+                            [
+                              _c("div", [
+                                _c(
+                                  "button",
+                                  {
+                                    class: {
+                                      button: true,
+                                      "is-primary": !_vm.editSelectedWeeks.includes(
+                                        week
+                                      ),
+                                      "is-danger": _vm.editSelectedWeeks.includes(
+                                        week
+                                      )
+                                    },
+                                    staticStyle: {
+                                      "margin-right": "0.5em",
+                                      "margin-bottom": "0.5em"
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.editWeekToggled(
+                                          week +
+                                            (_vm.half === 2
+                                              ? Math.floor(_vm.weeksCount / 2)
+                                              : 0)
+                                        )
+                                      }
+                                    }
+                                  },
+                                  [_vm._v(_vm._s(week))]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("div", [
+                                _c(
+                                  "select",
+                                  {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.editWeeksAuds[week],
+                                        expression: "editWeeksAuds[week]"
+                                      }
+                                    ],
+                                    staticStyle: {
+                                      width: "90px",
+                                      "font-size": "1em"
+                                    },
+                                    on: {
+                                      change: function($event) {
+                                        var $$selectedVal = Array.prototype.filter
+                                          .call($event.target.options, function(
+                                            o
+                                          ) {
+                                            return o.selected
+                                          })
+                                          .map(function(o) {
+                                            var val =
+                                              "_value" in o ? o._value : o.value
+                                            return val
+                                          })
+                                        _vm.$set(
+                                          _vm.editWeeksAuds,
+                                          week,
+                                          $event.target.multiple
+                                            ? $$selectedVal
+                                            : $$selectedVal[0]
+                                        )
+                                      }
+                                    }
+                                  },
+                                  _vm._l(
+                                    _vm.editLessonsWeeksAudsFree(week),
+                                    function(aud) {
+                                      return _c(
+                                        "option",
                                         {
-                                          class: {
-                                            button: true,
-                                            "is-primary": !_vm.editSelectedWeeks.includes(
-                                              week +
-                                                (half === 2
-                                                  ? Math.floor(
-                                                      _vm.weeksCount / 2
-                                                    )
-                                                  : 0)
-                                            ),
-                                            "is-danger": _vm.editSelectedWeeks.includes(
-                                              week +
-                                                (half === 2
-                                                  ? Math.floor(
-                                                      _vm.weeksCount / 2
-                                                    )
-                                                  : 0)
-                                            )
+                                          style: {
+                                            backgroundColor:
+                                              aud.id === _vm.editWeeksAuds[week]
+                                                ? "#ddffdd"
+                                                : aud.free
+                                                ? "white"
+                                                : "#ffdddd"
                                           },
-                                          staticStyle: {
-                                            "margin-right": "0.5em",
-                                            "margin-bottom": "0.5em"
-                                          },
-                                          on: {
-                                            click: function($event) {
-                                              _vm.editWeekToggled(
-                                                week +
-                                                  (half === 2
-                                                    ? Math.floor(
-                                                        _vm.weeksCount / 2
-                                                      )
-                                                    : 0)
-                                              )
-                                            }
-                                          }
+                                          domProps: { value: aud.id }
                                         },
                                         [
                                           _vm._v(
-                                            _vm._s(
-                                              week +
-                                                (half === 2
-                                                  ? Math.floor(
-                                                      _vm.weeksCount / 2
-                                                    )
-                                                  : 0)
-                                            )
+                                            "\n                                " +
+                                              _vm._s(aud.name) +
+                                              "\n                            "
                                           )
                                         ]
                                       )
-                                    ]
-                                  )
-                                }
-                              ),
-                              0
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "tr",
-                              _vm._l(
-                                half === 1
-                                  ? Math.floor(_vm.weeksCount / 2)
-                                  : Math.ceil(_vm.weeksCount / 2),
-                                function(week) {
-                                  return _c(
-                                    "td",
-                                    { staticStyle: { padding: "10px" } },
-                                    [
-                                      _c(
-                                        "select",
-                                        {
-                                          directives: [
-                                            {
-                                              name: "model",
-                                              rawName: "v-model",
-                                              value:
-                                                _vm.editWeeksAuds[
-                                                  week +
-                                                    (half === 2
-                                                      ? Math.floor(
-                                                          _vm.weeksCount / 2
-                                                        )
-                                                      : 0)
-                                                ],
-                                              expression:
-                                                "editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]"
-                                            }
-                                          ],
-                                          staticStyle: {
-                                            width: "90px",
-                                            "font-size": "1em"
-                                          },
-                                          on: {
-                                            change: function($event) {
-                                              var $$selectedVal = Array.prototype.filter
-                                                .call(
-                                                  $event.target.options,
-                                                  function(o) {
-                                                    return o.selected
-                                                  }
-                                                )
-                                                .map(function(o) {
-                                                  var val =
-                                                    "_value" in o
-                                                      ? o._value
-                                                      : o.value
-                                                  return val
-                                                })
-                                              _vm.$set(
-                                                _vm.editWeeksAuds,
-                                                week +
-                                                  (half === 2
-                                                    ? Math.floor(
-                                                        _vm.weeksCount / 2
-                                                      )
-                                                    : 0),
-                                                $event.target.multiple
-                                                  ? $$selectedVal
-                                                  : $$selectedVal[0]
-                                              )
-                                            }
-                                          }
-                                        },
-                                        _vm._l(
-                                          _vm.editLessonsWeeksAudsFree(week),
-                                          function(aud) {
-                                            return _c(
-                                              "option",
-                                              {
-                                                style: {
-                                                  backgroundColor:
-                                                    aud.id ===
-                                                    _vm.editWeeksAuds[
-                                                      week +
-                                                        (half === 2
-                                                          ? Math.floor(
-                                                              _vm.weeksCount / 2
-                                                            )
-                                                          : 0)
-                                                    ]
-                                                      ? "#ddffdd"
-                                                      : aud.free
-                                                      ? "white"
-                                                      : "#ffdddd"
-                                                },
-                                                domProps: { value: aud.id }
-                                              },
-                                              [
-                                                _vm._v(
-                                                  "\n                                    " +
-                                                    _vm._s(aud.name) +
-                                                    "\n                                "
-                                                )
-                                              ]
-                                            )
-                                          }
-                                        ),
-                                        0
-                                      )
-                                    ]
-                                  )
-                                }
-                              ),
-                              0
-                            )
-                          ])
-                        ]
-                      })
+                                    }
+                                  ),
+                                  0
+                                )
+                              ])
+                            ]
+                          )
+                        }),
+                        0
+                      )
                     ]
                   },
                   proxy: true
@@ -86336,7 +86355,7 @@ var render = function() {
               ],
               null,
               false,
-              2530688567
+              2512269014
             )
           })
         : _vm._e(),
@@ -86533,179 +86552,127 @@ var render = function() {
                       _vm._v(" "),
                       _c("hr"),
                       _vm._v(" "),
-                      _vm._l(2, function(half) {
-                        return [
-                          _c("table", { staticStyle: { margin: "0 auto" } }, [
-                            _c(
-                              "tr",
-                              _vm._l(
-                                half === 1
-                                  ? Math.floor(_vm.weeksCount / 2)
-                                  : Math.ceil(_vm.weeksCount / 2),
-                                function(week) {
-                                  return _c(
-                                    "td",
-                                    { staticStyle: { "text-align": "center" } },
-                                    [
-                                      _c(
-                                        "button",
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            width: "100%",
+                            margin: "0",
+                            padding: "0",
+                            display: "flex",
+                            "flex-direction": "row",
+                            "flex-wrap": "wrap"
+                          }
+                        },
+                        _vm._l(_vm.weeksCount, function(week) {
+                          return _c(
+                            "div",
+                            {
+                              staticStyle: {
+                                "text-align": "center",
+                                width: "auto",
+                                "margin-right": "1em",
+                                "margin-bottom": "1em"
+                              }
+                            },
+                            [
+                              _c("div", [
+                                _c(
+                                  "button",
+                                  {
+                                    class: {
+                                      button: true,
+                                      "is-primary": !_vm.newSelectedWeeks.includes(
+                                        week
+                                      ),
+                                      "is-danger": _vm.newSelectedWeeks.includes(
+                                        week
+                                      )
+                                    },
+                                    staticStyle: {
+                                      "margin-right": "0.5em",
+                                      "margin-bottom": "0.5em"
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.newWeekToggled(week)
+                                      }
+                                    }
+                                  },
+                                  [_vm._v(_vm._s(week))]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("div", [
+                                _c(
+                                  "select",
+                                  {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.newWeeksAuds[week],
+                                        expression: "newWeeksAuds[week]"
+                                      }
+                                    ],
+                                    staticStyle: {
+                                      width: "90px",
+                                      "font-size": "1em"
+                                    },
+                                    on: {
+                                      change: function($event) {
+                                        var $$selectedVal = Array.prototype.filter
+                                          .call($event.target.options, function(
+                                            o
+                                          ) {
+                                            return o.selected
+                                          })
+                                          .map(function(o) {
+                                            var val =
+                                              "_value" in o ? o._value : o.value
+                                            return val
+                                          })
+                                        _vm.$set(
+                                          _vm.newWeeksAuds,
+                                          week,
+                                          $event.target.multiple
+                                            ? $$selectedVal
+                                            : $$selectedVal[0]
+                                        )
+                                      }
+                                    }
+                                  },
+                                  _vm._l(
+                                    _vm.newLessonsWeeksAudsFree(week),
+                                    function(aud) {
+                                      return _c(
+                                        "option",
                                         {
-                                          class: {
-                                            button: true,
-                                            "is-primary": !_vm.newSelectedWeeks.includes(
-                                              week +
-                                                (half === 2
-                                                  ? Math.floor(
-                                                      _vm.weeksCount / 2
-                                                    )
-                                                  : 0)
-                                            ),
-                                            "is-danger": _vm.newSelectedWeeks.includes(
-                                              week +
-                                                (half === 2
-                                                  ? Math.floor(
-                                                      _vm.weeksCount / 2
-                                                    )
-                                                  : 0)
-                                            )
+                                          style: {
+                                            backgroundColor: aud.free
+                                              ? "white"
+                                              : "#ffdddd"
                                           },
-                                          staticStyle: {
-                                            "margin-right": "0.5em",
-                                            "margin-bottom": "0.5em"
-                                          },
-                                          on: {
-                                            click: function($event) {
-                                              _vm.newWeekToggled(
-                                                week +
-                                                  (half === 2
-                                                    ? Math.floor(
-                                                        _vm.weeksCount / 2
-                                                      )
-                                                    : 0)
-                                              )
-                                            }
-                                          }
+                                          domProps: { value: aud.id }
                                         },
                                         [
                                           _vm._v(
-                                            _vm._s(
-                                              week +
-                                                (half === 2
-                                                  ? Math.floor(
-                                                      _vm.weeksCount / 2
-                                                    )
-                                                  : 0)
-                                            )
+                                            "\n                                " +
+                                              _vm._s(aud.name) +
+                                              "\n                            "
                                           )
                                         ]
                                       )
-                                    ]
-                                  )
-                                }
-                              ),
-                              0
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "tr",
-                              _vm._l(
-                                half === 1
-                                  ? Math.floor(_vm.weeksCount / 2)
-                                  : Math.ceil(_vm.weeksCount / 2),
-                                function(week) {
-                                  return _c(
-                                    "td",
-                                    { staticStyle: { padding: "10px" } },
-                                    [
-                                      _c(
-                                        "select",
-                                        {
-                                          directives: [
-                                            {
-                                              name: "model",
-                                              rawName: "v-model",
-                                              value:
-                                                _vm.newWeeksAuds[
-                                                  week +
-                                                    (half === 2
-                                                      ? Math.floor(
-                                                          _vm.weeksCount / 2
-                                                        )
-                                                      : 0)
-                                                ],
-                                              expression:
-                                                "newWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]"
-                                            }
-                                          ],
-                                          staticStyle: {
-                                            width: "90px",
-                                            "font-size": "1em"
-                                          },
-                                          on: {
-                                            change: function($event) {
-                                              var $$selectedVal = Array.prototype.filter
-                                                .call(
-                                                  $event.target.options,
-                                                  function(o) {
-                                                    return o.selected
-                                                  }
-                                                )
-                                                .map(function(o) {
-                                                  var val =
-                                                    "_value" in o
-                                                      ? o._value
-                                                      : o.value
-                                                  return val
-                                                })
-                                              _vm.$set(
-                                                _vm.newWeeksAuds,
-                                                week +
-                                                  (half === 2
-                                                    ? Math.floor(
-                                                        _vm.weeksCount / 2
-                                                      )
-                                                    : 0),
-                                                $event.target.multiple
-                                                  ? $$selectedVal
-                                                  : $$selectedVal[0]
-                                              )
-                                            }
-                                          }
-                                        },
-                                        _vm._l(
-                                          _vm.newLessonsWeeksAudsFree(week),
-                                          function(aud) {
-                                            return _c(
-                                              "option",
-                                              {
-                                                style: {
-                                                  backgroundColor: aud.free
-                                                    ? "white"
-                                                    : "#ffdddd"
-                                                },
-                                                domProps: { value: aud.id }
-                                              },
-                                              [
-                                                _vm._v(
-                                                  "\n                                    " +
-                                                    _vm._s(aud.name) +
-                                                    "\n                                "
-                                                )
-                                              ]
-                                            )
-                                          }
-                                        ),
-                                        0
-                                      )
-                                    ]
-                                  )
-                                }
-                              ),
-                              0
-                            )
-                          ])
-                        ]
-                      }),
+                                    }
+                                  ),
+                                  0
+                                )
+                              ])
+                            ]
+                          )
+                        }),
+                        0
+                      ),
                       _vm._v(" "),
                       _c("hr"),
                       _vm._v(" "),
@@ -86837,7 +86804,7 @@ var render = function() {
               ],
               null,
               false,
-              2783075806
+              4035847494
             )
           })
         : _vm._e()

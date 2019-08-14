@@ -910,7 +910,7 @@ class OldApiController extends Controller
                     ->whereIn('disciplines.student_group_id', $groupIds)
                     ->whereIn('lessons.calendar_id', $weeksCalendars)
                     ->select('lessons.id as lessonId', 'calendars.date AS date', 'rings.time as Time', 'disciplines.name AS discName',
-                        'teachers.fio as FIO', 'auditoriums.name AS audName', 'student_groups.name AS groupName')
+                        'teachers.fio as FIO', 'auditoriums.name AS audName', 'student_groups.name AS groupName', 'teachers.id as teacherId')
                     ->get();
 
                 $lessons = array();
@@ -942,7 +942,7 @@ class OldApiController extends Controller
                 ->whereIn('lessons.calendar_id', $weeksCalendars)
                 ->select('lessons.id as lessonId', 'disciplines.name as discName', 'rings.time as startTime', 'calendars.date as date',
                     'teachers.fio as teacherFIO', 'auditoriums.name as auditoriumName', 'discipline_teacher.id as tfdId',
-                    'student_groups.name as groupName', 'student_groups.id as groupId', 'rings.id as ringId')
+                    'student_groups.name as groupName', 'student_groups.id as groupId', 'rings.id as ringId', 'teachers.id as teacherId')
                 ->get();
 
             $lessons = array("1" => array(), "2" => array(), "3" => array(), "4" => array(),

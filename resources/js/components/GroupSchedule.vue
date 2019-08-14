@@ -62,8 +62,9 @@
                                                     </a>
                                                 </td>
 
-                                                <td v-if="teacherBusy(dow,ring).length !== 0" style="border:none; border-radius: 5px; background-color: #ffdddd; font-size: 0.6em; vertical-align: middle;">
-                                                    {{teacherBusy(dow,ring)}}
+                                                <td v-if="teacherBusy(disciplineTeacherSchedule,dow,ring).length !== 0"
+                                                    style="border:none; border-radius: 5px; background-color: #ffdddd; font-size: 0.6em; vertical-align: middle;">
+                                                    {{teacherBusy(disciplineTeacherSchedule, dow,ring)}}
                                                 </td>
                                             </tr>
                                         </table>
@@ -193,36 +194,42 @@
         </modal>
 
         <modal v-if="showEditWindow">
-            <template v-slot:header>Редактирование уроков. Недели: {{combineWeeksToRange(editSelectedWeeks)}}</template>
+            <template v-slot:header>
+                Редактирование уроков. Недели: {{combineWeeksToRange(editSelectedWeeks)}} |
+                {{lessonsDataToEdit.lessons[0].discName}} + {{lessonsDataToEdit.lessons[0].teacherFIO}} @ {{lessonsDataToEdit.lessons[0].groupName}} |
+                {{dowRu[editDow-1]}} + {{editRing.Time.substr(0,5)}}
+                <span v-if="teacherBusy(editDisciplineTeacherSchedule, editDow, editRing.Time.substr(0,5)).length !== 0"
+                    style="border:none; border-radius: 5px; background-color: #ffdddd; font-size: 1em; padding: 8px; vertical-align: middle;">
+                    {{teacherBusy(editDisciplineTeacherSchedule, editDow, editRing.Time.substr(0,5))}}
+                </span>
+            </template>
             <template v-slot:body>
-                <template v-for="half in 2">
-                    <table style="margin: 0 auto;">
-                        <tr>
-                            <td style="text-align: center;" v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)">
-                                <button style="margin-right:0.5em; margin-bottom: 0.5em;"
-                                        @click="editWeekToggled(week + ((half === 2) ? (Math.floor(weeksCount / 2)) : 0))"
-                                        :class="{'button': true,
-                                            'is-primary': !editSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)),
-                                            'is-danger': editSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)) }"
-                                >{{week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)}}</button>
-                            </td>
-                        </tr>
+                <div style="width: 100%; margin: 0; padding: 0; display: flex; flex-direction: row; flex-wrap: wrap;">
 
-                        <tr>
-                            <td v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)" style="padding: 10px;">
-                                <select style="width: 90px; font-size: 1em;" v-model="editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]">
-                                    <option v-for="aud in editLessonsWeeksAudsFree(week)"
-                                            v-bind:style="{ backgroundColor :
-                                                (aud.id === editWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]) ? ('#ddffdd') :
-                                                ((aud.free) ? 'white' : '#ffdddd') }"
-                                            :value="aud.id">
-                                        {{aud.name}}
-                                    </option>
-                                </select>
-                            </td>
-                        </tr>
-                    </table>
-                </template>
+                    <div style="text-align: center; width: auto; margin-right: 1em; margin-bottom: 1em;" v-for="week in weeksCount">
+                        <div>
+                            <button style="margin-right:0.5em; margin-bottom: 0.5em;"
+                                    @click="editWeekToggled(week + ((half === 2) ? (Math.floor(weeksCount / 2)) : 0))"
+                                    :class="{'button': true,
+                                    'is-primary': !editSelectedWeeks.includes(week),
+                                    'is-danger': editSelectedWeeks.includes(week) }"
+                            >{{week}}</button>
+                        </div>
+
+                        <div>
+                            <select style="width: 90px; font-size: 1em;" v-model="editWeeksAuds[week]">
+                                <option v-for="aud in editLessonsWeeksAudsFree(week)"
+                                        v-bind:style="{ backgroundColor :
+                                            (aud.id === editWeeksAuds[week]) ? ('#ddffdd') :
+                                            ((aud.free) ? 'white' : '#ffdddd') }"
+                                        :value="aud.id">
+                                    {{aud.name}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
             </template>
             <template v-slot:footer>
                 <button style="margin-right:0.5em;" @click="showEditWindow = false;" class="button is-primary">Отмена</button>
@@ -264,31 +271,29 @@
                     </tr>
                 </table>
                 <hr>
-                <template v-for="half in 2">
-                    <table style="margin: 0 auto;">
-                        <tr>
-                            <td style="text-align: center;" v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)">
-                                <button style="margin-right:0.5em; margin-bottom: 0.5em;"
-                                        @click="newWeekToggled(week + ((half === 2) ? (Math.floor(weeksCount / 2)) : 0))"
-                                        :class="{'button': true,
-                                            'is-primary': !newSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)),
-                                            'is-danger': newSelectedWeeks.includes(week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)) }"
-                                >{{week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)}}</button>
-                            </td>
-                        </tr>
 
-                        <tr>
-                            <td v-for="week in (half === 1) ? Math.floor(weeksCount / 2) : Math.ceil(weeksCount / 2)" style="padding: 10px;">
-                                <select style="width: 90px; font-size: 1em;" v-model="newWeeksAuds[week + ((half === 2) ? Math.floor(weeksCount / 2) : 0)]">
-                                    <option v-for="aud in newLessonsWeeksAudsFree(week)" :value="aud.id"
-                                            v-bind:style="{ backgroundColor : (aud.free) ? 'white' : '#ffdddd' }">
-                                        {{aud.name}}
-                                    </option>
-                                </select>
-                            </td>
-                        </tr>
-                    </table>
-                </template>
+                <div style="width: 100%; margin: 0; padding: 0; display: flex; flex-direction: row; flex-wrap: wrap;">
+                    <div v-for="week in weeksCount" style="text-align: center; width: auto; margin-right: 1em; margin-bottom: 1em;">
+                        <div>
+                            <button style="margin-right:0.5em; margin-bottom: 0.5em;"
+                                    @click="newWeekToggled(week)"
+                                    :class="{'button': true,
+                                        'is-primary': !newSelectedWeeks.includes(week),
+                                        'is-danger': newSelectedWeeks.includes(week) }"
+                            >{{week}}</button>
+                        </div>
+
+
+                        <div>
+                            <select style="width: 90px; font-size: 1em;" v-model="newWeeksAuds[week]">
+                                <option v-for="aud in newLessonsWeeksAudsFree(week)" :value="aud.id"
+                                        v-bind:style="{ backgroundColor : (aud.free) ? 'white' : '#ffdddd' }">
+                                    {{aud.name}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
                 <hr>
 
@@ -360,6 +365,8 @@
                 lessonsToDelete: [],
                 showEditWindow: false,
                 lessonsDataToEdit: {},
+                editDow: "",
+                editRing: "",
                 editSelectedWeeks: [],
                 editWeeksAuds: {},
                 groupDisciplines: [],
@@ -376,6 +383,7 @@
                 freeAuds: {},
                 editFreeAuds: {},
                 disciplineTeacherSchedule: {},
+                editDisciplineTeacherSchedule: {},
                 newTfdBusyLoading: false,
             }
         },
@@ -436,14 +444,14 @@
                         }
                     });
             },
-            teacherBusy(dow, ring) {
-                if (this.disciplineTeacherSchedule[dow] === undefined || this.disciplineTeacherSchedule[dow][ring] === undefined) {
+            teacherBusy(teacherSchedule, dow, ring) {
+                if (teacherSchedule[dow] === undefined || teacherSchedule[dow][ring] === undefined) {
                     return [];
                 }
                 let result = [];
 
-                for(let tfdId in this.disciplineTeacherSchedule[dow][ring]) {
-                    Object.values(this.disciplineTeacherSchedule[dow][ring][tfdId]['weeksAndAuds']).flat()
+                for(let tfdId in teacherSchedule[dow][ring]) {
+                    Object.values(teacherSchedule[dow][ring][tfdId]['weeksAndAuds']).flat()
                         .forEach(item =>{
                             if ((result.indexOf(item) === -1) && (this.selectedWeeks.includes(item) || (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)))
                                 result.push(item);
@@ -572,7 +580,20 @@
                         this.freeAuds = response.data;
                     });
             },
+            timeFromRingId(ringId) {
+              let ringArray = this.allRings.filter(r => r.RingId == ringId);
+
+              return (ringArray.length !== 0) ? ringArray[0].time.substr(0,5) : "";
+            },
+            ringFromTime(time) {
+                let ringArray = this.allRings.filter(r => r.Time.substr(0,5) === time);
+
+                return (ringArray.length !== 0) ? ringArray[0] : "";
+            },
             askForEdit(lessonsData, dow, time) {
+                this.editDow = dow;
+                this.editRing = this.ringFromTime(time);
+
                 var r = {};
                 for(let i = 1; i <= this.weeksCount; i++) {
                     r[i] = -1;
@@ -596,6 +617,12 @@
                         this.editSelectedWeeks = Object.values(lessonsData['weeksAndAuds']).flat().sort((a,b) => {return a-b;});
                         this.lessonsDataToEdit = lessonsData;
                         this.showEditWindow = true;
+                    });
+
+                axios
+                    .get('/api.php?action=teacherWeeksSchedule&teacherId=' + lessonsData.lessons[0].teacherId + '&compactResult')
+                    .then(response => {
+                        this.editDisciplineTeacherSchedule = response.data;
                     });
             },
             deleteLessons() {
