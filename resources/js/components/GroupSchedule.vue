@@ -36,7 +36,7 @@
                             </div>
 
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
-                                Загрузка ...
+                                Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
                             </div>
 
 
@@ -62,9 +62,9 @@
                                                     </a>
                                                 </td>
 
-                                                <td v-if="teacherBusy(disciplineTeacherSchedule,dow,ring).length !== 0"
+                                                <td v-if="teacherBusy(disciplineTeacherSchedule, dow, ring) !== ''"
                                                     style="border:none; border-radius: 5px; background-color: #ffdddd; font-size: 0.6em; vertical-align: middle;">
-                                                    {{teacherBusy(disciplineTeacherSchedule, dow,ring)}}
+                                                    {{teacherBusy(disciplineTeacherSchedule, dow, ring)}}
                                                 </td>
                                             </tr>
                                         </table>
@@ -198,9 +198,8 @@
                 Редактирование уроков. Недели: {{combineWeeksToRange(editSelectedWeeks)}} |
                 {{lessonsDataToEdit.lessons[0].discName}} + {{lessonsDataToEdit.lessons[0].teacherFIO}} @ {{lessonsDataToEdit.lessons[0].groupName}} |
                 {{dowRu[editDow-1]}} + {{editRing.Time.substr(0,5)}}
-                <span v-if="teacherBusy(editDisciplineTeacherSchedule, editDow, editRing.Time.substr(0,5)).length !== 0"
-                    style="border:none; border-radius: 5px; background-color: #ffdddd; font-size: 1em; padding: 8px; vertical-align: middle;">
-                    {{teacherBusy(editDisciplineTeacherSchedule, editDow, editRing.Time.substr(0,5))}}
+                <span style="border:none; border-radius: 5px; background-color: #ffdddd; font-size: 1em; padding: 8px; vertical-align: middle;">
+                    {{teacherBusy(editDisciplineTeacherSchedule, editDow, editRing.Time.substr(0,5), '-')}}
                 </span>
             </template>
             <template v-slot:body>
@@ -241,7 +240,14 @@
             <template v-slot:header>
                 <span style="font-size: 2em;">Новые уроки</span>
 
-                <span style="font-size: 2em; color: red;">{{WeeksToStringOrEmpty(teacherBusyArrays(newDows, newRingIds))}}</span>
+                <span v-if="newTfdBusyLoading === true">
+                    <img :src="'./assets/img/loading.gif'" style="height:50px;" />
+                </span>
+
+                <span v-if="newTfdBusyLoading === false" style="font-size: 2em; color: red;">
+                    {{WeeksToStringOrEmpty(teacherBusyArrays(newDows, newRingIds), '-')}}
+                </span>
+
                 <select v-model="groupDisciplineSelected" @change="newTfdChanged(groupDisciplineSelected)">
                     <option v-for="gd in groupDisciplinesWithTeacher" :value="gd">
                         {{gd.disciplineName}} @ {{gd.studentGroupName}} = {{gd.teacherFio}}
@@ -444,9 +450,10 @@
                         }
                     });
             },
-            teacherBusy(teacherSchedule, dow, ring) {
+            teacherBusy(teacherSchedule, dow, ring, empty) {
+                if (empty === undefined) empty = "";
                 if (teacherSchedule[dow] === undefined || teacherSchedule[dow][ring] === undefined) {
-                    return [];
+                    return empty;
                 }
                 let result = [];
 
@@ -457,7 +464,7 @@
                                 result.push(item);
                         });
                 }
-                return (result.length === 0) ? "[]" : this.combineWeeksToRange(result);
+                return (result.length === 0) ? empty : this.combineWeeksToRange(result);
             },
             teacherBusyArrays(dowArray, ringArray) {
                 let result = [];
@@ -483,8 +490,9 @@
 
                 return result;
             },
-            WeeksToStringOrEmpty(weeks) {
-                return (weeks.length === 0) ? "" : this.combineWeeksToRange(weeks);
+            WeeksToStringOrEmpty(weeks, empty) {
+                if (empty === undefined) empty = "";
+                return (weeks.length === 0) ? empty : this.combineWeeksToRange(weeks);
             },
             newTfdChanged(groupDisciplineSelected) {
                 this.newTfdBusyLoading = true;

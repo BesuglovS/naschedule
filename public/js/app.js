@@ -12852,6 +12852,12 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -12942,11 +12948,13 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         }
       });
     },
-    teacherBusy: function teacherBusy(teacherSchedule, dow, ring) {
+    teacherBusy: function teacherBusy(teacherSchedule, dow, ring, empty) {
       var _this2 = this;
 
+      if (empty === undefined) empty = "";
+
       if (teacherSchedule[dow] === undefined || teacherSchedule[dow][ring] === undefined) {
-        return [];
+        return empty;
       }
 
       var result = [];
@@ -12957,7 +12965,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         });
       }
 
-      return result.length === 0 ? "[]" : this.combineWeeksToRange(result);
+      return result.length === 0 ? empty : this.combineWeeksToRange(result);
     },
     teacherBusyArrays: function teacherBusyArrays(dowArray, ringArray) {
       var _this3 = this;
@@ -12988,8 +12996,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
       return result;
     },
-    WeeksToStringOrEmpty: function WeeksToStringOrEmpty(weeks) {
-      return weeks.length === 0 ? "" : this.combineWeeksToRange(weeks);
+    WeeksToStringOrEmpty: function WeeksToStringOrEmpty(weeks, empty) {
+      if (empty === undefined) empty = "";
+      return weeks.length === 0 ? empty : this.combineWeeksToRange(weeks);
     },
     newTfdChanged: function newTfdChanged(groupDisciplineSelected) {
       var _this4 = this;
@@ -85347,9 +85356,11 @@ var render = function() {
                             }
                           },
                           [
-                            _vm._v(
-                              "\n                            Загрузка ...\n                        "
-                            )
+                            _vm._v("\n                            Загрузка "),
+                            _c("img", {
+                              staticStyle: { height: "50px" },
+                              attrs: { src: "./assets/img/loading.gif" }
+                            })
                           ]
                         )
                       : _vm._e(),
@@ -85482,7 +85493,7 @@ var render = function() {
                                                 _vm.disciplineTeacherSchedule,
                                                 dow,
                                                 ring
-                                              ).length !== 0
+                                              ) !== ""
                                                 ? _c(
                                                     "td",
                                                     {
@@ -86143,38 +86154,33 @@ var render = function() {
                           _vm._s(_vm.editRing.Time.substr(0, 5)) +
                           "\n            "
                       ),
-                      _vm.teacherBusy(
-                        _vm.editDisciplineTeacherSchedule,
-                        _vm.editDow,
-                        _vm.editRing.Time.substr(0, 5)
-                      ).length !== 0
-                        ? _c(
-                            "span",
-                            {
-                              staticStyle: {
-                                border: "none",
-                                "border-radius": "5px",
-                                "background-color": "#ffdddd",
-                                "font-size": "1em",
-                                padding: "8px",
-                                "vertical-align": "middle"
-                              }
-                            },
-                            [
-                              _vm._v(
-                                "\n                " +
-                                  _vm._s(
-                                    _vm.teacherBusy(
-                                      _vm.editDisciplineTeacherSchedule,
-                                      _vm.editDow,
-                                      _vm.editRing.Time.substr(0, 5)
-                                    )
-                                  ) +
-                                  "\n            "
-                              )
-                            ]
+                      _c(
+                        "span",
+                        {
+                          staticStyle: {
+                            border: "none",
+                            "border-radius": "5px",
+                            "background-color": "#ffdddd",
+                            "font-size": "1em",
+                            padding: "8px",
+                            "vertical-align": "middle"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                " +
+                              _vm._s(
+                                _vm.teacherBusy(
+                                  _vm.editDisciplineTeacherSchedule,
+                                  _vm.editDow,
+                                  _vm.editRing.Time.substr(0, 5),
+                                  "-"
+                                )
+                              ) +
+                              "\n            "
                           )
-                        : _vm._e()
+                        ]
+                      )
                     ]
                   },
                   proxy: true
@@ -86355,7 +86361,7 @@ var render = function() {
               ],
               null,
               false,
-              2512269014
+              1574996358
             )
           })
         : _vm._e(),
@@ -86372,22 +86378,38 @@ var render = function() {
                         _vm._v("Новые уроки")
                       ]),
                       _vm._v(" "),
-                      _c(
-                        "span",
-                        { staticStyle: { "font-size": "2em", color: "red" } },
-                        [
-                          _vm._v(
-                            _vm._s(
-                              _vm.WeeksToStringOrEmpty(
-                                _vm.teacherBusyArrays(
-                                  _vm.newDows,
-                                  _vm.newRingIds
-                                )
+                      _vm.newTfdBusyLoading === true
+                        ? _c("span", [
+                            _c("img", {
+                              staticStyle: { height: "50px" },
+                              attrs: { src: "./assets/img/loading.gif" }
+                            })
+                          ])
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.newTfdBusyLoading === false
+                        ? _c(
+                            "span",
+                            {
+                              staticStyle: { "font-size": "2em", color: "red" }
+                            },
+                            [
+                              _vm._v(
+                                "\n                " +
+                                  _vm._s(
+                                    _vm.WeeksToStringOrEmpty(
+                                      _vm.teacherBusyArrays(
+                                        _vm.newDows,
+                                        _vm.newRingIds
+                                      ),
+                                      "-"
+                                    )
+                                  ) +
+                                  "\n            "
                               )
-                            )
+                            ]
                           )
-                        ]
-                      ),
+                        : _vm._e(),
                       _vm._v(" "),
                       _c(
                         "select",
@@ -86804,7 +86826,7 @@ var render = function() {
               ],
               null,
               false,
-              4035847494
+              158668761
             )
           })
         : _vm._e()
