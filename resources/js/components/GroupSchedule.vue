@@ -233,6 +233,8 @@
         <modal v-if="showNewWindow">
             <template v-slot:header>
                 <span style="font-size: 2em;">Новые уроки</span>
+
+                <span style="font-size: 2em; color: red;">{{WeeksToStringOrEmpty(teacherBusyArrays(newDows, newRingIds))}}</span>
                 <select v-model="groupDisciplineSelected" @change="newTfdChanged(groupDisciplineSelected)">
                     <option v-for="gd in groupDisciplinesWithTeacher" :value="gd">
                         {{gd.disciplineName}} @ {{gd.studentGroupName}} = {{gd.teacherFio}}
@@ -329,6 +331,7 @@
 <script>
     import modal from './Modal'
     import moment from "moment";
+
     export default {
         name: "GroupSchedule",
         props: [
@@ -447,6 +450,33 @@
                         });
                 }
                 return (result.length === 0) ? "[]" : this.combineWeeksToRange(result);
+            },
+            teacherBusyArrays(dowArray, ringArray) {
+                let result = [];
+
+                for(let i = 0; i < dowArray.length; i++) {
+                    let dow = dowArray[i];
+
+                    for(let j = 0; j < ringArray.length; j++) {
+                        let ring = this.allRings.filter(r => r.RingId == ringArray[j])[0].Time.substr(0,5);
+
+                        if (this.disciplineTeacherSchedule[dow] !== undefined && this.disciplineTeacherSchedule[dow][ring] !== undefined) {
+
+                            for (let tfdId in this.disciplineTeacherSchedule[dow][ring]) {
+                                Object.values(this.disciplineTeacherSchedule[dow][ring][tfdId]['weeksAndAuds']).flat()
+                                    .forEach(item => {
+                                        if(result.indexOf(item) === -1)
+                                            result.push(item);
+                                    });
+                            }
+                        }
+                    }
+                }
+
+                return result;
+            },
+            WeeksToStringOrEmpty(weeks) {
+                return (weeks.length === 0) ? "" : this.combineWeeksToRange(weeks);
             },
             newTfdChanged(groupDisciplineSelected) {
                 this.newTfdBusyLoading = true;
@@ -912,9 +942,12 @@
 
                 for(let dowIndex = 0; dowIndex < this.newDows.length; dowIndex++) {
                     let dow = this.newDows[dowIndex];
+                    if (this.freeAuds[dow] === undefined)
+                        continue;
 
                     for(let ringIdIndex = 0; ringIdIndex < this.newRingIds.length; ringIdIndex++) {
                         let ringId = this.newRingIds[ringIdIndex];
+
                         if (first) {
                             resultIds = this.freeAuds[dow][week][ringId];
                             first = false;
