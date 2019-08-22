@@ -47,16 +47,18 @@ class MainController extends Controller
         $faculty_id = -1;
         $faculties = Faculty::all()->sortBy('sorting_order');
         $weekCount = Calendar::WeekCount();
+        $auditoriums = Auditorium::all()->toArray();
 
-        return view('main.facultySchedule', compact('faculty_id', 'faculties', 'weekCount'));
+        return view('main.facultySchedule', compact('faculty_id', 'faculties', 'weekCount', 'auditoriums'));
     }
 
     public function facultyScheduleWithId(int $faculty_id)
     {
         $faculties = Faculty::all()->sortBy('sorting_order');
         $weekCount = Calendar::WeekCount();
+        $auditoriums = Auditorium::all()->toArray();
 
-        return view('main.facultySchedule', compact('faculty_id', 'faculties', 'weekCount'));
+        return view('main.facultySchedule', compact('faculty_id', 'faculties', 'weekCount', 'auditoriums'));
     }
 
     public function teacherSchedule()

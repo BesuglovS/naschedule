@@ -7,7 +7,8 @@
                 <faculty-schedule
                     :faculty-id="{{$faculty_id}}"
                     :faculties="{{json_encode($faculties)}}"
-                    :week-count="{{$weekCount}}">
+                    :week-count="{{$weekCount}}"
+                    :auditoriums="{{json_encode($auditoriums)}}">
                 </faculty-schedule>
             </div>
         </div>

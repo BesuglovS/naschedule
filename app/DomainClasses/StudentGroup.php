@@ -40,6 +40,24 @@ class StudentGroup extends Model
         return (count($name) > 0) ? $name[0] : "";
     }
 
+    public static function StudentIdsFromGroupIds($groupIds)
+    {
+        return DB::table('student_student_group')
+            ->whereIn('student_student_group.student_group_id', $groupIds)
+            ->select('student_student_group.student_id')
+            ->get()
+            ->map(function($item) { return $item->student_id;});
+    }
+
+    public static function StudentIdsFromGroupId($groupId)
+    {
+        return DB::table('student_student_group')
+            ->where('student_student_group.student_group_id', '=', $groupId)
+            ->select('student_student_group.student_id')
+            ->get()
+            ->map(function($item) { return $item->student_id;});
+    }
+
     public function disciplines()
     {
         return $this->hasMany(Discipline::class);

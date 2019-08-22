@@ -406,7 +406,7 @@ class OldApiController extends Controller
                 ->where('discipline_teacher.teacher_id', '=', $teacherId)
                 ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
                     'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
-                    'disciplines.student_group_id', 'student_groups.name as groupName',
+                    'disciplines.student_group_id', 'disciplines.auditorium_hours_per_week', 'student_groups.name as groupName',
                     'teachers.id as teacherId', 'teachers.fio as teacherFio')
                 ->get();
         }
@@ -425,7 +425,7 @@ class OldApiController extends Controller
                     ->whereIn('disciplines.student_group_id', $groupIds)
                     ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
                         'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
-                        'disciplines.student_group_id', 'student_groups.name as groupName',
+                        'disciplines.student_group_id', 'disciplines.auditorium_hours_per_week', 'student_groups.name as groupName',
                         'teachers.id as teacherId', 'teachers.fio as teacherFio')
                     ->get();
             }
@@ -446,6 +446,9 @@ class OldApiController extends Controller
 
             $disc->AuditoriumHours = (string) $disc->auditorium_hours;
             unset($disc->auditorium_hours);
+
+            $disc->AuditoriumHoursPerWeek = (string) $disc->auditorium_hours_per_week;
+            unset($disc->auditorium_hours_per_week);
 
             $disc->LectureHours = (string) $disc->lecture_hours;
             unset($disc->lecture_hours);
@@ -1351,7 +1354,8 @@ class OldApiController extends Controller
                 ->whereIn('lessons.calendar_id', $weeksCalendars)
                 ->select('disciplines.name as discName', 'rings.time as startTime', 'calendars.date as date',
                     'teachers.fio as teacherFIO', 'auditoriums.name as auditoriumName', 'discipline_teacher.id as tfdId',
-                    'student_groups.name as groupName', 'student_groups.id as groupId')
+                    'student_groups.name as groupName', 'student_groups.id as groupId', 'lessons.id as lessonId',
+                    'rings.id as ringId')
                 ->get();
 
             $lessons = array("1" => array(), "2" => array(), "3" => array(), "4" => array(),
@@ -1364,6 +1368,7 @@ class OldApiController extends Controller
             {
                 $lessonWeek = Calendar::WeekFromDate($lesson->date, $semesterStarts);
                 $dow = Carbon::createFromFormat('Y-m-d', $lesson->date)->isoFormat('E');
+                $lesson->dow = $dow;
 
                 $time = mb_substr($lesson->startTime, 0, 5);
                 if (!array_key_exists($time, $lessons[$dow]))

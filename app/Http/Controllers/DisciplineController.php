@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DomainClasses\Discipline;
+use App\DomainClasses\Faculty;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use Illuminate\Http\Request;
@@ -56,7 +57,7 @@ class DisciplineController extends Controller
 
         $newDiscipline->attestation = $request->attestation;
         $newDiscipline->auditorium_hours = "0";
-        $newDiscipline->auditorium_hours_per_week = "0";
+        $newDiscipline->auditorium_hours_per_week = $request->auditorium_hours_per_week;
         $newDiscipline->lecture_hours = "0";
         $newDiscipline->practical_hours = "0";
 
@@ -118,6 +119,7 @@ class DisciplineController extends Controller
         $discipline->name = $request->name;
         $discipline->attestation = $request->attestation;
         $discipline->student_group_id = $request->student_group_id;
+        $discipline->auditorium_hours_per_week = $request->auditorium_hours_per_week;
         $discipline->save();
 
         return redirect('disciplines?groupId=' . $discipline->student_group_id);
@@ -177,6 +179,144 @@ class DisciplineController extends Controller
             ->get();
 
         return $disciplines;
+    }
+
+    public function DisciplinesByFacultyInfo(Request $request) {
+        $input = $request->all();
+
+        if (!isset($input['facultyId']))
+        {
+            return array("error" => "facultyId обязательный параметр");
+        }
+
+        $facultyId = $input['facultyId'];
+
+        $faculty = Faculty::find($facultyId);
+
+        if ($faculty === null) return "{}";
+
+        $facultyStudentGroups = $faculty->student_groups;
+
+        $studentIdsByFacultyGroup = array();
+        foreach($facultyStudentGroups as $facultyStudentGroup) {
+            $studentIds = StudentGroup::StudentIdsFromGroupId($facultyStudentGroup->id);
+            $studentIdsByFacultyGroup[$facultyStudentGroup->id] = $studentIds;
+        }
+
+        $facultyStudentIds = StudentGroup::StudentIdsFromGroupIds($facultyStudentGroups->pluck('id'))->toArray();
+        sort($facultyStudentIds);
+        $facultyStudentIds = array_values(array_unique($facultyStudentIds));
+
+        $disciplineNames = array();
+
+        foreach ($facultyStudentGroups as $facultyStudentGroup) {
+
+            $groupId = $facultyStudentGroup->id;
+
+            $groupIds = StudentGroup::GetGroupsOfStudentFromGroup($groupId);
+
+            $disciplines = DB::table('disciplines')
+                ->whereIn('disciplines.student_group_id', $groupIds)
+                ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
+                ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+                ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                ->select('disciplines.id as disciplineId',
+                    'disciplines.name as disciplineName',
+                    'teachers.id as teacherId',
+                    'teachers.fio as teacherFio',
+                    'student_groups.id as studentGroupId',
+                    'student_groups.name as studentGroupName',
+                    'discipline_teacher.id as tfdId')
+                ->orderBy('disciplineName', 'asc')
+                ->orderBy('teacherFio', 'asc')
+                ->get();
+
+            foreach ($disciplines as $discipline) {
+                $tfdIds = array_key_exists($discipline->disciplineName, $disciplineNames) ?
+                    array_column($disciplineNames[$discipline->disciplineName]["Disciplines"], 'tfdId') :
+                    array();
+
+                if (!in_array($discipline->tfdId, $tfdIds)) {
+
+                    if (!array_key_exists($discipline->disciplineName, $disciplineNames)) {
+                        $disciplineNames[$discipline->disciplineName] = array();
+                        $disciplineNames[$discipline->disciplineName]["Disciplines"] = array();
+                    }
+
+                    $disciplineNames[$discipline->disciplineName]["Disciplines"][] = $discipline;
+                }
+            }
+        }
+
+        foreach ($disciplineNames as $disciplineName => $disciplines) {
+            $GroupsByTeacherFio = array();
+            $disciplineStudentIds = array();
+            $disciplineGroups = array();
+
+            foreach ($disciplines["Disciplines"] as $discipline) {
+                $studentGroupStudentIds = StudentGroup::StudentIdsFromGroupId($discipline->studentGroupId)->toArray();
+
+                if ($discipline->teacherId !== null) {
+                    $disciplineStudentIds = array_merge($disciplineStudentIds, $studentGroupStudentIds);
+                }
+
+                if (!array_key_exists($discipline->teacherFio, $GroupsByTeacherFio)) {
+                    $GroupsByTeacherFio[$discipline->teacherFio] = array();
+                }
+
+                if ($discipline->teacherFio === null) {
+                    $GroupsByTeacherFio[$discipline->teacherFio][] = "-1";
+                } else {
+                    $GroupsByTeacherFio[$discipline->teacherFio][] = array(
+                        "groupId" => $discipline->studentGroupId,
+                        "groupName" => $discipline->studentGroupName
+                    );
+                }
+
+                $disciplineGroupsInfo = array();
+                foreach($studentIdsByFacultyGroup as $groupId => $groupStudentIds) {
+                    $groupStudentIdsArray = $groupStudentIds->toArray();
+                    $intersect = array_intersect($groupStudentIdsArray, $studentGroupStudentIds);
+
+                    $disciplineGroupsInfo[$groupId] = (count($intersect) !== 0) && ($discipline->teacherId !== null);
+                }
+
+                $discipline->GroupsInfo = $disciplineGroupsInfo;
+            }
+
+            foreach($studentIdsByFacultyGroup as $groupId => $groupStudentIds) {
+                $groupStudentIdsArray = $groupStudentIds->toArray();
+                $intersect = array_intersect($groupStudentIdsArray, $disciplineStudentIds);
+
+                $disciplineGroups[$groupId] = (count($intersect) !== 0);
+            }
+
+            $groupsAndTeachers = array();
+
+            $teacherStudentIds = StudentGroup::StudentIdsFromGroupIds(array_column(reset($GroupsByTeacherFio), "groupId"))->toArray();
+            sort($teacherStudentIds);
+            $teacherStudentIds = array_values(array_unique($teacherStudentIds));
+
+            if (count($GroupsByTeacherFio) === 1 && $teacherStudentIds == $facultyStudentIds) {
+                $groupsAndTeachers[] = array_keys($GroupsByTeacherFio)[0];
+            } else {
+                foreach ($GroupsByTeacherFio as $teacherFio => $groups) {
+                    $groupNames = array_column($groups, "groupName");
+                    sort($groupNames);
+
+                    if (!((count($groups) === 1) && ($groups[0] === "-1"))) {
+                        $groupsAndTeachers[] = implode(" + ", $groupNames) . " - " . $teacherFio;
+                    }
+                }
+            }
+
+            sort($groupsAndTeachers);
+            $disciplineNames[$discipline->disciplineName]["GroupsAndTeachers"] = $groupsAndTeachers;
+            $disciplineNames[$discipline->disciplineName]["DisciplineGroups"] = $disciplineGroups;
+        }
+
+        ksort($disciplineNames);
+        return $disciplineNames;
     }
 
     public function CopyFromGroupToGroup(Request $request) {

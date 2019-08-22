@@ -26,7 +26,7 @@
                                         style="margin-right:0.5em; margin-bottom: 0.5em;"
                                         :class="{'button': true,
                                     'is-primary': !selectedWeeks.includes(week),
-                                    'is-danger': selectedWeeks.includes(week) }"
+                                    'is-danger': selectedWeeks.includes(week)}"
                                 >{{week}}</button>
 
                                 <div class="custom-control custom-switch">
@@ -38,7 +38,6 @@
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
                                 Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
                             </div>
-
 
                             <table v-if="loading === false" style="margin-top: 2em;" class="table td-center is-bordered">
                                 <tr>
@@ -208,7 +207,7 @@
                     <div style="text-align: center; width: auto; margin-right: 1em; margin-bottom: 1em;" v-for="week in weeksCount">
                         <div>
                             <button style="margin-right:0.5em; margin-bottom: 0.5em;"
-                                    @click="editWeekToggled(week + ((half === 2) ? (Math.floor(weeksCount / 2)) : 0))"
+                                    @click="editWeekToggled(week)"
                                     :class="{'button': true,
                                     'is-primary': !editSelectedWeeks.includes(week),
                                     'is-danger': editSelectedWeeks.includes(week) }"
@@ -340,7 +339,7 @@
 </template>
 
 <script>
-    import modal from './Modal'
+    import modal from './Modal';
     import moment from "moment";
 
     export default {
@@ -602,7 +601,7 @@
                 this.editDow = dow;
                 this.editRing = this.ringFromTime(time);
 
-                var r = {};
+                let r = {};
                 for(let i = 1; i <= this.weeksCount; i++) {
                     r[i] = -1;
                 }
@@ -670,7 +669,7 @@
             saveLessonsEdit() {
                 let oldWeeks = Object.values(this.lessonsDataToEdit['weeksAndAuds']).flat().sort((a,b) => {return a-b;});
 
-                var r = {};
+                let r = {};
 
                 for(let key in this.lessonsDataToEdit["weeksAndAuds"])
                 {
@@ -989,7 +988,7 @@
                         } else {
                             for(let ri = 0; ri < resultIds.length; ri++)
                             {
-                                if (this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
+                                if (this.freeAuds[dow][week][ringId] !== undefined && this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
                                     resultIds.splice(ri,1);
                                     ri--;
                                 }
@@ -1076,7 +1075,7 @@
                             } else {
                                 for(let ri = 0; ri < resultIds.length; ri++)
                                 {
-                                    if (this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
+                                    if (this.freeAuds[dow][week][ringId] !== undefined && this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
                                         resultIds.splice(ri,1);
                                         ri--;
                                     }
@@ -1111,7 +1110,7 @@
             },
             groupsSorted() {
                 let result = [];
-                for (var index in this.groups) {
+                for (let index in this.groups) {
                     let group = this.groups[index];
                     result.push(group);
                 }

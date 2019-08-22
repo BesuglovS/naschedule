@@ -40,6 +40,8 @@
 
                                 <td>{{discipline.groupName}}</td>
 
+                                <td>{{discipline.AuditoriumHoursPerWeek}}</td>
+
                                 <td>{{attestation[discipline.Attestation]}}</td>
 
                                 <td><a :href="'/disciplines/' + discipline.DisciplineId + '/edit'" class="button is-primary">Редактировать</a></td>

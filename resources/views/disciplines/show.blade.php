@@ -14,6 +14,8 @@
 
                 <td>{{$discipline->groupName}}</td>
 
+                <td>{{$discipline->auditorium_hours_per_week}}</td>
+
                 @if(!empty($discipline->teacherFio))
                     <td>
                         {{$discipline->teacherFio}}
@@ -42,7 +44,7 @@
         </table>
     </div>
 
-    @if(empty($discipline->teacherFio))
+    @if(empty($discipline->teacherFio) && count($teachers) !== 0)
     <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 2em;">
         <form method="post" action="/teacherDisciplines/store">
             @csrf
@@ -57,5 +59,11 @@
             <button type="submit" class="button is-primary">Назначить</button>
         </form>
     </div>
+    @endif
+
+    @if(count($teachers) === 0)
+        <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 0.5em; font-size: 2em;">
+            Список преподавателей пуст
+        </div>
     @endif
 @endsection

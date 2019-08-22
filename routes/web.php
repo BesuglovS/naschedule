@@ -71,4 +71,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Disciplines
     Route::post('/disciplinesCopyFromGroupToGroup', 'DisciplineController@CopyFromGroupToGroup');
+
+    //FacultySchedule
+    Route::get('/disciplinesByFacultyInfo', 'DisciplineController@DisciplinesByFacultyInfo');
 });
