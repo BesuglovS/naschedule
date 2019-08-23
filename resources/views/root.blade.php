@@ -104,7 +104,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
-
+                            <a href="/teacherGroupSchedule">Расписание нескольких преподавателей</a>
                         </div>
                     </div>
                     <div class="card tac">

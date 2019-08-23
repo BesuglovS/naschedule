@@ -74,4 +74,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //FacultySchedule
     Route::get('/disciplinesByFacultyInfo', 'DisciplineController@DisciplinesByFacultyInfo');
+
+    //teacherGroupSchedule
+    Route::get('/teacherGroupSchedule', 'MainController@TeacherGroupSchedule');
 });

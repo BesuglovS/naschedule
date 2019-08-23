@@ -6,6 +6,7 @@ use App\DomainClasses\Auditorium;
 use App\DomainClasses\Building;
 use App\DomainClasses\Calendar;
 use App\DomainClasses\Faculty;
+use App\DomainClasses\Ring;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use Illuminate\Routing\Controller;
@@ -40,6 +41,15 @@ class MainController extends Controller
         $weekCount = Calendar::WeekCount();
 
         return view('main.groupSchedule', compact('studentGroups', 'group_id', 'weekCount'));
+    }
+
+    public function teacherGroupSchedule()
+    {
+        $teachers = Teacher::all()->sortBy('fio');
+        $weekCount = Calendar::WeekCount();
+        $rings = Ring::all()->toArray();
+
+        return view('main.teacherGroupSchedule', compact('teachers', 'weekCount', 'rings'));
     }
 
     public function facultySchedule()

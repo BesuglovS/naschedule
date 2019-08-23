@@ -38,7 +38,7 @@ class OldApiController extends Controller
         $allowed_actions = array("list", "groupsBundle", "bundle", "update", "dailySchedule", "groupExams",
             "weekSchedule", "weeksSchedule", "groupSchedule", "TeacherWeekSchedule", "TeacherSchedule",
             "disciplineLessons", "LastLessons", "teacherLessons", "teacherWeeksSchedule", "teacherExams",
-            "facultyWeeksSchedule", "buildingEvents", "freeAuditoriums");
+            "facultyWeeksSchedule", "buildingEvents", "freeAuditoriums", "teachersWeeksSchedule");
 
         if (!in_array($action, $allowed_actions))
         {
@@ -120,6 +120,7 @@ class OldApiController extends Controller
             case "facultyWeeksSchedule":    return $this->GetFacultyWeeksSchedule($input);
             case "buildingEvents":          return $this->GetBuildingEvents($input);
             case "freeAuditoriums":         return $this->GetFreeAuditoriums($input);
+            case "teachersWeeksSchedule":   return $this->GetTeachersWeeksSchedule($input);
         }
 
         return array("error" => "Whoops, looks like something went wrong :-)");
@@ -1640,6 +1641,27 @@ class OldApiController extends Controller
             if (($key = array_search($auditoriumEvent->auditorium_id, $result[$auditoriumEventDow][$auditoriumEventWeek][$auditoriumEventRing])) !== false) {
                 array_splice($result[$auditoriumEventDow][$auditoriumEventWeek][$auditoriumEventRing], $key, 1);
             }
+        }
+
+        return $result;
+    }
+
+    private function GetTeachersWeeksSchedule(array $input)
+    {
+        if ((!isset($input['teacherIds'])) || (!isset($input['weeks'])))
+        {
+            return array("error" => "teacherIds и weeks обязательные параметры");
+        }
+
+        $teacherIds = $input["teacherIds"];
+        $teacherIds = explode("|", $teacherIds);
+
+        $input["compactResult"] = "";
+
+        $result = array();
+        foreach($teacherIds as $teacherId) {
+            $input["teacherId"] = $teacherId;
+            $result[$teacherId] = $this->GetTeacherWeeksSchedule($input);
         }
 
         return $result;
