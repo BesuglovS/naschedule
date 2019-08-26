@@ -39,6 +39,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('students', 'StudentController');
     Route::resource('studentGroups', 'StudentGroupController');
     Route::resource('teachers', 'TeacherController');
+    Route::resource('teacherGroups', 'TeacherGroupController');
 
     Route::delete('/studentStudentGroups/{student_student_group_id}', 'StudentStudentGroupController@destroy');
     Route::post('/studentStudentGroups/store', 'StudentStudentGroupController@store');
@@ -77,4 +78,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     //teacherGroupSchedule
     Route::get('/teacherGroupSchedule', 'MainController@TeacherGroupSchedule');
+
+    Route::delete('/teacherTeacherGroups/{teacher_teacher_group_id}', 'TeacherTeacherGroupController@destroy');
+    Route::post('/teacherTeacherGroups/store', 'TeacherTeacherGroupController@store');
+    Route::get('/teacherTeacherGroups/teacherGroupTeachers/{teacher_group_id}', 'TeacherTeacherGroupController@get');
 });

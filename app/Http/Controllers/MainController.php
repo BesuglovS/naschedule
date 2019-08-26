@@ -9,6 +9,7 @@ use App\DomainClasses\Faculty;
 use App\DomainClasses\Ring;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
+use App\DomainClasses\TeacherGroup;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -46,10 +47,11 @@ class MainController extends Controller
     public function teacherGroupSchedule()
     {
         $teachers = Teacher::all()->sortBy('fio');
+        $teacherGroups = TeacherGroup::all()->sortBy('name');
         $weekCount = Calendar::WeekCount();
         $rings = Ring::all()->toArray();
 
-        return view('main.teacherGroupSchedule', compact('teachers', 'weekCount', 'rings'));
+        return view('main.teacherGroupSchedule', compact('teachers', 'teacherGroups', 'weekCount', 'rings'));
     }
 
     public function facultySchedule()

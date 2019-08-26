@@ -8,14 +8,15 @@
                     <div class="card-body">
                         <table style="width:100%;">
                             <tr>
-                                <td style="width:50%;">
+                                <td style="width:35%;">
                                     <select style="width:100%;" multiple v-model="selectedTeacherIds">
                                         <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
                                     </select>
                                 </td>
-                                <td style="width:30%;">
-                                    <button @click="loadTeachersSchedule();" style="width: 80%; margin: 1em;" class="button is-primary">
-                                        Загрузить расписание на неделю
+                                <td style="width:45%;">
+                                    <button @click="loadTeachersSchedule(this.selectedTeacherIds);"
+                                            style="width: 90%; margin: 1em;" class="button is-primary">
+                                        Загрузить расписание выбранных преподавателей на неделю
                                     </button>
                                 </td>
                                 <td style="width:20%; text-align: center;">
@@ -23,6 +24,24 @@
                                 </td>
                             </tr>
                         </table>
+
+                        <div style="margin-top: 1em;">
+                            Группы преподавателей
+                            <table style="width:100%;">
+                                <tr>
+                                    <td style="width:50%;">
+                                        <select style="width:100%;" v-model="selectedTeacherGroupId">
+                                            <option v-for="teacherGroup in teacherGroups" :value="teacherGroup.id">{{teacherGroup.name}}</option>
+                                        </select>
+                                    </td>
+                                    <td style="width:30%;">
+                                        <button @click="loadTeacherGroupSchedule();" style="width: 80%; margin: 1em;" class="button is-primary">
+                                            Загрузить расписание группы на неделю
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
 
                         <div id="teachersSchedule" style="margin-top: 1em;">
                             <div style="text-align: center;">
@@ -123,6 +142,7 @@
         name: "TeacherGroupSchedule",
         props: [
             'teachers',
+            'teacherGroups',
             'weekCount',
             'rings',
         ],
@@ -143,10 +163,11 @@
                 teachersScheduleRings: [],
                 teacherById: {},
                 loading: false,
+                selectedTeacherGroupId: -1,
             }
         },
         methods: {
-            loadTeachersSchedule() {
+            loadTeachersSchedule(teacherIds) {
                 this.loading = true;
 
                 let weeks = (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1) ?
@@ -154,7 +175,7 @@
                     this.selectedWeeks.join('|');
 
                 axios
-                    .get('/api.php?action=teachersWeeksSchedule&teacherIds=' + this.selectedTeacherIds.join('|') + '&weeks=' + weeks)
+                    .get('/api.php?action=teachersWeeksSchedule&teacherIds=' + teacherIds.join('|') + '&weeks=' + weeks)
                     .then(response => {
                         let teachersRings = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []};
                         Object.keys(response.data).forEach((teacherId) => {
@@ -173,10 +194,19 @@
                         }
 
                         this.teachersScheduleRings = teachersRings;
-                        this.loadedTeacherIds = [...this.selectedTeacherIds];
+                        this.loadedTeacherIds = [...teacherIds];
                         this.teachersSchedule = response.data;
 
                         this.loading = false;
+                    });
+            },
+            loadTeacherGroupSchedule() {
+                this.loading = true;
+                axios
+                    .get('/teacherTeacherGroups/teacherGroupTeachers/' + this.selectedTeacherGroupId)
+                    .then(response => {
+                        let teacherIds = response.data.map(teacher => teacher.id);
+                        this.loadTeachersSchedule(teacherIds);
                     });
             },
             cl(text) {
@@ -379,6 +409,10 @@
                 }
             } else {
                 this.selectedWeeks = [-1];
+            }
+
+            if (this.teacherGroups.length !== 0) {
+                this.selectedTeacherGroupId = this.teacherGroups[0].id;
             }
 
             let teacherKeys = Object.keys(this.teachers);

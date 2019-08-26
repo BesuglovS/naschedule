@@ -7,6 +7,7 @@
             <teacher-group-schedule
                 :week-count="{{$weekCount}}"
                 :teachers="{{json_encode($teachers)}}"
+                :teacher-groups="{{$teacherGroups}}"
                 :rings="{{json_encode($rings)}}">
             </teacher-group-schedule>
         </div>

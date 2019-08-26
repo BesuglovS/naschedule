@@ -28,4 +28,9 @@ class Teacher extends Model
             ->orderBy('fio', 'asc')
             ->get();
     }
+
+    public function teacher_groups()
+    {
+        return $this->belongsToMany(StudentGroup::class, "teacher_teacher_group")->withPivot('id');
+    }
 }
