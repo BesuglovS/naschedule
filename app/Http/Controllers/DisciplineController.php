@@ -348,9 +348,9 @@ class DisciplineController extends Controller
             $newDiscipline->name = $disciplineName;
             $newDiscipline->attestation = $sourceDiscipline->attestation;
             $newDiscipline->student_group_id = $destinationGroupId;
+            $newDiscipline->auditorium_hours_per_week = $sourceDiscipline->auditorium_hours_per_week;
 
             $newDiscipline->auditorium_hours = "0";
-            $newDiscipline->auditorium_hours_per_week = "0";
             $newDiscipline->lecture_hours = "0";
             $newDiscipline->practical_hours = "0";
 
