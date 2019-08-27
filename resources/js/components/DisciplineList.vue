@@ -53,7 +53,7 @@
                         </table>
 
                         <div style="text-align: center">
-                            <a href="/disciplines/create" class="button is-primary">Добавить дисциплину</a>
+                            <a :href="'/disciplines/create?studentGroupId=' + this.studentGroupId" class="button is-primary">Добавить дисциплину</a>
                         </div>
                     </div>
                 </div>

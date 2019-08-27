@@ -21,7 +21,7 @@
                 <p>Класс</p>
                 <select name="student_group_id" id="sg">
                     @foreach($studentGroups as $studentGroup)
-                        <option value="{{$studentGroup->id}}">{{$studentGroup->name}}</option>
+                        <option @if(request('studentGroupId', '') == $studentGroup->id) selected @endif value="{{$studentGroup->id}}">{{$studentGroup->name}}</option>
                     @endforeach
                 </select>
             </div>
