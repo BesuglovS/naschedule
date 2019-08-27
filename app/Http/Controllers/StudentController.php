@@ -14,7 +14,18 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::all();
+        $students = Student::all()->sort(function ($a, $b) {
+            if ($a->f === $b->f) {
+                if ($a->i === $b->i) {
+                    if ($a->o === $b->o) {
+                        return 0;
+                    }
+                    return ($a->o < $b->o) ? -1 : 1;
+                }
+                return ($a->i < $b->i) ? -1 : 1;
+            }
+            return ($a->f < $b->f) ? -1 : 1;
+        });
 
         return view('students.index', compact('students'));
     }
