@@ -32,6 +32,8 @@
 
                     <td>{{$teacherDiscipline->name}}</td>
 
+                    <td>{{$teacherDiscipline->auditorium_hours_per_week}}</td>
+
                     <td>
                         <form method="POST" action="/teacherDisciplines/{{$teacherDiscipline->discipline_teacher_id}}">
                             @csrf

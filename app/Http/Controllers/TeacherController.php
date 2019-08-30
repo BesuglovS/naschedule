@@ -69,6 +69,24 @@ class TeacherController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
+        $disciplines = $disciplines->sort(function($a, $b) {
+            if ($a->groupName == $b->groupName) {
+                return ($a->name < $b->name) ? -1 : 1;
+            }
+
+            $num1 = explode(" ", $a->groupName)[0];
+            $num2 = explode(" ", $b->groupName)[0];
+
+            if ($num1 == $num2)
+            {
+                return $a->groupName < $b->groupName ? -1 : 1;
+            }
+            else
+            {
+                return ($num1 < $num2) ? -1 : 1;
+            }
+        });
+
         $teacherDisciplineIds = $teacher->disciplines->pluck('id');
 
         $teacherDisciplines = DB::table('disciplines')
@@ -79,6 +97,24 @@ class TeacherController extends Controller
             ->orderBy('groupName', 'asc')
             ->orderBy('name', 'asc')
             ->get();
+
+        $teacherDisciplines = $teacherDisciplines->sort(function($a, $b) {
+            if ($a->groupName == $b->groupName) {
+                return ($a->name < $b->name) ? -1 : 1;
+            }
+
+            $num1 = explode(" ", $a->groupName)[0];
+            $num2 = explode(" ", $b->groupName)[0];
+
+            if ($num1 == $num2)
+            {
+                return $a->groupName < $b->groupName ? -1 : 1;
+            }
+            else
+            {
+                return ($num1 < $num2) ? -1 : 1;
+            }
+        });
 
         return view('teachers.show', compact('teacher', 'disciplines', 'teacherDisciplines'));
     }
