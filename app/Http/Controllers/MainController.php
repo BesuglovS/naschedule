@@ -159,4 +159,22 @@ class MainController extends Controller
 
         return view('main.disciplineHours', compact('studentGroups', 'groupId', 'weekCount'));
     }
+
+    public function teacherHours(Request $request) {
+        $input = $request->all();
+
+        $teacherId = -1;
+        if (isset($input['groupId']))
+        {
+            $teacherId = $input["teacherId"];
+        }
+
+        $teachers = Teacher::all()->sortBy('fio')->toArray();
+
+        $weekCount = Calendar::WeekCount();
+
+        $studentGroups = StudentGroup::allSorted()->toArray();
+
+        return view('main.teacherHours', compact('teachers', 'teacherId', 'weekCount', 'studentGroups'));
+    }
 }

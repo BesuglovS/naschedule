@@ -86,4 +86,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //disciplineHours
     Route::get('/disciplineHours', 'MainController@disciplineHours');
+
+    //teacherHours
+    Route::get('/teacherHours', 'MainController@teacherHours');
 });

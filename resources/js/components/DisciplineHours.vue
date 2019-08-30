@@ -49,9 +49,9 @@
                             Дисциплин нет
                         </div>
 
-                        <table v-if="loading === false" style="margin: 10px" class="table td-center is-bordered blackborders">
+                        <table v-if="loading === false" style="margin: 10px" class="table td-center is-bordered disciplineTable">
                             <tr>
-                                <td>Дисциплина + ФИО преподавателя</td>
+                                <td>Дисциплина + ФИО</td>
                                 <td>Группа</td>
                                 <td style="font-weight: 700;">Часы в неделю</td>
 
@@ -59,7 +59,7 @@
 
                             </tr>
                             <tr v-for="discipline in disciplinesSorted">
-                                <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}} <br />{{discipline.teacherFio}}</a></td>
+                                <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}<br />{{discipline.teacherFio}}</a></td>
 
                                 <td>{{discipline.groupName}}</td>
 
@@ -75,6 +75,15 @@
                                         'more': discipline.hoursByWeek[week] !== 0 && discipline.hoursByWeek[week] > discipline.AuditoriumHoursPerWeek
                                 }">
                                     {{discipline.hoursByWeek[week]}}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="font-weight:700;">Итого</td>
+                                <td></td>
+                                <td></td>
+                                <td v-for="week in selectedWeeksSorted" style="font-weight:700;">
+                                    {{totalWeekHours[week]}}
                                 </td>
                             </tr>
                         </table>
@@ -248,6 +257,22 @@
 
                 return result;
             },
+            totalWeekHours() {
+                let result = {};
+                for(let i = 1; i <= this.weekCount; i++) {
+                    result[i] = 0;
+                }
+
+                for(let i = 0; i < this.groupDisciplines.length; i++) {
+                    let discipline = this.groupDisciplines[i];
+
+                    for(let week = 1; week <= this.weekCount; week++) {
+                        result[week] += discipline.hoursByWeek[week];
+                    }
+                }
+
+                return result;
+            },
         }
     }
 </script>
@@ -269,9 +294,10 @@
         background-color: #FF7F7F;
     }
 
-    .blackborders th, .blackborders td {
+    .disciplineTable th, .disciplineTable td {
         border: 1px solid black !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
-
 </style>
 

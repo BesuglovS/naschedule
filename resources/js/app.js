@@ -21,6 +21,7 @@ Vue.component('faculty-schedule', require('./components/FacultySchedule').defaul
 Vue.component('building-events', require('./components/BuildingEvents').default);
 Vue.component('discipline-list', require('./components/DisciplineList').default);
 Vue.component('discipline-hours', require('./components/DisciplineHours').default);
+Vue.component('teacher-hours', require('./components/TeacherHours').default);
 
 
 import Buefy from 'buefy'
