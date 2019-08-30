@@ -10,6 +10,7 @@ use App\DomainClasses\Ring;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use App\DomainClasses\TeacherGroup;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -141,5 +142,21 @@ class MainController extends Controller
         $buildings = Building::all()->sortBy('name');
 
         return view('main.buildingEvents', compact('weekCount', 'buildings'));
+    }
+
+    public function disciplineHours(Request $request) {
+        $input = $request->all();
+
+        $groupId = -1;
+        if (isset($input['groupId']))
+        {
+            $groupId = $input["groupId"];
+        }
+
+        $studentGroups = StudentGroup::allSorted()->toArray();
+
+        $weekCount = Calendar::WeekCount();
+
+        return view('main.disciplineHours', compact('studentGroups', 'groupId', 'weekCount'));
     }
 }

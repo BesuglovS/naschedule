@@ -19,8 +19,8 @@ Vue.component('teacher-group-schedule', require('./components/TeacherGroupSchedu
 Vue.component('group-schedule', require('./components/GroupSchedule').default);
 Vue.component('faculty-schedule', require('./components/FacultySchedule').default);
 Vue.component('building-events', require('./components/BuildingEvents').default);
-
 Vue.component('discipline-list', require('./components/DisciplineList').default);
+Vue.component('discipline-hours', require('./components/DisciplineHours').default);
 
 
 import Buefy from 'buefy'

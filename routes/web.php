@@ -55,7 +55,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/groupSchedule/{group_id}', 'MainController@groupScheduleWithId');
 
     Route::get('/facultySchedule', 'MainController@facultySchedule');
-    Route::get('/facultySchedule/(faculty_id)', 'MainController@facultyScheduleWithId');
+    Route::get('/facultySchedule/{faculty_id}', 'MainController@facultyScheduleWithId');
 
     Route::get('/teacherSchedule', 'MainController@teacherSchedule');
 
@@ -79,7 +79,11 @@ Route::group(['middleware' => ['auth']], function () {
     //teacherGroupSchedule
     Route::get('/teacherGroupSchedule', 'MainController@TeacherGroupSchedule');
 
+    //teacherTeacherGroups
     Route::delete('/teacherTeacherGroups/{teacher_teacher_group_id}', 'TeacherTeacherGroupController@destroy');
     Route::post('/teacherTeacherGroups/store', 'TeacherTeacherGroupController@store');
     Route::get('/teacherTeacherGroups/teacherGroupTeachers/{teacher_group_id}', 'TeacherTeacherGroupController@get');
+
+    //disciplineHours
+    Route::get('/disciplineHours', 'MainController@disciplineHours');
 });

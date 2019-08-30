@@ -44,6 +44,7 @@ class Calendar extends Model
             $date = Carbon::createFromFormat("Y-m-d", $date);
         }
         $ss = Carbon::parse(ConfigOption::SemesterStarts());
+        $ss = $ss->startOfWeek();
         $diff = $ss->diffInDays($date);
         $week = 1 + (int)($diff / 7);
         return $week;
@@ -53,7 +54,10 @@ class Calendar extends Model
     {
         $date = Carbon::createFromFormat("Y-m-d", $date);
 
-        $diff = $semesterStarts->diffInDays($date);
+        $semesterStartsMonday = $semesterStarts->clone()->startOfWeek();
+
+        $diff = $semesterStartsMonday->diffInDays($date);
+
         $week = 1 + (int)($diff / 7);
         return $week;
     }
@@ -135,7 +139,9 @@ class Calendar extends Model
 
         $lastDate = DB::table('calendars')->orderBy('date', 'desc')->first()->date;
 
-        $lastDateWeek = Calendar::WeekFromDate($lastDate, Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts()));
+        $semesterStartsCarbon = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts());
+
+        $lastDateWeek = Calendar::WeekFromDate($lastDate, $semesterStartsCarbon);
 
         return $lastDateWeek;
     }

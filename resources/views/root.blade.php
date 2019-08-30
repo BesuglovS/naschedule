@@ -114,7 +114,26 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/disciplineHours">Количество часов в расписании по группам</a>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="card-deck mb-2">
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
                         </div>
                     </div>
                 </div>

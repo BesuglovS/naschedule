@@ -102,7 +102,7 @@ class DisciplineController extends Controller
             ->select('disciplines.*', 'student_groups.name as groupName')
             ->first();
 
-        $studentGroups = StudentGroup::all();
+        $studentGroups = StudentGroup::allSorted();
 
         return view('disciplines.edit', compact('discipline', 'studentGroups'));
     }

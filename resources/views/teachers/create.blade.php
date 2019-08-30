@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-    <div class="container alert alert-info alert-block"><a href="/teachers">Список учитилей</a></div>
+    <div class="container alert alert-info alert-block"><a href="/teachers">Список учителей</a></div>
     <div style="text-align: center">Новый учитель</div>
     <div class="container" style="align-items: center; display: flex; justify-content: center;">
 

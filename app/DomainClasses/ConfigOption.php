@@ -11,9 +11,11 @@ class ConfigOption extends Model
 
     public static function SemesterStarts()
     {
-        return DB::table('config_options')
+        $ssOption = DB::table('config_options')
             ->where('key', '=', 'Semester Starts')
             ->select('value')
-            ->first()->value;
+            ->first();
+
+        return ($ssOption !== null) ? $ssOption->value : null;
     }
 }

@@ -463,6 +463,54 @@ class OldApiController extends Controller
             unset($disc->auditorium_hours_per_week);
         });
 
+        if (array_key_exists("hoursByWeek", $input))
+        {
+            $semesterStarts = ConfigOption::SemesterStarts();
+            if ($semesterStarts == null) {
+                return $result;
+            }
+
+            $weekCount = Calendar::WeekCount();
+
+            $semesterStartsCarbon = Carbon::createFromFormat("Y-m-d", $semesterStarts);
+
+            $calendars = Calendar::all();
+
+            $calendarWeeks = array();
+            foreach ($calendars as $calendar) {
+                $calendarWeek = Calendar::WeekFromDate($calendar->date, $semesterStartsCarbon);
+                $calendarWeeks[$calendar->id] = $calendarWeek;
+            }
+
+            foreach ($result as $disc) {
+                $hoursByWeek = array();
+                foreach (range(1, $weekCount) as $week) {
+                    $hoursByWeek[$week] = 0;
+                }
+
+                $tfd = DB::table('discipline_teacher')
+                    ->where('discipline_id', '=', $disc->DisciplineId)
+                    ->first();
+
+                if ($tfd !== null) {
+                    $disciplineLessons = DB::table('lessons')
+                        ->where('discipline_teacher_id', '=', $tfd->id)
+                        ->where('state', '=', 1)
+                        ->get();
+
+                    foreach ($disciplineLessons as $disciplineLesson) {
+                        $lessonWeek = $calendarWeeks[$disciplineLesson->calendar_id];
+
+                        if (array_key_exists($lessonWeek, $hoursByWeek)) {
+                            $hoursByWeek[$lessonWeek]++;
+                        }
+                    }
+                }
+
+                $disc->hoursByWeek = $hoursByWeek;
+            }
+        }
+
         return $result;
     }
 
