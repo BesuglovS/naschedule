@@ -36,7 +36,11 @@
                             <tr v-for="discipline in disciplinesSorted">
                                 <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}</a></td>
 
-                                <td>{{discipline.teacherFio}}</td>
+                                <td>
+                                    <select v-model="discipline.teacherId" @change="changeTfdTeacher(discipline.tfdId, discipline.teacherId);">
+                                        <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
+                                    </select>
+                                </td>
 
                                 <td>{{discipline.groupName}}</td>
 
@@ -67,6 +71,7 @@
         name: "DisciplineList",
         props: [
             'studentGroups',
+            'teachers',
             'groupId',
         ],
         data() {
@@ -79,7 +84,8 @@
                 dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
                 attestation: ["нет", "зачёт", "экзамен", "зачёт и экзамен", "зачёт с оценкой"],
                 errorMessage: "",
-                copyStudentGroupId: -1
+                copyStudentGroupId: -1,
+                teacherList: this.teachers,
             }
         },
         methods: {
@@ -107,6 +113,9 @@
                         }
                     });
 
+            },
+            changeTfdTeacher(tfdId, teacherId) {
+                axios.post('/teacherDisciplines/updateTfd?tfdId=' + tfdId + '&teacherId=' + teacherId);
             },
             copyDisciplines() {
                 this.loading = true;
@@ -148,6 +157,20 @@
                         return a.Name < b.Name ? -1 : 1;
                     }
                 });
+            },
+            teachersSorted() {
+                let result = [];
+                for (var index in this.teacherList) {
+                    let teacher = this.teacherList[index];
+                    result.push(teacher);
+                }
+
+                result.sort((a,b) => {
+                    if (a.fio === b.fio) return 0;
+                    return a.fio < b.fio ? -1 : 1;
+                });
+
+                return result;
             },
             groupsSorted() {
                 let result = [];

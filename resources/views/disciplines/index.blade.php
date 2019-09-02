@@ -8,7 +8,11 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12">
-                <discipline-list :group-id="{{$groupId}}" :student-groups="{{json_encode($studentGroups)}}"></discipline-list>
+                <discipline-list
+                    :group-id="{{$groupId}}"
+                    :teachers="{{json_encode($teachers)}}"
+                    :student-groups="{{json_encode($studentGroups)}}">
+                </discipline-list>
             </div>
         </div>
     </div>

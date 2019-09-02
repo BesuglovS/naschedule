@@ -408,7 +408,7 @@ class OldApiController extends Controller
                 ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
                     'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
                     'disciplines.student_group_id', 'disciplines.auditorium_hours_per_week', 'student_groups.name as groupName',
-                    'teachers.id as teacherId', 'teachers.fio as teacherFio')
+                    'teachers.id as teacherId', 'teachers.fio as teacherFio', 'discipline_teacher.id as tfdId')
                 ->get();
         }
         else
@@ -427,7 +427,7 @@ class OldApiController extends Controller
                     ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
                         'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
                         'disciplines.student_group_id', 'disciplines.auditorium_hours_per_week', 'student_groups.name as groupName',
-                        'teachers.id as teacherId', 'teachers.fio as teacherFio')
+                        'teachers.id as teacherId', 'teachers.fio as teacherFio', 'discipline_teacher.id as tfdId')
                     ->get();
             }
             else {
@@ -461,6 +461,20 @@ class OldApiController extends Controller
             unset($disc->student_group_id);
 
             unset($disc->auditorium_hours_per_week);
+
+            $tfd = DB::table('discipline_teacher')
+                ->where('discipline_id', '=', $disc->DisciplineId)
+                ->first();
+
+            if ($tfd !== null) {
+                $hours = DB::table('lessons')
+                    ->where('lessons.discipline_teacher_id', '=', $tfd->id)
+                    ->where('lessons.state', '=', 1)
+                    ->count();
+
+                $disc->hoursCount = $hours;
+            }
+
         });
 
         if (array_key_exists("hoursByWeek", $input))
@@ -859,19 +873,6 @@ class OldApiController extends Controller
 
         $groupId = $input["groupId"];
 
-        $smallLessons = false;
-
-        $groupName = StudentGroup::find($groupId)->name;
-
-        $groupNamePieces = explode(" ", $groupName);
-        $groupNameNumber = $groupNamePieces[0];
-        if (is_numeric($groupNameNumber) && intval($groupNameNumber) < 12) {
-            $schoolGroup = true;
-        }
-        if (is_numeric($groupNameNumber) && intval($groupNameNumber) < 8) {
-            $smallLessons = true;
-        }
-
         $groupIds = StudentGroup::GetGroupsOfStudentFromGroup($groupId);
 
         $data = DB::table('disciplines')
@@ -900,8 +901,7 @@ class OldApiController extends Controller
 
             $result[$disc->TFDID] = array();
             $result[$disc->TFDID]["Name"] = $disc->Name;
-            $result[$disc->TFDID]["AuditoriumHours"] = $schoolGroup ?
-                $disc->AuditoriumHoursPerWeek : $disc->AuditoriumHours;
+            $result[$disc->TFDID]["AuditoriumHours"] = $disc->AuditoriumHoursPerWeek;
             $result[$disc->TFDID]["Attestation"] = $disc->Attestation;
             $result[$disc->TFDID]["LectureHours"] = $disc->LectureHours;
             $result[$disc->TFDID]["PracticalHours"] = $disc->PracticalHours;
@@ -913,9 +913,10 @@ class OldApiController extends Controller
         {
             $hours = DB::table('lessons')
                 ->where('lessons.discipline_teacher_id', '=', $tfdId)
+                ->where('lessons.state', '=', 1)
                 ->count();
 
-            $result[$tfdId]["hoursCount"] = $smallLessons ? $hours : $hours*2;
+            $result[$tfdId]["hoursCount"] = $hours;
         }
 
         return $result;

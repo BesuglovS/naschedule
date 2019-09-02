@@ -49,6 +49,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::delete('/teacherDisciplines/{discipline_teacher_id}', 'DisciplineTeacherController@destroy');
     Route::post('/teacherDisciplines/store', 'DisciplineTeacherController@store');
+    Route::post('/teacherDisciplines/updateTfd', 'DisciplineTeacherController@updateTfd');
 
 
     Route::get('/groupSchedule', 'MainController@groupSchedule');

@@ -48,4 +48,21 @@ class DisciplineTeacherController extends Controller
 
         return back();
     }
+
+    public function updateTfd(Request $request)
+    {
+        $teacherId = $request->teacherId;
+
+        $tfd = DB::table('discipline_teacher')
+            ->where('id', '=', $request->tfdId)
+            ->first();
+
+        DB::table('discipline_teacher')
+            ->where('id', $request->tfdId)
+            ->update([
+                'teacher_id' => $teacherId
+            ]);
+
+        return "OK";
+    }
 }

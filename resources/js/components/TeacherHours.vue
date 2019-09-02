@@ -127,6 +127,7 @@
                     });
             },
             allWeeksClicked() {
+                this.severalWeeks = true;
                 this.selectedWeeks = [];
                 this.selectedWeeks.push(-1);
             },

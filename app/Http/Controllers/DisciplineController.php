@@ -28,7 +28,9 @@ class DisciplineController extends Controller
 
         $studentGroups = StudentGroup::allSorted()->toArray();
 
-        return view('disciplines.index', compact('studentGroups', 'groupId'));
+        $teachers = Teacher::all()->sortBy('fio');
+
+        return view('disciplines.index', compact('studentGroups', 'groupId', 'teachers'));
     }
 
     /**
