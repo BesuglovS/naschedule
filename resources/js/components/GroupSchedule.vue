@@ -160,7 +160,17 @@
                 </div>
 
                 <div class="card" style="margin-left: 1em;">
-                    <div class="card-header">Дисциплины группы</div>
+                    <div class="card-header">
+                        <div>
+                            Дисциплины группы
+                        </div>
+                        <button @click="reloadDisciplines();"
+                                style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 0.8em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                class="button isPrimary">R
+                        </button>
+                    </div>
 
                     <div class="card-body" style="text-align: center;">
                         <div v-for="discipline in groupDisciplinesWithTeacher">
@@ -446,6 +456,21 @@
 
                         if (this.groupDisciplinesWithTeacher.length > 0) {
                             this.disciplineClicked(this.groupDisciplinesWithTeacher[0]);
+                        }
+                    });
+            },
+            reloadDisciplines() {
+                let save =  this.groupDisciplineSelected;
+
+                axios
+                    .get('/disciplinesByGroupInfo?groupId=' + this.studentGroupId)
+                    .then(response => {
+                        this.groupDisciplines = response.data;
+
+                        let saved = this.groupDisciplinesWithTeacher.filter(d => d.disciplineId === save.disciplineId);
+
+                        if (saved.length !== 0) {
+                            this.disciplineClicked(saved[0]);
                         }
                     });
             },
