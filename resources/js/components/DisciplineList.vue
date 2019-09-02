@@ -37,7 +37,8 @@
                                 <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}</a></td>
 
                                 <td>
-                                    <select v-model="discipline.teacherId" @change="changeTfdTeacher(discipline.tfdId, discipline.teacherId);">
+                                    <select v-model="discipline.teacherId"
+                                            @change="changeTfdTeacher(discipline.tfdId, discipline.teacherId, discipline.DisciplineId);">
                                         <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
                                     </select>
                                 </td>
@@ -114,8 +115,13 @@
                     });
 
             },
-            changeTfdTeacher(tfdId, teacherId) {
-                axios.post('/teacherDisciplines/updateTfd?tfdId=' + tfdId + '&teacherId=' + teacherId);
+            changeTfdTeacher(tfdId, teacherId, disciplineId) {
+                if (tfdId === null) {
+                    axios.post('/teacherDisciplines/store?discipline_id=' + disciplineId + '&teacher_id=' + teacherId);
+                }
+                else {
+                    axios.post('/teacherDisciplines/updateTfd?tfdId=' + tfdId + '&teacherId=' + teacherId);
+                }
             },
             copyDisciplines() {
                 this.loading = true;
