@@ -3,7 +3,18 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">Расписание преподавателя</div>
+                    <div class="card-header">
+                        <span style="margin-right: 1em;">
+                            Расписание преподавателя
+                        </span>
+
+                        <button @click="loadTeacherSchedule();"
+                                style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 0.8em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                class="button isPrimary">R
+                        </button>
+                    </div>
 
                     <div class="card-body">
                         <select v-model="selectedTeacherId" @change="loadFullTeacherSchedule();">
@@ -11,8 +22,6 @@
                         </select>
 
                         Недели: {{combineWeeksToRange(this.selectedWeeks)}}
-
-                        <div style="text-align: center;" v-if="this.loading">Загрузка...</div>
 
                         <div id="teachersSchedule" style="margin-top: 1em;">
                             <div style="text-align: center;">
@@ -37,13 +46,18 @@
                                 </div>
                             </div>
 
+                            <div v-if="loading === true" style="font-size: 2em; text-align: center">
+                                Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
+                            </div>
+
                             <div v-if="
                                 (teacherSchedule[1] && teacherSchedule[1].length === 0) &&
                                 (teacherSchedule[2] && teacherSchedule[2].length === 0) &&
                                 (teacherSchedule[3] && teacherSchedule[3].length === 0) &&
                                 (teacherSchedule[4] && teacherSchedule[4].length === 0) &&
                                 (teacherSchedule[5] && teacherSchedule[5].length === 0) &&
-                                (teacherSchedule[6] && teacherSchedule[6].length === 0)
+                                (teacherSchedule[6] && teacherSchedule[6].length === 0) &&
+                                this.loading === false
                             " style="text-align: center; font-size: 30px">
                                 Занятий нет
                             </div>
@@ -243,6 +257,8 @@
               console.log(text);
             },
             loadTeacherSchedule() {
+                this.loading = true;
+                this.teacherSchedule = {1: [], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]};
                 let apiUrl = '/api.php?action=teacherWeeksSchedule&teacherId=' + this.selectedTeacherId + '&weeks=' + this.selectedWeeks.join('|') + '&compactResult';
 
                 if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)
@@ -279,6 +295,7 @@
                             return aMinutes < bMinutes ? -1 : 1;
                         });
 
+                        this.loading = false;
                         this.teacherSchedule = data;
                     });
             },
@@ -491,5 +508,11 @@
     table th, table td {
         display: table-cell;
         vertical-align: middle;
+    }
+
+    .isPrimary {
+        background-color: #7957d5;
+        border-color: transparent;
+        color: white;
     }
 </style>

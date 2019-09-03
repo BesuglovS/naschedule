@@ -486,15 +486,7 @@ class OldApiController extends Controller
 
             $weekCount = Calendar::WeekCount();
 
-            $semesterStartsCarbon = Carbon::createFromFormat("Y-m-d", $semesterStarts);
-
-            $calendars = Calendar::all();
-
-            $calendarWeeks = array();
-            foreach ($calendars as $calendar) {
-                $calendarWeek = Calendar::WeekFromDate($calendar->date, $semesterStartsCarbon);
-                $calendarWeeks[$calendar->id] = $calendarWeek;
-            }
+            $calendarWeeks = Calendar::GetCalendarWeeks();
 
             foreach ($result as $disc) {
                 $hoursByWeek = array();

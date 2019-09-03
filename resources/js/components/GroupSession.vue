@@ -3,14 +3,23 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">Экзамены группы</div>
+                    <div class="card-header">
+                        <span style="margin-right: 1em;">
+                            Экзамены группы
+                        </span>
+
+                        <button @click="loadExams();"
+                                style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 0.8em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                class="button is-primary">R
+                        </button>
+                    </div>
 
                     <div class="card-body">
                         <select v-model="studentGroupId" @change="loadExams()">
                             <option v-for="sg in groupsSorted" :value="sg.id">{{sg.name}}</option>
                         </select>
-
-<!--                        <button type="button" @click="loadExams" class="button is-primary">Загрузить экзамены</button>-->
 
                         <div style="text-align: center;" v-if="exams.length === 0 && ! firstLoad && ! this.loading">Экзаменов нет</div>
 
@@ -154,5 +163,9 @@
 </script>
 
 <style scoped>
-
+    .isPrimary {
+        background-color: #7957d5;
+        border-color: transparent;
+        color: white;
+    }
 </style>

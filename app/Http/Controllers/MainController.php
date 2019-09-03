@@ -177,4 +177,23 @@ class MainController extends Controller
 
         return view('main.teacherHours', compact('teachers', 'teacherId', 'weekCount', 'studentGroups'));
     }
+
+    public function lessonLogEvents()
+    {
+        $groupId = -1;
+        $studentGroups = StudentGroup::allSorted()->toArray();
+        $weekCount = Calendar::WeekCount();
+        $auditoriums = Auditorium::all()->toArray();
+
+        return view('main.lessonLogEvents', compact('studentGroups', 'groupId', 'weekCount', 'auditoriums'));
+    }
+
+    public function lessonLogEventsWithId(int $groupId)
+    {
+        $studentGroups = StudentGroup::allSorted()->toArray();
+        $weekCount = Calendar::WeekCount();
+        $auditoriums = Auditorium::all()->toArray();
+
+        return view('main.lessonLogEvents', compact('studentGroups', 'groupId', 'weekCount', 'auditoriums'));
+    }
 }

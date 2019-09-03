@@ -3,7 +3,18 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">Список дисциплин</div>
+                    <div class="card-header">
+                        <span style="margin-right: 1em;">
+                            Список дисциплин
+                        </span>
+
+                        <button @click="loadGroupDisciplines();"
+                                style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 0.8em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                class="button is-primary">R
+                        </button>
+                    </div>
 
                     <div class="card-body">
                         Дисциплины класса:
@@ -206,5 +217,9 @@
 </script>
 
 <style scoped>
-
+    .isPrimary {
+        background-color: #7957d5;
+        border-color: transparent;
+        color: white;
+    }
 </style>

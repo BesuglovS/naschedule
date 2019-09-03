@@ -90,4 +90,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     //teacherHours
     Route::get('/teacherHours', 'MainController@teacherHours');
+
+    //lessonLogEvents
+    Route::get('/lessonLogEvents', 'MainController@lessonLogEvents');
+    Route::get('/lessonLogEventsByGroup', 'LessonLogEventController@ByGroup');
 });

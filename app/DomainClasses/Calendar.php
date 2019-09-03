@@ -170,6 +170,26 @@ class Calendar extends Model
         return $result;
     }
 
+    public static function GetCalendarWeeks()
+    {
+        $semesterStarts = ConfigOption::SemesterStarts();
+        if ($semesterStarts == null) {
+            return null;
+        }
+
+        $semesterStartsCarbon = Carbon::createFromFormat("Y-m-d", $semesterStarts);
+
+        $calendars = Calendar::all();
+
+        $calendarWeeks = array();
+        foreach ($calendars as $calendar) {
+            $calendarWeek = Calendar::WeekFromDate($calendar->date, $semesterStartsCarbon);
+            $calendarWeeks[$calendar->id] = $calendarWeek;
+        }
+
+        return $calendarWeeks;
+    }
+
     public function auditorium_events()
     {
         return $this->hasMany(AuditoriumEvent::class);

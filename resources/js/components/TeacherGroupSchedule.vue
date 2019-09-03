@@ -14,7 +14,7 @@
                                     </select>
                                 </td>
                                 <td style="width:45%;">
-                                    <button @click="loadTeachersSchedule(this.selectedTeacherIds);"
+                                    <button @click="loadTeachersSchedule(selectedTeacherIds);"
                                             style="width: 90%; margin: 1em;" class="button is-primary">
                                         Загрузить расписание выбранных преподавателей на неделю
                                     </button>

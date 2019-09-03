@@ -127,6 +127,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/lessonLogEvents">Изменения расписания</a>
                         </div>
                     </div>
                     <div class="card tac">
