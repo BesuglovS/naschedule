@@ -193,6 +193,9 @@
                                         'isPrimary': discipline.disciplineId !== groupDisciplineSelected.disciplineId,
                                         'isDanger': discipline.disciplineId === groupDisciplineSelected.disciplineId }">
                                 {{discipline.disciplineName}}
+                                <template v-if="showGroup(studentGroupId, discipline.studentGroupName)">
+                                    ({{discipline.studentGroupName}})
+                                </template>
                                 <br />
                                 <span style="font-size:0.6em;">
                                     {{discipline.teacherFio}}
@@ -850,6 +853,11 @@
             },
             range(start, end) {
                 return Array(end - start + 1).fill().map((_, idx) => start + idx)
+            },
+            showGroup(studentGroupId, disciplineStudentGroupName) {
+                let group = Object.values(this.groups).filter(g => g.id == studentGroupId)[0];
+
+                return group.name !== disciplineStudentGroupName;
             },
             severalWeeksSwitchFlipped() {
                 if (!this.severalWeeks) {
