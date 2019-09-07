@@ -44,6 +44,16 @@
                                     <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
                                     <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
                                 </div>
+
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" v-model="showEditTools" class="custom-control-input" id="customSwitch2">
+                                    <label class="custom-control-label" for="customSwitch2">Показывать инструменты редактирования</label>
+                                </div>
+
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" v-model="showWeeks" class="custom-control-input" id="customSwitch3">
+                                    <label class="custom-control-label" for="customSwitch3">Показывать недели в аудиториях</label>
+                                </div>
                             </div>
 
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
@@ -65,7 +75,7 @@
                                         <td></td>
                                         <td v-for="groupIndex in facultySchedule.length">
                                             <strong>{{dowRu[dow-1]}}</strong>
-                                            <template v-if="Object.keys(facultyDisciplines).length > 0">
+                                            <template v-if="Object.keys(facultyDisciplines).length > 0 && showEditTools">
                                                 <a @click.prevent="newDows = []; newDows.push(dow); newRingIds = []; newGroupId = facultySchedule[groupIndex].groupId; askForNew();" href="#">
                                                     <font-awesome-icon icon="plus-square" />
                                                 </a>
@@ -79,13 +89,13 @@
                                             </strong>
                                         </td>
                                         <td v-for="groupSchedule in facultySchedule">
-                                            <a v-if="Object.keys(facultyDisciplines).length > 0 && groupSchedule['lessons'][dow][ring] === undefined"
+                                            <a v-if="showEditTools && Object.keys(facultyDisciplines).length > 0 && groupSchedule['lessons'][dow][ring] === undefined"
                                                @click.prevent="newDows = []; newDows.push(dow); setNewRingId(ring); newGroupId = groupSchedule.groupId; askForNew();" href="#">
                                                 <font-awesome-icon icon="plus-square" />
                                             </a>
                                             <template v-if="groupSchedule['lessons'][dow][ring] !== undefined">
                                                 <template v-for="tfd in sortTfd(groupSchedule['lessons'][dow][ring])">
-                                                    <table style="width: 100%; text-align: center; border:none !important;">
+                                                    <table v-if="showEditTools" style="width: 100%; text-align: center; border:none !important;">
                                                         <tr>
                                                             <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule['lessons'][dow][ring][tfd], dow, ring);" href="#"><font-awesome-icon icon="edit" /></a></td>
                                                             <td style="border:none;" v-if="Object.keys(facultyDisciplines).length > 0 &&
@@ -100,7 +110,13 @@
                                                         </tr>
                                                     </table>
 
-                                                    <strong>{{groupSchedule['lessons'][dow][ring][tfd]["lessons"][0]["discName"]}}</strong><br />
+                                                    <strong>
+                                                        {{groupSchedule['lessons'][dow][ring][tfd]["lessons"][0]["discName"]}}
+                                                        <template v-if="groupSchedule['lessons'][dow][ring][tfd]['lessons'][0]['groupName'] !== groupSchedule['groupName']">
+                                                            ({{groupSchedule['lessons'][dow][ring][tfd]["lessons"][0]["groupName"]}})
+                                                        </template>
+                                                    </strong>
+                                                    <br />
                                                     {{groupSchedule['lessons'][dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
                                                     <template v-for="auditorium in
                                                         Object.keys(groupSchedule['lessons'][dow][ring][tfd]['weeksAndAuds'])
@@ -112,7 +128,10 @@
                                                             return aMin < bMin ? -1 : 1;
                                                         })
                                                     ">
-                                                        {{combineWeeksToRange(groupSchedule['lessons'][dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
+                                                        <template v-if="showWeeks">
+                                                            {{combineWeeksToRange(groupSchedule['lessons'][dow][ring][tfd]["weeksAndAuds"][auditorium])}} -
+                                                        </template>
+                                                        {{auditorium}}<br />
                                                     </template>
                                                     <template v-if="tfd !== Object.keys(groupSchedule['lessons'][dow][ring])
                                                         .sort((a,b) => {
@@ -389,6 +408,8 @@
                 editWeeksAuds: {},
                 editFreeAuds: {},
                 editDisciplineTeacherSchedule: {},
+                showEditTools: true,
+                showWeeks: true,
             }
         },
         methods: {
@@ -425,24 +446,20 @@
                     .then(response => {
                         let data = response.data;
 
-                        for(let i = 0; i < data.length; i++) {
+                        this.scheduleRings = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]};
 
-                            let groupLessons = data[i]['lessons'];
+                        for(let dow = 1; dow <= 7; dow++) {
+                            for(let i = 0; i < data.length; i++) {
+                                let groupDowLessons = data[i]['lessons'][dow];
 
-                            this.scheduleRings = {};
-                            for(let dow = 1; dow <= 6; dow++) {
-                                let dowGroupRings = Object.keys(groupLessons[dow]);
+                                let dowGroupRings = Object.keys(groupDowLessons);
 
-                                let dowRings = (this.scheduleRings[dow] !== undefined) ? this.scheduleRings[dow] : [];
                                 dowGroupRings
                                     .forEach(item => {
-                                        if (dowRings.indexOf(item) === -1)
-                                            dowRings.push(item);
+                                        if (this.scheduleRings[dow].indexOf(item) === -1)
+                                            this.scheduleRings[dow].push(item);
                                     });
-
-                                this.scheduleRings[dow] = dowRings;
                             }
-
                         }
 
                         for(let dow = 1; dow <= 6; dow++) {

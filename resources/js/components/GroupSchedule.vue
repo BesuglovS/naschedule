@@ -44,6 +44,11 @@
                                     <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
                                     <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
                                 </div>
+
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" v-model="showEditTools" class="custom-control-input" id="customSwitch2">
+                                    <label class="custom-control-label" for="customSwitch2">Показывать инструменты редактирования</label>
+                                </div>
                             </div>
 
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
@@ -55,7 +60,7 @@
                                     <td></td>
                                     <td v-for="dow in 6">
                                         <strong>{{dowRu[dow-1]}}</strong>
-                                        <template v-if="groupDisciplines.length > 0">
+                                        <template v-if="groupDisciplines.length > 0 && showEditTools">
                                             <a @click.prevent="newDows = []; newDows.push(dow); newRingIds = []; askForNew();" href="#"><font-awesome-icon icon="plus-square" /></a>
                                         </template>
                                     </td>
@@ -64,7 +69,7 @@
                                 <tr v-for="ring in this.scheduleRings">
                                     <td><strong>{{ring}}</strong></td>
                                     <td v-for="dow in 6">
-                                        <table style="width: 100%; text-align: center; border:none !important;">
+                                        <table v-if="showEditTools" style="width: 100%; text-align: center; border:none !important;">
                                             <tr>
                                                 <td style="border:none;">
                                                     <a v-if="groupDisciplines.length > 0" @click.prevent="newDows = []; newDows.push(dow); setNewRingId(ring); askForNew();" href="#">
@@ -106,7 +111,7 @@
                                                                 return aMin < bMin ? -1 : 1;
                                                         })
                                                 ">
-                                                    <table style="width: 100%; text-align: center; border:none !important;">
+                                                    <table v-if="showEditTools" style="width: 100%; text-align: center; border:none !important;">
                                                         <tr>
                                                             <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd], dow, ring);" href="#"><font-awesome-icon icon="edit" /></a></td>
                                                             <td style="border:none;">
@@ -414,6 +419,7 @@
                 disciplineTeacherSchedule: {},
                 editDisciplineTeacherSchedule: {},
                 newTfdBusyLoading: false,
+                showEditTools: true,
             }
         },
         methods: {

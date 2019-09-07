@@ -95,3 +95,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/lessonLogEvents', 'MainController@lessonLogEvents');
     Route::get('/lessonLogEventsByGroup', 'LessonLogEventController@ByGroup');
 });
+
+Route::get('/pdf-export', [ 'as' => 'pdf.facultyDow', 'uses' => 'PdfController@facultyDowChoice']);
+Route::get('/print-pdf', [ 'as' => 'pdf.facultyDow', 'uses' => 'PdfController@facultyDow']);
+

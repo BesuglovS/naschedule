@@ -27,6 +27,12 @@
                             <a href="/admin">Изменение расписания</a>
                         </div>
                     </div>
+
+                    <div class="card tac">
+                        <div class="card-body">
+                            <a href="/pdf-export">Расписание параллели на день определённой недели (PDF экспорт)</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

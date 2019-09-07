@@ -1331,7 +1331,7 @@ class OldApiController extends Controller
         return $exams;
     }
 
-    private function GetFacultyWeeksSchedule($input)
+    public function GetFacultyWeeksSchedule($input)
     {
         if ((!isset($input['facultyId'])) || (!isset($input['weeks'])))
         {

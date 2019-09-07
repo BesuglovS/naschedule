@@ -35,6 +35,11 @@
                             <strong>{{ errorMessage }}</strong>
                         </div>
 
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" v-model="teachersSelect"  class="custom-control-input" id="customSwitch1">
+                            <label class="custom-control-label" for="customSwitch1">Выбор преподавателей</label>
+                        </div>
+
                         <div v-if="loading === true" style="font-size: 2em; text-align: center">
                             Загрузка ...
                         </div>
@@ -48,10 +53,15 @@
                                 <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}</a></td>
 
                                 <td>
-                                    <select v-model="discipline.teacherId"
-                                            @change="changeTfdTeacher(discipline.tfdId, discipline.teacherId, discipline.DisciplineId);">
-                                        <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
-                                    </select>
+                                    <template v-if="!teachersSelect">
+                                        {{discipline.teacherFio}}
+                                    </template>
+                                    <template v-if="teachersSelect">
+                                        <select v-model="discipline.teacherId"
+                                                @change="changeTfdTeacher(discipline.tfdId, discipline.teacherId, discipline.DisciplineId);">
+                                            <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
+                                        </select>
+                                    </template>
                                 </td>
 
                                 <td>{{discipline.groupName}}</td>
@@ -98,6 +108,7 @@
                 errorMessage: "",
                 copyStudentGroupId: -1,
                 teacherList: this.teachers,
+                teachersSelect: false,
             }
         },
         methods: {
