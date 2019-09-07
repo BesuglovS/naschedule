@@ -3,17 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\DomainClasses\Calendar;
+use App\DomainClasses\ConfigOption;
 use App\DomainClasses\Faculty;
 use Barryvdh\DomPDF\Facade as PDF;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PdfController extends Controller
 {
     public function facultyDowChoice() {
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+
         $faculties = Faculty::all()->sortBy('sorting_order');
         $weekCount = Calendar::WeekCount();
 
-        return view('pdf.choice', compact('faculties', 'weekCount'));
+        $weeks = array();
+        for($w = 1; $w <= $weekCount; $w++) {
+            $start = $css->clone();
+            $end = $start->clone()->addDays(6);
+            $weeks[$w] = $start->format("d.m") . " - " . $end->format('d.m');
+
+            $css = $css->addWeek();
+        }
+
+        return view('pdf.choice', compact('faculties', 'weekCount', 'weeks'));
     }
     public function facultyDow(Request $request) {
         $dowRu = [

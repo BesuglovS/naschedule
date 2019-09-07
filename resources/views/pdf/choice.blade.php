@@ -13,9 +13,9 @@
             <table style="font-size: 1.5em;">
                 <tr style="padding-bottom: 1em;">
                     <td>Параллель</td>
-                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                     <td>
-                        <select style="margin-right: 1em; font-size: 1.5em;" name="facultyId" id="facultyId">
+                        <select style="margin-right: 1em; font-size: 1.5em; width: 310px;" name="facultyId" id="facultyId">
                             @foreach($faculties as $faculty)
                                 <option value="{{$faculty->id}}">{{$faculty->name}}</option>
                             @endforeach
@@ -30,9 +30,9 @@
                     <td>Неделя</td>
                     <td>&nbsp;</td>
                     <td>
-                        <select style="margin-right: 1em; font-size: 1.5em;" name="week" id="week">
+                        <select style="margin-right: 1em; font-size: 1.5em; width: 310px;" name="week" id="week">
                             @for ($i = 1; $i <= $weekCount ; $i++)
-                                <option value="{{$i}}">{{$i}}</option>
+                                <option value="{{$i}}">{{$i}} ({{$weeks[$i]}})</option>
                             @endfor
                         </select>
                     </td>
@@ -46,7 +46,7 @@
                     <td>День недели</td>
                     <td>&nbsp;</td>
                     <td>
-                        <select style="font-size: 1.5em;" name="dow" id="dow">
+                        <select style="font-size: 1.5em; width: 310px;" name="dow" id="dow">
                             <option value="1">Понедельник</option>
                             <option value="2">Вторник</option>
                             <option value="3">Среда</option>
