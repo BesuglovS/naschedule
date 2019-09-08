@@ -7,11 +7,13 @@ use App\DomainClasses\ConfigOption;
 use App\DomainClasses\Faculty;
 use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
 class PdfController extends Controller
 {
     public function facultyDowChoice() {
+
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
 
         $faculties = Faculty::all()->sortBy('sorting_order');
@@ -26,7 +28,11 @@ class PdfController extends Controller
             $css = $css->addWeek();
         }
 
-        return view('pdf.choice', compact('faculties', 'weekCount', 'weeks'));
+        $today = CarbonImmutable::now()->format('Y-m-d');
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+        $currentWeek = Calendar::WeekFromDate($today, $css);
+
+        return view('pdf.choice', compact('faculties', 'weekCount', 'weeks', 'currentWeek'));
     }
     public function facultyDow(Request $request) {
         $dowRu = [
@@ -74,7 +80,8 @@ class PdfController extends Controller
             'schedule' => $schedule,
             'scheduleRings' => $scheduleRings,
             'dow' => $dow,
-            'mainFontSize' => $mainFontSize . 'px'
+            'mainFontSize' => $mainFontSize . 'px',
+            'timestamp' => $immutable = CarbonImmutable::now()->format('d.m.Y H:i:s')
         ];
 
         //return $data;
@@ -85,12 +92,15 @@ class PdfController extends Controller
 
         do {
             $pdf = PDF::loadView('pdf.facultyDow', $data)->setPaper('a4', 'landscape');
-            $a = $pdf->stream('medium.pdf', array('Attachment' => 0));
+            $pdf->stream('medium.pdf');
             $pageCount = $pdf->dompdf->get_canvas()->get_page_count();
             $mainFontSize -= 0.5;
             $data["mainFontSize"] = $mainFontSize . "px";
         } while($pageCount > 1);
 
-        return $pdf->stream('medium.pdf', array('Attachment' => 0));
+        ob_clean();
+
+        $pdf = PDF::loadView('pdf.facultyDow', $data)->setPaper('a4', 'landscape');
+        return $pdf->stream('Расписание (' . $data["title"] .').pdf');
     }
 }

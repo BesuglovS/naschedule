@@ -50,11 +50,11 @@ class Calendar extends Model
         return $week;
     }
 
-    public static function WeekFromDate($date, $semesterStarts)
+    public static function WeekFromDate($date, $semesterStartsCarbon)
     {
         $date = Carbon::createFromFormat("Y-m-d", $date);
 
-        $semesterStartsMonday = $semesterStarts->clone()->startOfWeek();
+        $semesterStartsMonday = $semesterStartsCarbon->clone()->startOfWeek();
 
         $diff = $semesterStartsMonday->diffInDays($date);
 

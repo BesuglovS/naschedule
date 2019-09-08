@@ -45,5 +45,8 @@
             </tr>
         @endforeach
     </table>
+    <div style="text-align: right; font-size: 0.5em;">
+        Экспорт произведён: {{$timestamp}}
+    </div>
 </body>
 </html>

@@ -6,7 +6,8 @@
 
 @section('content')
     <div style="text-align: center; font-size: 2em; font-weight: 700;">
-        Экспорт расписания параллели на одну конкретную неделю в PDF
+        Экспорт расписания параллели <br />
+        на один день одной конкретной недели в PDF
     </div>
     <form action="/print-pdf" method="get">
         <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 2em;">
@@ -32,7 +33,7 @@
                     <td>
                         <select style="margin-right: 1em; font-size: 1.5em; width: 310px;" name="week" id="week">
                             @for ($i = 1; $i <= $weekCount ; $i++)
-                                <option value="{{$i}}">{{$i}} ({{$weeks[$i]}})</option>
+                                <option value="{{$i}}" @if($i === $currentWeek) selected @endif>{{$i}} ({{$weeks[$i]}})</option>
                             @endfor
                         </select>
                     </td>

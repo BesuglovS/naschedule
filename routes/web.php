@@ -85,16 +85,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/teacherTeacherGroups/store', 'TeacherTeacherGroupController@store');
     Route::get('/teacherTeacherGroups/teacherGroupTeachers/{teacher_group_id}', 'TeacherTeacherGroupController@get');
 
-    //disciplineHours
-    Route::get('/disciplineHours', 'MainController@disciplineHours');
-
-    //teacherHours
-    Route::get('/teacherHours', 'MainController@teacherHours');
 
     //lessonLogEvents
     Route::get('/lessonLogEvents', 'MainController@lessonLogEvents');
     Route::get('/lessonLogEventsByGroup', 'LessonLogEventController@ByGroup');
 });
+
+//disciplineHours
+Route::get('/disciplineHours', 'MainController@disciplineHours');
+
+//teacherHours
+Route::get('/teacherHours', 'MainController@teacherHours');
 
 Route::get('/pdf-export', [ 'as' => 'pdf.facultyDow', 'uses' => 'PdfController@facultyDowChoice']);
 Route::get('/print-pdf', [ 'as' => 'pdf.facultyDow', 'uses' => 'PdfController@facultyDow']);
