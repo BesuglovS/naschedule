@@ -85,10 +85,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/teacherTeacherGroups/store', 'TeacherTeacherGroupController@store');
     Route::get('/teacherTeacherGroups/teacherGroupTeachers/{teacher_group_id}', 'TeacherTeacherGroupController@get');
 
-
     //lessonLogEvents
     Route::get('/lessonLogEvents', 'MainController@lessonLogEvents');
     Route::get('/lessonLogEventsByGroup', 'LessonLogEventController@ByGroup');
+
+    //copy&Delete WeekSchedule
+    Route::get('/weekSchedule', 'WeekController@index');
+    Route::post('/copyWeekSchedule', 'WeekController@copyWeekSchedule');
+    Route::post('/deleteWeekSchedule', 'WeekController@deleteWeekSchedule');
 });
 
 //disciplineHours
@@ -97,6 +101,6 @@ Route::get('/disciplineHours', 'MainController@disciplineHours');
 //teacherHours
 Route::get('/teacherHours', 'MainController@teacherHours');
 
-Route::get('/pdf-export', [ 'as' => 'pdf.facultyDow', 'uses' => 'PdfController@facultyDowChoice']);
-Route::get('/print-pdf', [ 'as' => 'pdf.facultyDow', 'uses' => 'PdfController@facultyDow']);
+Route::get('/pdf-export', 'PdfController@facultyDowChoice');
+Route::get('/print-pdf', 'PdfController@facultyDow');
 

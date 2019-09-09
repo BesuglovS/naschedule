@@ -132,6 +132,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/weekSchedule">Копирование / удаление расписания на неделю</a>
                         </div>
                     </div>
                     <div class="card tac">

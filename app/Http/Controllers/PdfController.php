@@ -76,7 +76,7 @@ class PdfController extends Controller
         $mainFontSize = 12;
 
         $data = [
-            'title' => $dowRu[$dow] . ' (' . $week . ')' . ' - ' . $facultyName,
+            'title' => $dowRu[$dow] /*. ' (' . $week . ')' . ' - '*/. ' - ' . $facultyName,
             'schedule' => $schedule,
             'scheduleRings' => $scheduleRings,
             'dow' => $dow,

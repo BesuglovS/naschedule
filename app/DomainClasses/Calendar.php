@@ -94,6 +94,28 @@ class Calendar extends Model
         return -1;
     }
 
+    public static function IdFromDowAndWeek($dow, $week)
+    {
+        $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
+
+        $calendars = Calendar::all()->toArray();
+
+        $result = array_filter($calendars, function($calendar) use ($dow, $week, $semesterStarts) {
+            $calendarWeek = Calendar::WeekFromDate($calendar["date"], $semesterStarts);
+            $calendarDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $calendar["date"]));
+
+            return ($calendarWeek == $week) && ($calendarDow == $dow);
+        });
+
+        if (count($result) === 0) {
+            return "";
+        }
+
+        $result = array_column($result, 'id');
+
+        return $result[0];
+    }
+
     public static function IdsFromDowAndWeeks($dow, $weeks)
     {
         $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
@@ -105,6 +127,24 @@ class Calendar extends Model
             $calendarDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $calendar["date"]));
 
             return (in_array($calendarWeek, $weeks)) && ($calendarDow == $dow);
+        });
+
+        $result = array_column($result, 'id');
+
+        return $result;
+    }
+
+    public static function IdsFromDowsAndWeek($dows, $week)
+    {
+        $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
+
+        $calendars = Calendar::all()->toArray();
+
+        $result = array_filter($calendars, function($calendar) use ($dows, $week, $semesterStarts) {
+            $calendarWeek = Calendar::WeekFromDate($calendar["date"], $semesterStarts);
+            $calendarDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $calendar["date"]));
+
+            return (($calendarWeek == $week) && (in_array($calendarDow, $dows)));
         });
 
         $result = array_column($result, 'id');

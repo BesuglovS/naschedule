@@ -19,6 +19,7 @@ use App\DomainClasses\Ring;
 use App\DomainClasses\Student;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
