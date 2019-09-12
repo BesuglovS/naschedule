@@ -196,4 +196,75 @@ class MainController extends Controller
 
         return view('main.lessonLogEvents', compact('studentGroups', 'groupId', 'weekCount', 'auditoriums'));
     }
+
+    public function auds()
+    {
+        $lessons = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('lessons.state', '=', 1)
+            ->select('disciplines.name as disciplineName', 'auditoriums.name as audName', 'student_groups.name as groupName')
+            ->get();
+
+        $result = array();
+
+        foreach($lessons as $lesson) {
+            if (!array_key_exists($lesson->disciplineName, $result)) {
+                $result[$lesson->disciplineName] = array();
+                $result[$lesson->disciplineName]["1-4"] = array();
+                $result[$lesson->disciplineName]["5-9"] = array();
+                $result[$lesson->disciplineName]["10-11"] = array();
+            }
+
+            if (($this->startsWith($lesson->groupName, "1 ")) ||
+                ($this->startsWith($lesson->groupName, "2 ")) ||
+                ($this->startsWith($lesson->groupName, "3 ")) ||
+                ($this->startsWith($lesson->groupName, "4 "))) {
+                if (!in_array($lesson->audName, $result[$lesson->disciplineName]["1-4"])) {
+                    $result[$lesson->disciplineName]["1-4"][] = $lesson->audName;
+                }
+            }
+
+            if (($this->startsWith($lesson->groupName, "5 ")) ||
+                ($this->startsWith($lesson->groupName, "6 ")) ||
+                ($this->startsWith($lesson->groupName, "7 ")) ||
+                ($this->startsWith($lesson->groupName, "8 ")) ||
+                ($this->startsWith($lesson->groupName, "9 "))) {
+                if (!in_array($lesson->audName, $result[$lesson->disciplineName]["5-9"])) {
+                    $result[$lesson->disciplineName]["5-9"][] = $lesson->audName;
+                }
+            }
+
+            if (($this->startsWith($lesson->groupName, "10 ")) ||
+                ($this->startsWith($lesson->groupName, "11 "))) {
+                if (!in_array($lesson->audName, $result[$lesson->disciplineName]["10-11"])) {
+                    $result[$lesson->disciplineName]["10-11"][] = $lesson->audName;
+                }
+            }
+        }
+
+        foreach($result as $name => $list) {
+            sort($list["1-4"]);
+            $result[$name]["1-4"] = $list["1-4"];
+
+            sort($list["5-9"]);
+            $result[$name]["5-9"] = $list["5-9"];
+
+            sort($list["10-11"]);
+            $result[$name]["10-11"] = $list["10-11"];
+        }
+
+        return $result;
+    }
+
+    function startsWith ($string, $startString)
+    {
+        $len = strlen($startString);
+        return (substr($string, 0, $len) === $startString);
+    }
 }

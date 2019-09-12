@@ -104,3 +104,5 @@ Route::get('/teacherHours', 'MainController@teacherHours');
 Route::get('/pdf-export', 'PdfController@facultyDowChoice');
 Route::get('/print-pdf', 'PdfController@facultyDow');
 
+Route::get('/auds', 'MainController@auds');
+
