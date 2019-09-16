@@ -103,6 +103,12 @@ Route::get('/teacherHours', 'MainController@teacherHours');
 
 Route::get('/pdf-export', 'PdfController@facultyDowChoice');
 Route::get('/print-pdf', 'PdfController@facultyDow');
+Route::post('/download-pdf', 'PdfController@facultyDowDownload');
+Route::post('/bulkDownload-pdf', 'PdfController@facultyDowBulkDownload');
 
 Route::get('/auds', 'MainController@auds');
+
+Route::get('/tc', 'MainController@teacherCollisions');
+Route::get('/tcs', 'MainController@teachersCollisions');
+Route::get('/tcl', 'MainController@CollisionsByTeacher');
 

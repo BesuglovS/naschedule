@@ -66,10 +66,12 @@ class Calendar extends Model
     {
         $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
 
+        $semesterStartsMonday = $semesterStarts->clone()->startOfWeek();
+
         $calendars = Calendar::all()->toArray();
 
-        $result = array_filter($calendars, function($calendar) use ($weeks, $semesterStarts) {
-            $lessonWeek = Calendar::WeekFromDate($calendar["date"], $semesterStarts);
+        $result = array_filter($calendars, function($calendar) use ($weeks, $semesterStartsMonday) {
+            $lessonWeek = Calendar::WeekFromDate($calendar["date"], $semesterStartsMonday);
 
             return in_array($lessonWeek, $weeks);
         });

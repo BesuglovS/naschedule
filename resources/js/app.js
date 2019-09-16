@@ -24,6 +24,7 @@ Vue.component('discipline-hours', require('./components/DisciplineHours').defaul
 Vue.component('teacher-hours', require('./components/TeacherHours').default);
 Vue.component('lesson-log-events', require('./components/LessonLogEvents').default);
 Vue.component('week-schedule', require('./components/WeekSchedule').default);
+Vue.component('teachers-collisions', require('./components/TeachersCollisions').default);
 
 
 import Buefy from 'buefy'

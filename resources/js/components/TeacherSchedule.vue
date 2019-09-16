@@ -17,7 +17,7 @@
                     </div>
 
                     <div class="card-body">
-                        <select v-model="selectedTeacherId" @change="loadFullTeacherSchedule();">
+                        <select v-model="selectedTeacherId" @change="loadTeacherSchedule();">
                             <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
                         </select>
 

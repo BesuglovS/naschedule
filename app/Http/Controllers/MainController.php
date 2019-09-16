@@ -267,4 +267,102 @@ class MainController extends Controller
         $len = strlen($startString);
         return (substr($string, 0, $len) === $startString);
     }
+
+    public function teacherCollisions(Request $request) {
+        $collisions = $this->teachersCollisions($request);
+
+        return view('main.teacherCollisions', compact('collisions'));
+    }
+
+    public function CollisionsByTeacher() {
+        $weekCount = Calendar::WeekCount();
+
+        return view('main.CollisionsByTeacher', compact('weekCount'));
+    }
+
+    public function teachersCollisions(Request $request)
+    {
+        $input = $request->all();
+
+        $calendars = Calendar::all()->pluck('id');
+        $weeks = array();
+
+        if (isset($input['weeks'])) {
+            $weeks = explode('|', $input['weeks']);
+            sort($weeks);
+
+            $calendarIds = Calendar::IdsFromWeeks($weeks);
+        }
+
+        $teachers = Teacher::all()->sortBy('fio');
+
+        $collisions = array();
+
+        foreach ($teachers as $teacher) {
+            $teacherTfds = DB::table('discipline_teacher')
+                ->where('teacher_id', '=', $teacher->id)
+                ->get()
+                ->map(function ($item) {
+                    return $item->id;
+                });
+
+            if (count($weeks) !== 0) {
+                $teacherLessons = DB::table('lessons')
+                    ->where('lessons.state', '=', '1')
+                    ->whereIn('lessons.calendar_id', $calendarIds)
+                    ->whereIn('discipline_teacher_id', $teacherTfds)
+                    ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+                    ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+                    ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+                    ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+                    ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+                    ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                    ->select('lessons.*', 'disciplines.name as disciplineName', 'student_groups.name as studentGroupName',
+                        'calendars.date as calendarDate', 'rings.time as ringsTime', 'auditoriums.name as auditoriumName')
+                    ->get();
+            } else {
+                $teacherLessons = DB::table('lessons')
+                    ->where('lessons.state', '=', '1')
+                    ->whereIn('discipline_teacher_id', $teacherTfds)
+                    ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+                    ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+                    ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+                    ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+                    ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+                    ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                    ->select('lessons.*', 'disciplines.name as disciplineName', 'student_groups.name as studentGroupName',
+                        'calendars.date as calendarDate', 'rings.time as ringsTime', 'auditoriums.name as auditoriumName')
+                    ->get();
+            }
+
+            $lessons = array();
+
+            foreach ($teacherLessons as $teacherLesson) {
+                if (!array_key_exists($teacherLesson->calendar_id, $lessons)) {
+                    $lessons[$teacherLesson->calendar_id] = array();
+                }
+
+                $collisionLessons = array();
+                foreach ($lessons[$teacherLesson->calendar_id] as $dayLesson) {
+                    if ($teacherLesson->ring_id === $dayLesson->ring_id) {
+                        $collisionLessons[] = $dayLesson;
+                    }
+                }
+
+                $lessons[$teacherLesson->calendar_id][] = $teacherLesson;
+
+                if (count($collisionLessons) !== 0) {
+                    if (!array_key_exists($teacher->id, $collisions)) {
+                        $collisions[$teacher->id] = array();
+                        $collisions[$teacher->id]['fio'] = $teacher->fio;
+                        $collisions[$teacher->id]['collisions'] = array();
+                    }
+
+                    $collisionLessons[] = $teacherLesson;
+                    $collisions[$teacher->id]['collisions'][$collisionLessons[0]->calendar_id][] = $collisionLessons;
+                }
+            }
+        }
+        return $collisions;
+    }
 }

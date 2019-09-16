@@ -44,6 +44,7 @@
                                     <td>Дата изменения</td>
                                     <td>Старый урок</td>
                                     <td>Новый урок</td>
+                                    <td>Скрытый комментарий</td>
                                 </tr>
 
                                 <tr v-for="event in this.groupLessonLogEvents">
@@ -51,6 +52,7 @@
                                     <td>
                                         <template v-if="event.lessonOldId !== null">
                                             <p>{{reformatDate(event.lessonOldCalendarDate)}} @ {{event.lessonOldRingTime.substr(0,5)}} = {{event.lessonOldStudentGroupName}}</p>
+                                            <p>{{dow(event.lessonOldCalendarDate)}}</p>
                                             <p>{{event.lessonOldDisciplineName}}</p>
                                             <p>{{event.lessonOldTeacherFio}}</p>
                                             <p>{{event.lessonOldAuditoriumName}}</p>
@@ -59,10 +61,14 @@
                                     <td>
                                         <template v-if="event.lessonNewId !== null">
                                             <p>{{reformatDate(event.lessonNewCalendarDate)}} @ {{event.lessonNewRingTime.substr(0,5)}} = {{event.lessonNewStudentGroupName}}</p>
+                                            <p>{{dow(event.lessonNewCalendarDate)}}</p>
                                             <p>{{event.lessonNewDisciplineName}}</p>
                                             <p>{{event.lessonNewTeacherFio}}</p>
                                             <p>{{event.lessonNewAuditoriumName}}</p>
                                         </template>
+                                    </td>
+                                    <td>
+                                        {{event.lessonLogEventHiddenComment}}
                                     </td>
                                 </tr>
                             </table>
@@ -124,6 +130,10 @@
                 this.selectedWeeks = [];
                 this.selectedWeeks.push(-1);
                 this.loadGroupEvents();
+            },
+            dow(date) {
+                let m = moment(date, "YYYY-MM-DD");
+                return this.dowRu[m.format('E')-1];
             },
             reformatDateTime(date) {
                 return moment(date, 'YYYY-MM-DD HH:mm:ss').format('DD.MM.YYYY HH:mm:ss');

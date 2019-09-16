@@ -10,6 +10,7 @@ use App\DomainClasses\LessonLogEvent;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class WeekController extends Controller
@@ -38,6 +39,7 @@ class WeekController extends Controller
 
     public function copyWeekSchedule(Request $request) {
         $input = $request->all();
+        $user = Auth::user();
 
         if ((!isset($input['facultyId'])) || (!isset($input['fromWeek'])) || (!isset($input['toWeek'])) || (!isset($input['dows'])))
         {
@@ -91,7 +93,7 @@ class WeekController extends Controller
                     $lle->new_lesson_id = $newLesson->id;
                     $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
                     $lle->public_comment = "";
-                    $lle->hidden_comment = "copy";
+                    $lle->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . "copy";
                     $lle->save();
                 }
             }
@@ -102,6 +104,7 @@ class WeekController extends Controller
 
     public function deleteWeekSchedule(Request $request) {
         $input = $request->all();
+        $user = Auth::user();
 
         if ((!isset($input['facultyId'])) || (!isset($input['week'])) || (!isset($input['dows'])))
         {
@@ -142,7 +145,7 @@ class WeekController extends Controller
                 $lle->new_lesson_id = 0;
                 $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
                 $lle->public_comment = "";
-                $lle->hidden_comment = "delete";
+                $lle->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . "delete";
                 $lle->save();
             }
         }

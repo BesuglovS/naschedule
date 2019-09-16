@@ -137,6 +137,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/tcl">Коллизии преподавателей</a>
                         </div>
                     </div>
                 </div>
