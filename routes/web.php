@@ -104,7 +104,9 @@ Route::get('/teacherHours', 'MainController@teacherHours');
 Route::get('/pdf-export', 'PdfController@facultyDowChoice');
 Route::get('/print-pdf', 'PdfController@facultyDow');
 Route::post('/download-pdf', 'PdfController@facultyDowDownload');
-Route::post('/bulkDownload-pdf', 'PdfController@facultyDowBulkDownload');
+Route::post('/bulkDownload-pdf', 'PdfController@facultyBulkDownload');
+Route::post('/bulkDowDownload-pdf', 'PdfController@DowBulkDownload');
+Route::post('/bulkDowShow-pdf', 'PdfController@DowBulkShow');
 
 Route::get('/auds', 'MainController@auds');
 
