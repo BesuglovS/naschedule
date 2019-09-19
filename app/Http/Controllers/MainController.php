@@ -6,13 +6,17 @@ use App\DomainClasses\Auditorium;
 use App\DomainClasses\Building;
 use App\DomainClasses\Calendar;
 use App\DomainClasses\Faculty;
+use App\DomainClasses\Lesson;
+use App\DomainClasses\LessonLogEvent;
 use App\DomainClasses\Ring;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use App\DomainClasses\TeacherGroup;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MainController extends Controller
@@ -364,5 +368,135 @@ class MainController extends Controller
             }
         }
         return $collisions;
+    }
+
+    public function putAudsIndex()
+    {
+        $calendars = Calendar::all()->sortBy('date');
+
+//        $audsBlackList = array("Ауд. 111", "Ауд. 123", "Ауд. 124", "Ауд. 129");
+//
+//        $auds = DB::table('auditoriums')
+//            ->join('buildings', 'auditoriums.building_id', '=', 'buildings.id')
+//            ->where('buildings.name', '=', 'ул. Молодогвардейская, 196')
+//            ->whereNotIn('auditoriums.name', $audsBlackList)
+//            ->select('auditoriums.id as audId', 'auditoriums.name as audName')
+//            ->get();
+
+        return view('main.putAuds', compact('calendars'));
+    }
+
+    public function putDailyAuds(Request $request)
+    {
+        $input = $request->all();
+        $user = Auth::user();
+
+        if(!isset($input['date']))
+        {
+            return array("error" => "date - обязательный параметр");
+        }
+        $date = $input["date"];
+
+        $calendarId = Calendar::IdfromDate($date);
+
+        $rulesData = array(
+            "Ауд. 102" => array("Лаврова Тамара Васильевна", "Соколова Елена Юрьевна"),
+            "Ауд. 107" => array("Мидзяева Дария Николаевна"),
+            "Ауд. 109" => array("Сальникова Анна Александровна"),
+            "Ауд. 110" => array("Морозова Светлана Владимировна"),
+            "Ауд. 115" => array("Абрамова Елена Анатольевна"),
+            "Ауд. 117" => array("Горшков Александр Александрович", "Самойлова Галина Ивановна"),
+            "Ауд. 203" => array("Ермохина Любовь Павловна"),
+            "Ауд. 204" => array("Завершинская Ирина Андреевна", "Морозов Иван Анатольевич"),
+            "Ауд. 205" => array("Балаева Зинаида Михайловна"),
+            "Ауд. 206" => array("Таумов Ирбулат Джуламанович"),
+            "Ауд. 207" => array("Якушева Елена Ивановна", "Морозов Иван Анатольевич"),
+            "Ауд. 208" => array("Соколова Наталья Викторовна"),
+            "Ауд. 209" => array("Коган Ирина Исааковна", "Карпенко Геннадий Юрьевич", "Швалова Светлана Алексеевна"),
+            "Ауд. 211" => array("Исаханова Виктория Самсоновна", "Родионова Марина Юрьевна	"),
+            "Ауд. 214" => array("Иванов Василий Николаевич"),
+            "Ауд. 219" => array("Ильдарханов Ильяс Маратович"),
+            "Ауд. 220" => array("Шушпанова Анна Олеговна"),
+            "Ауд. 222" => array("Гришина Галина Михайловна"),
+            "Ауд. 301" => array("Жаринова Людмила Александровна", "Корнеева Зульфия Наильевна", "Косенко Елена Владимировна"),
+            "Ауд. 302" => array("Безуглов Сергей Викторович", "Косенко Елена Владимировна", "Корнеева Зульфия Наильевна"),
+            "Ауд. 303" => array("Никулина Татьяна Геннадьевна"),
+            "Ауд. 304" => array("Чиликина Ольга Вячеславовна"),
+            "Ауд. 305" => array("Сундукова Ксения Алексеевна", "Воронова Анна Владиславовна	"),
+            "Ауд. 306" => array("Родионова Марина Юрьевна", "Минебаева Алла Константиновна"),
+            "Ауд. 307" => array("Тюзина Марина Борисовна", "Калуцкая Елена Николаевна", "Мелихова Татьяна Васильевна", "Верещагина Екатерина Константиновна"),
+            "Ауд. 308" => array("Герасимова Татьяна Анатольевна"),
+            "Ауд. 311" => array("Куцева Ирина Контантиновна"),
+        );
+
+        $auditoriums = Auditorium::all();
+        $audsById = array();
+        foreach ($auditoriums as $auditorium) {
+            $audsById[$auditorium->name] = $auditorium->id;
+        }
+
+        $teachers = Teacher::all();
+        $teacherIdByFio = array();
+        foreach ($teachers as $teacher) {
+            $teacherIdByFio[$teacher->fio] = $teacher->id;
+        }
+
+        $rules = array();
+        foreach ($rulesData as $audName => $audTeachers) {
+            if (array_key_exists($audName, $audsById)) {
+                $rules[$audsById[$audName]] = array();
+                foreach ($audTeachers as $audTeacher) {
+                    if (array_key_exists($audTeacher, $teacherIdByFio)) {
+                        $rules[$audsById[$audName]][] = $teacherIdByFio[$audTeacher];
+                    }
+                }
+            }
+        }
+
+        foreach ($rules as $audId => $teachersId) {
+            if (count($teachersId) !== 0) {
+                $firstTeacherId = $teachersId[0];
+
+                $teacherLessons = DB::table('lessons')
+                    ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+                    ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+                    ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+                    ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+                    ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+                    ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+                    ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                    ->where('lessons.state', '=', '1')
+                    ->where('calendars.id', '=', $calendarId)
+                    ->where('teachers.id', '=', $firstTeacherId)
+                    ->select('lessons.id as lessonId')
+                    ->get();
+
+                if ($teacherLessons->count() !== 0) {
+                    foreach ($teacherLessons as $teacherLesson) {
+                        $old_lesson = Lesson::find($teacherLesson->lessonId);
+                        $old_lesson->state = 0;
+                        $old_lesson->save();
+
+                        $new_lesson = new Lesson();
+                        $new_lesson->state = 1;
+                        $new_lesson->discipline_teacher_id = $old_lesson->discipline_teacher_id;
+                        $new_lesson->calendar_id = $old_lesson->calendar_id;
+                        $new_lesson->ring_id = $old_lesson->ring_id;
+                        $new_lesson->auditorium_id = $audId;
+                        $new_lesson->save();
+
+                        $lle = new LessonLogEvent();
+                        $lle->old_lesson_id = $old_lesson->id;
+                        $lle->new_lesson_id = $new_lesson->id;
+                        $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+                        $lle->public_comment = "";
+                        $lle->hidden_comment = ($user !== null) ? ($user->id . " @ " . $user->name . ": ") : "";
+                        $lle->save();
+                    }
+                }
+            }
+        }
+
+        return array("OK" => "Success");
     }
 }

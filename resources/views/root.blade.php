@@ -141,6 +141,26 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card-deck mb-2">
+                    <div class="card tac">
+                        <div class="card-body">
+                            <a href="/putAuds">Частичная автоматическая расстановка аудиторий в корпусе на ул. Молодогвардейской</a>
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

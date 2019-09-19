@@ -93,6 +93,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/weekSchedule', 'WeekController@index');
     Route::post('/copyWeekSchedule', 'WeekController@copyWeekSchedule');
     Route::post('/deleteWeekSchedule', 'WeekController@deleteWeekSchedule');
+
+    // putAuds
+    Route::get('/putAuds', 'MainController@putAudsIndex');
+    Route::post('/putDailyAuds', 'MainController@putDailyAuds');
 });
 
 //disciplineHours
