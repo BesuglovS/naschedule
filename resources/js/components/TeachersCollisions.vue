@@ -137,7 +137,17 @@
                 axios
                     .get(apiUrl)
                     .then(response => {
-                        this.collisions = response.data;
+                        let result = []
+                        Object.keys(response.data).forEach((id) => {
+                            result.push(response.data[id]);
+                        });
+
+                        result.sort((a,b) => {
+                            if (a.fio === b.fio) return 0;
+                            return a.fio < b.fio ? -1 : 1;
+                        });
+
+                        this.collisions = result;
                         this.loading = false;
                     });
             },

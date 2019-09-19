@@ -112,8 +112,8 @@
                             <button v-for="dow in 6" style="margin-right:0.5em; margin-bottom: 0.5em;"
                                     @click="removeDowToggled(dow);"
                                     :class="{'button': true,
-                                                'is-primary': !selectedDows.includes(dow),
-                                                'is-danger': selectedDows.includes(dow) }">
+                                                'is-primary': !removeSelectedDows.includes(dow),
+                                                'is-danger': removeSelectedDows.includes(dow) }">
                                 {{dowRu[dow-1]}}
                             </button>
                         </td>
