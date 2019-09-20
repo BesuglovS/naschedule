@@ -97,6 +97,10 @@ Route::group(['middleware' => ['auth']], function () {
     // putAuds
     Route::get('/putAuds', 'MainController@putAudsIndex');
     Route::post('/putDailyAuds', 'MainController@putDailyAuds');
+
+    // emptyAuds
+    Route::get('/blankAuds', 'MainController@BlankAuds');
+    Route::get('/getBlankAuds', 'MainController@GetBlankAuds');
 });
 
 //disciplineHours

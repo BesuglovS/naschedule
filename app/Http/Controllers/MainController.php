@@ -374,15 +374,6 @@ class MainController extends Controller
     {
         $calendars = Calendar::all()->sortBy('date');
 
-//        $audsBlackList = array("Ауд. 111", "Ауд. 123", "Ауд. 124", "Ауд. 129");
-//
-//        $auds = DB::table('auditoriums')
-//            ->join('buildings', 'auditoriums.building_id', '=', 'buildings.id')
-//            ->where('buildings.name', '=', 'ул. Молодогвардейская, 196')
-//            ->whereNotIn('auditoriums.name', $audsBlackList)
-//            ->select('auditoriums.id as audId', 'auditoriums.name as audName')
-//            ->get();
-
         return view('main.putAuds', compact('calendars'));
     }
 
@@ -476,6 +467,10 @@ class MainController extends Controller
                         $lessonDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $teacherLesson->calendarsDate));
                         $old_lesson = Lesson::find($teacherLesson->lessonId);
 
+                        if ($old_lesson->auditorium_id === $audId) {
+                            continue;
+                        }
+
                         if (($this->startsWith($teacherLesson->studentGroupName, "5 ") &&
                              in_array($lessonDow, array(2, 4, 6))) ||
                             ($this->startsWith($teacherLesson->studentGroupName, "6 ") &&
@@ -507,5 +502,76 @@ class MainController extends Controller
         }
 
         return array("OK" => "Success");
+    }
+
+    public function BlankAuds(Request $request) {
+        $calendars = Calendar::all()->sortBy('date');
+
+        return view('main.blankAuds', compact('calendars'));
+    }
+
+    public function GetBlankAuds(Request $request) {
+        $input = $request->all();
+
+        if(!isset($input['date']))
+        {
+            return array("error" => "date - обязательный параметр");
+        }
+        $date = $input["date"];
+        $calendarId = Calendar::IdfromDate($date);
+
+        $audNames = array('-', '--', '---');
+
+        $audIds = DB::table('auditoriums')
+            ->whereIn('name', $audNames)
+            ->get()
+            ->pluck('id');
+
+        $lessonsWithBlankAuds = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('lessons.state', '=', 1)
+            ->where('lessons.calendar_id', '=', $calendarId)
+            ->whereIn('lessons.auditorium_id', $audIds)
+            ->select('lessons.id as lessonId', 'student_groups.name as studentGroupsName',
+                'disciplines.name as disciplinesName', 'teachers.fio as teachersFio',
+                'calendars.date as calendarsDate', 'rings.time as ringsTime',
+                'auditoriums.name as auditoriumsName')
+            ->get()
+            ->toArray();
+
+        $lessonsWithBlankAuds = array_filter($lessonsWithBlankAuds, function($k, $v) {
+            $lessonDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $k->calendarsDate));
+
+            if (($this->startsWith($k->studentGroupsName, "5 ") &&
+                    in_array($lessonDow, array(2, 4, 6))) ||
+                ($this->startsWith($k->studentGroupsName, "6 ") &&
+                    in_array($lessonDow, array(1, 3, 5)))) {
+                return false;
+            }
+
+            return !(($this->startsWith($k->studentGroupsName, "1 ")) ||
+                ($this->startsWith($k->studentGroupsName, "2 ")) ||
+                ($this->startsWith($k->studentGroupsName, "3 ")) ||
+                ($this->startsWith($k->studentGroupsName, "4 ")));
+        }, ARRAY_FILTER_USE_BOTH);
+
+        usort($lessonsWithBlankAuds, function($a, $b) {
+            $aVal = mb_substr($a->ringsTime, 0, 2) * 60 + mb_substr($a->ringsTime, 3, 2);
+            $bVal = mb_substr($b->ringsTime, 0, 2) * 60 + mb_substr($b->ringsTime, 3, 2);
+
+            if ($aVal === $bVal) {
+                if ($a->teachersFio === $b->teachersFio) return 0;
+                return ($a->teachersFio < $b->teachersFio) ? -1 : 1;
+            };
+            return ($aVal < $bVal) ? -1 : 1;
+        });
+
+        return $lessonsWithBlankAuds;
     }
 }

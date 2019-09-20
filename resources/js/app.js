@@ -26,6 +26,7 @@ Vue.component('lesson-log-events', require('./components/LessonLogEvents').defau
 Vue.component('week-schedule', require('./components/WeekSchedule').default);
 Vue.component('teachers-collisions', require('./components/TeachersCollisions').default);
 Vue.component('put-auds', require('./components/PutAuds').default);
+Vue.component('blank-auds', require('./components/BlankAuds').default);
 
 
 import Buefy from 'buefy'

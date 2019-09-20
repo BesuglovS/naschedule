@@ -81,7 +81,7 @@
                 let c = this.calendarList.filter(c => c.date === today);
 
                 if (c.length !== 0) {
-                    this.calendarId = c[0].calendarId;
+                    this.calendarId = c[0].id;
                 } else {
                     this.calendarId = this.calendarList[0].id;
                 }

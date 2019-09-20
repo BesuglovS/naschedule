@@ -150,6 +150,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/blankAuds">Занятия без аудиторий (5-11)</a>
                         </div>
                     </div>
                     <div class="card tac">
