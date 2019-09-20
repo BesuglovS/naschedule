@@ -468,12 +468,21 @@ class MainController extends Controller
                     ->where('lessons.state', '=', '1')
                     ->where('calendars.id', '=', $calendarId)
                     ->where('teachers.id', '=', $firstTeacherId)
-                    ->select('lessons.id as lessonId')
+                    ->select('lessons.id as lessonId', 'student_groups.name as studentGroupName', 'calendars.date as calendarsDate')
                     ->get();
 
                 if ($teacherLessons->count() !== 0) {
                     foreach ($teacherLessons as $teacherLesson) {
+                        $lessonDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $teacherLesson->calendarsDate));
                         $old_lesson = Lesson::find($teacherLesson->lessonId);
+
+                        if (($this->startsWith($teacherLesson->studentGroupName, "5 ") &&
+                             in_array($lessonDow, array(2, 4, 6))) ||
+                            ($this->startsWith($teacherLesson->studentGroupName, "6 ") &&
+                             in_array($lessonDow, array(1, 3, 5)))) {
+                            continue;
+                        }
+
                         $old_lesson->state = 0;
                         $old_lesson->save();
 
