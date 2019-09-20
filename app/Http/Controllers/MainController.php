@@ -562,13 +562,13 @@ class MainController extends Controller
         }, ARRAY_FILTER_USE_BOTH);
 
         usort($lessonsWithBlankAuds, function($a, $b) {
+            if ($a->teachersFio < $b->teachersFio) return -1;
+            if ($a->teachersFio > $b->teachersFio) return 1;
             $aVal = mb_substr($a->ringsTime, 0, 2) * 60 + mb_substr($a->ringsTime, 3, 2);
             $bVal = mb_substr($b->ringsTime, 0, 2) * 60 + mb_substr($b->ringsTime, 3, 2);
 
-            if ($aVal === $bVal) {
-                if ($a->teachersFio === $b->teachersFio) return 0;
-                return ($a->teachersFio < $b->teachersFio) ? -1 : 1;
-            };
+            if ($aVal === $bVal) return 0;
+
             return ($aVal < $bVal) ? -1 : 1;
         });
 
