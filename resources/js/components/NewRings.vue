@@ -31,6 +31,18 @@
                             </select>
                         </td>
                     </tr>
+
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="3" style="text-align: center;">
+                            <input style="transform: scale(2);" type="checkbox" v-model="newLessons">&nbsp;&nbsp;&nbsp;&nbsp;Создавать новые уроки
+                        </td>
+                    </tr>
                 </table>
 
                 <div style="display: flex; flex-direction: row; ">
@@ -134,6 +146,7 @@
                 calendarIds: [],
                 calendarsById: {},
                 ringString: '',
+                newLessons: false,
             }
         },
         methods: {
@@ -165,6 +178,7 @@
                 } while(currDate.diff(toDate) <= 0);
 
                 this.queueIndex = 0;
+                this.queryProgress = [];
                 this.executeNextQueue();
 
             },
@@ -179,7 +193,8 @@
                 axios
                     .post('/changeRings?fromCalendarId=' + calendarId +
                         '&toCalendarId=' + calendarId +
-                        '&ringIds='+ this.ringString)
+                        '&ringIds=' + this.ringString +
+                        '&newLessons=' + this.newLessons)
                     .then(response => {
                         this.queryProgress[this.queueIndex].loading = false;
                         this.queueIndex++;
