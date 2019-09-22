@@ -89,6 +89,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/lessonLogEvents', 'MainController@lessonLogEvents');
     Route::get('/lessonLogEventsByGroup', 'LessonLogEventController@ByGroup');
 
+    Route::get('/lle', 'MainController@lle');
+    Route::get('/lleDateInfo', 'LessonLogEventController@ByDateInfo');
+    Route::get('/lleEvents', 'LessonLogEventController@ByDate');
+
     //copy&Delete WeekSchedule
     Route::get('/weekSchedule', 'WeekController@index');
     Route::post('/copyWeekSchedule', 'WeekController@copyWeekSchedule');
@@ -125,4 +129,6 @@ Route::get('/auds', 'MainController@auds');
 Route::get('/tc', 'MainController@teacherCollisions');
 Route::get('/tcs', 'MainController@teachersCollisions');
 Route::get('/tcl', 'MainController@CollisionsByTeacher');
+
+
 

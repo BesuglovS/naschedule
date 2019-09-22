@@ -127,7 +127,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
-                            <a href="/lessonLogEvents">Изменения расписания</a>
+                            <a href="/lessonLogEvents">Изменения расписания по группам</a>
                         </div>
                     </div>
                     <div class="card tac">
@@ -160,6 +160,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/lle">Изменения расписания по датам</a>
                         </div>
                     </div>
                 </div>

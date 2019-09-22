@@ -28,6 +28,7 @@ Vue.component('teachers-collisions', require('./components/TeachersCollisions').
 Vue.component('put-auds', require('./components/PutAuds').default);
 Vue.component('blank-auds', require('./components/BlankAuds').default);
 Vue.component('new-rings', require('./components/NewRings').default);
+Vue.component('lle', require('./components/lle').default);
 
 
 import Buefy from 'buefy'

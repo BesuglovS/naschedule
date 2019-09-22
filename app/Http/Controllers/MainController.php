@@ -574,4 +574,11 @@ class MainController extends Controller
 
         return $lessonsWithBlankAuds;
     }
+
+    public function lle() {
+        $lleController = new LessonLogEventController();
+        $dates = $lleController->Dates();
+
+        return view('main.lle', compact( 'dates'));
+    }
 }

@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\DomainClasses\Calendar;
 use App\DomainClasses\StudentGroup;
 use App\LessonLogEvent;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class LessonLogEventController extends Controller
 {
+    public $limit = 100;
     /**
      * Display a listing of the resource.
      *
@@ -149,5 +151,162 @@ class LessonLogEventController extends Controller
             ->orderBy('lesson_log_events.date_time')
             ->get();
         return $events;
+    }
+
+    public function startsWith ($string, $startString)
+    {
+        $len = strlen($startString);
+        return (substr($string, 0, $len) === $startString);
+    }
+
+    public function Dates()
+    {
+        $eventDates = DB::table('lesson_log_events')
+            ->select('date_time')
+            ->get()
+            ->map(function ($item) {
+                return mb_substr($item->date_time, 0, 10);
+            })
+            ->toArray();
+
+        $eventDates = array_values(array_unique($eventDates));
+        //usort($eventDates, "strcmp");
+
+        return $eventDates;
+
+    }
+
+    public function ByDateInfo(Request $request) {
+        $input = $request->all();
+
+        if (!isset($input['date']))
+        {
+            return array("error" => "date обязательный параметр");
+        }
+
+        $date = $input['date'];
+
+        $carbonStartDate = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        $carbonEndDate = $carbonStartDate->copy()->addDay();
+
+
+        $events = DB::table('lesson_log_events')
+            ->leftJoin('lessons as lessonOld', 'lesson_log_events.old_lesson_id', '=', 'lessonOld.id')
+            ->leftJoin('calendars as cOld', 'lessonOld.calendar_id', '=', 'cOld.id')
+            ->leftJoin('rings as rOld', 'lessonOld.ring_id', '=', 'rOld.id')
+            ->leftJoin('auditoriums as aOld', 'lessonOld.auditorium_id', '=', 'aOld.id')
+            ->leftJoin('discipline_teacher as dcOld', 'lessonOld.discipline_teacher_id', '=', 'dcOld.id')
+            ->leftJoin('teachers as tOld', 'dcOld.teacher_id', '=', 'tOld.id')
+            ->leftJoin('disciplines as dOld', 'dcOld.discipline_id', '=', 'dOld.id')
+            ->leftJoin('student_groups as sgOld', 'dOld.student_group_id', '=', 'sgOld.id')
+
+            ->leftJoin('lessons as lessonNew', 'lesson_log_events.new_lesson_id', '=', 'lessonNew.id')
+            ->leftJoin('calendars as cNew', 'lessonNew.calendar_id', '=', 'cNew.id')
+            ->leftJoin('rings as rNew', 'lessonNew.ring_id', '=', 'rNew.id')
+            ->leftJoin('auditoriums as aNew', 'lessonNew.auditorium_id', '=', 'aNew.id')
+            ->leftJoin('discipline_teacher as dcNew', 'lessonNew.discipline_teacher_id', '=', 'dcNew.id')
+            ->leftJoin('teachers as tNew', 'dcNew.teacher_id', '=', 'tNew.id')
+            ->leftJoin('disciplines as dNew', 'dcNew.discipline_id', '=', 'dNew.id')
+            ->leftJoin('student_groups as sgNew', 'dNew.student_group_id', '=', 'sgNew.id')
+
+            ->select('lesson_log_events.id as lessonLogEventId', 'lesson_log_events.date_time as lessonLogEventDateTime')
+            ->whereBetween('lesson_log_events.date_time', array($carbonStartDate, $carbonEndDate))
+            ->orderBy('lesson_log_events.date_time')
+            ->get();
+
+        $totalCount = count($events);
+
+        $result = array(
+            "total-count" => $totalCount,
+            "parts" => array()
+        );
+        $current = 0;
+        if (count($events) !== 0) {
+            do {
+                $end = $current + $this->limit;
+                if ($end > $totalCount - 1) {
+                    $end = $totalCount - 1;
+                }
+
+                $carbonStart = Carbon::createFromFormat('Y-m-d H:i:s', $events[$current]->lessonLogEventDateTime);
+                $carbonEnd = Carbon::createFromFormat('Y-m-d H:i:s', $events[$end]->lessonLogEventDateTime);
+
+                $result["parts"][] = array(
+                    "offset" => $current,
+                    "times" => $carbonStart->format('H:i:s') . " - " . $carbonEnd->format('H:i:s')
+                );
+
+                $current = $end;
+            } while ($current !== $totalCount - 1);
+        }
+
+        return $result;
+    }
+
+    public function ByDate(Request $request) {
+        $input = $request->all();
+
+        if (!isset($input['date']) || !isset($input['offset']))
+        {
+            return array("error" => "date и offset обязательные параметры");
+        }
+
+        $date = $input['date'];
+        $offset = intval($input['offset']);
+        $limit = $this->limit;
+        $carbonStartDate = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        $carbonEndDate = $carbonStartDate->copy()->addDay();
+
+
+        $events = DB::table('lesson_log_events')
+            ->leftJoin('lessons as lessonOld', 'lesson_log_events.old_lesson_id', '=', 'lessonOld.id')
+            ->leftJoin('calendars as cOld', 'lessonOld.calendar_id', '=', 'cOld.id')
+            ->leftJoin('rings as rOld', 'lessonOld.ring_id', '=', 'rOld.id')
+            ->leftJoin('auditoriums as aOld', 'lessonOld.auditorium_id', '=', 'aOld.id')
+            ->leftJoin('discipline_teacher as dcOld', 'lessonOld.discipline_teacher_id', '=', 'dcOld.id')
+            ->leftJoin('teachers as tOld', 'dcOld.teacher_id', '=', 'tOld.id')
+            ->leftJoin('disciplines as dOld', 'dcOld.discipline_id', '=', 'dOld.id')
+            ->leftJoin('student_groups as sgOld', 'dOld.student_group_id', '=', 'sgOld.id')
+
+            ->leftJoin('lessons as lessonNew', 'lesson_log_events.new_lesson_id', '=', 'lessonNew.id')
+            ->leftJoin('calendars as cNew', 'lessonNew.calendar_id', '=', 'cNew.id')
+            ->leftJoin('rings as rNew', 'lessonNew.ring_id', '=', 'rNew.id')
+            ->leftJoin('auditoriums as aNew', 'lessonNew.auditorium_id', '=', 'aNew.id')
+            ->leftJoin('discipline_teacher as dcNew', 'lessonNew.discipline_teacher_id', '=', 'dcNew.id')
+            ->leftJoin('teachers as tNew', 'dcNew.teacher_id', '=', 'tNew.id')
+            ->leftJoin('disciplines as dNew', 'dcNew.discipline_id', '=', 'dNew.id')
+            ->leftJoin('student_groups as sgNew', 'dNew.student_group_id', '=', 'sgNew.id')
+
+            ->select('lesson_log_events.id as lessonLogEventId', 'lesson_log_events.date_time as lessonLogEventDateTime',
+                'lesson_log_events.public_comment as lessonLogEventPublicComment', 'lesson_log_events.hidden_comment as lessonLogEventHiddenComment',
+
+                'lessonOld.id as lessonOldId',
+                'cOld.date as lessonOldCalendarDate',
+                'rOld.time as lessonOldRingTime',
+                'aOld.name as lessonOldAuditoriumName',
+                'tOld.fio as lessonOldTeacherFio', 'dOld.name as lessonOldDisciplineName',
+                'sgOld.name as lessonOldStudentGroupName',
+
+                'lessonNew.id as lessonNewId',
+                'cNew.date as lessonNewCalendarDate',
+                'rNew.time as lessonNewRingTime',
+                'aNew.name as lessonNewAuditoriumName',
+                'tNew.fio as lessonNewTeacherFio', 'dNew.name as lessonNewDisciplineName',
+                'sgNew.name as lessonNewStudentGroupName'
+            )
+            ->whereBetween('lesson_log_events.date_time', array($carbonStartDate, $carbonEndDate))
+            ->orderBy('lesson_log_events.date_time')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
+
+        $totalCount = DB::table('lesson_log_events')->count();
+
+        return array(
+            "total-count" => $totalCount,
+            "offset" => $offset,
+            "limit" => $limit,
+            "events" => $events
+        );
     }
 }
