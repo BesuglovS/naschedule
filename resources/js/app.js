@@ -27,6 +27,7 @@ Vue.component('week-schedule', require('./components/WeekSchedule').default);
 Vue.component('teachers-collisions', require('./components/TeachersCollisions').default);
 Vue.component('put-auds', require('./components/PutAuds').default);
 Vue.component('blank-auds', require('./components/BlankAuds').default);
+Vue.component('new-rings', require('./components/NewRings').default);
 
 
 import Buefy from 'buefy'

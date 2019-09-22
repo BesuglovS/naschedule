@@ -101,6 +101,10 @@ Route::group(['middleware' => ['auth']], function () {
     // emptyAuds
     Route::get('/blankAuds', 'MainController@BlankAuds');
     Route::get('/getBlankAuds', 'MainController@GetBlankAuds');
+
+    // newRings
+    Route::get('/newRings', 'NewRingsController@index');
+    Route::post('/changeRings', 'NewRingsController@ChangeRings');
 });
 
 //disciplineHours

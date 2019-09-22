@@ -155,6 +155,7 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/newRings">Поменять время занятий</a>
                         </div>
                     </div>
                     <div class="card tac">
