@@ -49,6 +49,11 @@
                                     <input type="checkbox" v-model="showEditTools" class="custom-control-input" id="customSwitch2">
                                     <label class="custom-control-label" for="customSwitch2">Показывать инструменты редактирования</label>
                                 </div>
+
+                                <div class="custom-control custom-switch">
+                                    <input :disabled="severalWeeks" type="checkbox" @change="fastInputModeToggled" v-model="fastInputMode" class="custom-control-input" id="customSwitch3">
+                                    <label class="custom-control-label" for="customSwitch3">Режим быстрого ввода</label>
+                                </div>
                             </div>
 
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
@@ -60,7 +65,7 @@
                                     <td></td>
                                     <td v-for="dow in 6">
                                         <strong>{{dowRu[dow-1]}}</strong>
-                                        <template v-if="groupDisciplines.length > 0 && showEditTools">
+                                        <template v-if="groupDisciplines.length > 0 && showEditTools && !fastInputMode">
                                             <a @click.prevent="newDows = []; newDows.push(dow); newRingIds = []; askForNew();" href="#"><font-awesome-icon icon="plus-square" /></a>
                                         </template>
                                     </td>
@@ -84,7 +89,7 @@
                                             </tr>
                                         </table>
                                         <template v-if="Object.keys(groupSchedule[dow]).length !== 0">
-                                            <div style="border: none;" v-if="groupSchedule[dow][ring] !== undefined">
+                                            <div :class="{ 'smallFont': fastInputMode }" style="border: none;" v-if="groupSchedule[dow][ring] !== undefined">
                                                 <template v-for="tfd in
                                                     Object.keys(groupSchedule[dow][ring])
                                                     .sort((a,b) => {
@@ -111,7 +116,7 @@
                                                                 return aMin < bMin ? -1 : 1;
                                                         })
                                                 ">
-                                                    <table v-if="showEditTools" style="width: 100%; text-align: center; border:none !important;">
+                                                    <table v-if="showEditTools && !fastInputMode" style="width: 100%; text-align: center; border:none !important;">
                                                         <tr>
                                                             <td style="border:none;"><a @click.prevent="askForEdit(groupSchedule[dow][ring][tfd], dow, ring);" href="#"><font-awesome-icon icon="edit" /></a></td>
                                                             <td style="border:none;">
@@ -123,9 +128,13 @@
                                                         </tr>
                                                     </table>
 
-                                                    {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}} <br />
+                                                    {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}}
+                                                    <template v-if="fastInputMode">
+                                                        (<strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>)
+                                                    </template>
+                                                    <br />
                                                     {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
-                                                    <template v-for="auditorium in
+                                                    <template v-if="!fastInputMode" v-for="auditorium in
                                                         Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])
                                                             .sort((a,b) => {
                                                                 let  aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
@@ -420,6 +429,7 @@
                 editDisciplineTeacherSchedule: {},
                 newTfdBusyLoading: false,
                 showEditTools: true,
+                fastInputMode: false,
             }
         },
         methods: {
@@ -462,7 +472,11 @@
                             return aMinutes < bMinutes ? -1 : 1;
                         });
 
-                        this.scheduleRings = rings;
+                        if (!this.fastInputMode) {
+                            this.scheduleRings = rings;
+                        } else {
+                            this.scheduleRings = this.allRings.map(r => r.Time.substr(0,5));
+                        }
 
                         this.loading = false;
 
@@ -586,6 +600,35 @@
                   });
             },
             askForNew() {
+                if (this.fastInputMode) {
+                    let tfdId = this.groupDisciplineSelected.tfdId;
+                    let dows = this.newDows.join('|');
+                    let weeks = this.selectedWeeks[0];
+                    let ringIds = this.newRingIds[0];
+
+                    let blankAudId = this.auditoriums[0].id;
+                    let aud = this.auditoriums.filter(a => a.name === '-');
+                    if (aud.length !== 0) {
+                        blankAudId = aud[0].id;
+                    }
+                    let weeksAuds = this.selectedWeeks[0] + '@' + blankAudId;
+
+                    this.loading = true;
+                    axios
+                        .post('/lessonsGroupScheduleAdd' +
+                            '?tfdId=' + tfdId +
+                            '&dows=' + dows +
+                            '&weeks=' + weeks +
+                            '&ringIds=' + ringIds +
+                            '&weeksAuds=' + weeksAuds
+                        )
+                        .then(response => {
+                            this.loadGroupSchedule();
+                        });
+
+                    return;
+                }
+
                 this.newSelectedWeeks = [];
                 for(let i = 1; i <= this.weeksCount; i++) {
                     this.newWeeksAuds[i] = -1;
@@ -874,6 +917,8 @@
                     this.selectedWeeks = [];
                     this.selectedWeeks.push(min);
                     this.loadGroupSchedule();
+                } else {
+                    this.fastInputMode = false;
                 }
             },
             weekToggled(week) {
@@ -1081,6 +1126,11 @@
 
                 return audsInfo;
             },
+            fastInputModeToggled() {
+                if (this.fastInputMode) {
+                    this.scheduleRings = this.allRings.map(r => r.Time.substr(0,5));
+                }
+            },
         },
         mounted() {
             axios
@@ -1119,17 +1169,20 @@
                         let week = this.newSelectedWeeks[weekIndex];
                         for(let ringIdIndex = 0; ringIdIndex < this.newRingIds.length; ringIdIndex++) {
                             let ringId = this.newRingIds[ringIdIndex];
-                            if (first) {
-                                resultIds = this.freeAuds[dow][week][ringId];
-                                first = false;
-                            } else {
-                                for(let ri = 0; ri < resultIds.length; ri++)
-                                {
-                                    if (this.freeAuds[dow][week][ringId] !== undefined && this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
-                                        resultIds.splice(ri,1);
-                                        ri--;
+                            if (this.freeAuds[dow] != undefined && week in this.freeAuds[dow]) {
+                                if (first) {
+                                    resultIds = this.freeAuds[dow][week][ringId];
+                                    first = false;
+                                } else {
+                                    for (let ri = 0; ri < resultIds.length; ri++) {
+                                        if (this.freeAuds[dow][week][ringId] !== undefined && this.freeAuds[dow][week][ringId].indexOf(resultIds[ri]) === -1) {
+                                            resultIds.splice(ri, 1);
+                                            ri--;
+                                        }
                                     }
                                 }
+                            } else {
+                                resultIds = [];
                             }
                         }
                     }
@@ -1196,5 +1249,9 @@
         background-color: #7957d5;
         border-color: transparent;
         color: white;
+    }
+
+    .smallFont {
+        font-size: 0.8em;
     }
 </style>

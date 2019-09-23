@@ -146,14 +146,27 @@
             },
         },
         mounted() {
-            let today = moment().format('YYYY-MM-DD');
+            let today = moment();
+            let todayString = today.format('YYYY-MM-DD');
+            let minDate = {};
+            let minDiff = 1000000000;
             if (this.dates.length !== 0) {
-                let c = this.dates.filter(d => d === today);
+                let c = this.dates.filter(d => d === todayString);
 
                 if (c.length !== 0) {
                     this.date = c[0];
                 } else {
-                    this.date = this.dates[0];
+                    for(let i = 0; i < this.dates.length; i++) {
+                        let dateMoment = moment(this.dates[i], "YYYY-MM-DD");
+                        let diff = today.diff(dateMoment);
+
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            minDate = this.dates[i];
+                        }
+                    }
+
+                    this.date = minDate;
                 }
 
                 this.loadDateInfo();
