@@ -29,6 +29,7 @@ Vue.component('put-auds', require('./components/PutAuds').default);
 Vue.component('blank-auds', require('./components/BlankAuds').default);
 Vue.component('new-rings', require('./components/NewRings').default);
 Vue.component('lle', require('./components/lle').default);
+Vue.component('lleTeacher', require('./components/lleTeacher').default);
 
 
 import Buefy from 'buefy'

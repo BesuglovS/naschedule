@@ -170,7 +170,7 @@ class LessonLogEventController extends Controller
             ->toArray();
 
         $eventDates = array_values(array_unique($eventDates));
-        //usort($eventDates, "strcmp");
+        usort($eventDates, "strcmp");
 
         return $eventDates;
 
@@ -308,5 +308,69 @@ class LessonLogEventController extends Controller
             "limit" => $limit,
             "events" => $events
         );
+    }
+
+    public function ByTeacher(Request $request) {
+        $input = $request->all();
+
+        if ((!isset($input['teacherId'])) || (!isset($input['weeks'])))
+        {
+            return array("error" => "teacherId и weeks обязательные параметры");
+        }
+
+        $teacherId = $input['teacherId'];
+
+        $weeks = explode('|', $input['weeks']);
+        sort($weeks);
+
+        $calendarIds = Calendar::IdsFromWeeks($weeks);
+
+        $events = DB::table('lesson_log_events')
+            ->leftJoin('lessons as lessonOld', 'lesson_log_events.old_lesson_id', '=', 'lessonOld.id')
+            ->leftJoin('calendars as cOld', 'lessonOld.calendar_id', '=', 'cOld.id')
+            ->leftJoin('rings as rOld', 'lessonOld.ring_id', '=', 'rOld.id')
+            ->leftJoin('auditoriums as aOld', 'lessonOld.auditorium_id', '=', 'aOld.id')
+            ->leftJoin('discipline_teacher as dcOld', 'lessonOld.discipline_teacher_id', '=', 'dcOld.id')
+            ->leftJoin('teachers as tOld', 'dcOld.teacher_id', '=', 'tOld.id')
+            ->leftJoin('disciplines as dOld', 'dcOld.discipline_id', '=', 'dOld.id')
+            ->leftJoin('student_groups as sgOld', 'dOld.student_group_id', '=', 'sgOld.id')
+
+            ->leftJoin('lessons as lessonNew', 'lesson_log_events.new_lesson_id', '=', 'lessonNew.id')
+            ->leftJoin('calendars as cNew', 'lessonNew.calendar_id', '=', 'cNew.id')
+            ->leftJoin('rings as rNew', 'lessonNew.ring_id', '=', 'rNew.id')
+            ->leftJoin('auditoriums as aNew', 'lessonNew.auditorium_id', '=', 'aNew.id')
+            ->leftJoin('discipline_teacher as dcNew', 'lessonNew.discipline_teacher_id', '=', 'dcNew.id')
+            ->leftJoin('teachers as tNew', 'dcNew.teacher_id', '=', 'tNew.id')
+            ->leftJoin('disciplines as dNew', 'dcNew.discipline_id', '=', 'dNew.id')
+            ->leftJoin('student_groups as sgNew', 'dNew.student_group_id', '=', 'sgNew.id')
+
+            ->select('lesson_log_events.id as lessonLogEventId', 'lesson_log_events.date_time as lessonLogEventDateTime',
+                'lesson_log_events.public_comment as lessonLogEventPublicComment', 'lesson_log_events.hidden_comment as lessonLogEventHiddenComment',
+
+                'lessonOld.id as lessonOldId',
+                'cOld.date as lessonOldCalendarDate',
+                'rOld.time as lessonOldRingTime',
+                'aOld.name as lessonOldAuditoriumName',
+                'tOld.fio as lessonOldTeacherFio', 'dOld.name as lessonOldDisciplineName',
+                'sgOld.name as lessonOldStudentGroupName',
+
+                'lessonNew.id as lessonNewId',
+                'cNew.date as lessonNewCalendarDate',
+                'rNew.time as lessonNewRingTime',
+                'aNew.name as lessonNewAuditoriumName',
+                'tNew.fio as lessonNewTeacherFio', 'dNew.name as lessonNewDisciplineName',
+                'sgNew.name as lessonNewStudentGroupName'
+            )
+            ->where(function($q) use ($calendarIds) {
+                $q->whereIn('cOld.id', $calendarIds)
+                    ->orWhereIn('cNew.id', $calendarIds);
+            })
+            ->where(function($q) use ($teacherId) {
+                $q->where('tOld.id', '=', $teacherId)
+                    ->orWhere('tNew.id', '=', $teacherId);
+            })
+            ->orderBy('lesson_log_events.date_time')
+            ->get();
+        return $events;
     }
 }

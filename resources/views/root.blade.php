@@ -164,6 +164,28 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card-deck mb-2">
+                    <div class="card tac">
+                        <div class="card-body">
+                            <a href="/lleTeacher">
+                                Изменения расписания преподавателя на неделю
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                    <div class="card tac">
+                        <div class="card-body">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

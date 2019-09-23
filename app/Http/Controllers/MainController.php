@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DomainClasses\Auditorium;
 use App\DomainClasses\Building;
 use App\DomainClasses\Calendar;
+use App\DomainClasses\ConfigOption;
 use App\DomainClasses\Faculty;
 use App\DomainClasses\Lesson;
 use App\DomainClasses\LessonLogEvent;
@@ -13,6 +14,7 @@ use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use App\DomainClasses\TeacherGroup;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
@@ -580,5 +582,20 @@ class MainController extends Controller
         $dates = $lleController->Dates();
 
         return view('main.lle', compact( 'dates'));
+    }
+
+    public function lleTeacher() {
+        $teachers = Teacher::all()->sortBy('fio');
+        $weekCount = Calendar::WeekCount();
+
+        $today = CarbonImmutable::now()->format('Y-m-d');
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+        $currentWeek = Calendar::WeekFromDate($today, $css);
+
+        $semesterStarts = ConfigOption::SemesterStarts();
+
+        $semesterStarts = mb_substr($semesterStarts, 8, 2) . '.' . mb_substr($semesterStarts, 5, 2) . '.' . mb_substr($semesterStarts, 0, 4);
+
+        return view('main.lleTeacher', compact('teachers', 'weekCount', 'currentWeek', 'semesterStarts'));
     }
 }

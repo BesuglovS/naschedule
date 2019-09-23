@@ -109,6 +109,11 @@ Route::group(['middleware' => ['auth']], function () {
     // newRings
     Route::get('/newRings', 'NewRingsController@index');
     Route::post('/changeRings', 'NewRingsController@ChangeRings');
+
+    //teacherCollisions
+    Route::get('/tc', 'MainController@teacherCollisions');
+    Route::get('/tcs', 'MainController@teachersCollisions');
+    Route::get('/tcl', 'MainController@CollisionsByTeacher');
 });
 
 //disciplineHours
@@ -126,9 +131,7 @@ Route::post('/bulkDowShow-pdf', 'PdfController@DowBulkShow');
 
 Route::get('/auds', 'MainController@auds');
 
-Route::get('/tc', 'MainController@teacherCollisions');
-Route::get('/tcs', 'MainController@teachersCollisions');
-Route::get('/tcl', 'MainController@CollisionsByTeacher');
-
-
+// Teacher schedule changes
+Route::get('/lleTeacher', 'MainController@lleTeacher');
+Route::get('/lleByTeacher', 'LessonLogEventController@ByTeacher');
 
