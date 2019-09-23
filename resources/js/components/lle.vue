@@ -6,16 +6,18 @@
             </div>
             <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 2em;">
                 <table style="font-size: 1.5em;">
-                    <tr style="padding-bottom: 1em;">
-                        <td>Дата</td>
+                    <tr>
+                        <td style="vertical-align: middle;">Дата</td>
                         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>
-                            <select style="margin-right: 1em; font-size: 1.5em; width: 310px;" name="facultyId" v-model="date" >
+                        <td style="vertical-align: middle;">
+                            <select @change="loadDateInfo();" style="margin-right: 1em; font-size: 1.5em; width: 310px;" name="facultyId" v-model="date" >
                                 <option v-for="date in dates" :value="date">{{reformatDate(date)}}</option>
                             </select>
                         </td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td>
+                        <td style="padding: 0em 2em 0em 1em; font-size:2em;">
+                            {{totalCount}}
+                        </td>
+                        <td style="vertical-align: middle;">
                             <select v-model="selectedChunk" @change="chunkChange();">
                                 <option v-for="chunk in dateInfo.parts" :value="chunk">{{chunk.times}}</option>
                             </select>
@@ -102,6 +104,7 @@
                 selectedChunk: {offset:0, times:""},
                 lessonLogEvents: [],
                 dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+                totalCount: "",
             }
         },
         methods: {
@@ -113,6 +116,7 @@
                         this.loading = false;
                         this.dateInfo = response.data;
                         if (this.dateInfo.parts.length !== 0) {
+                            this.totalCount = this.dateInfo["total-count"];
                             this.selectedChunk = this.dateInfo.parts[0];
                             this.loadLLE();
                         }
