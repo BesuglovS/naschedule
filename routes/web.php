@@ -114,6 +114,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/tc', 'MainController@teacherCollisions');
     Route::get('/tcs', 'MainController@teachersCollisions');
     Route::get('/tcl', 'MainController@CollisionsByTeacher');
+
+    // Faculty Disciplines
+    Route::get('/facTeachers', 'DisciplineController@facultyDisciplines');
+    Route::get('/facultyTeachers', 'MainController@facultyDisciplinesIndex');
 });
 
 //disciplineHours

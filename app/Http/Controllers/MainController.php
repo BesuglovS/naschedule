@@ -598,4 +598,10 @@ class MainController extends Controller
 
         return view('main.lleTeacher', compact('teachers', 'weekCount', 'currentWeek', 'semesterStarts'));
     }
+
+    public function facultyDisciplinesIndex() {
+        $faculties = Faculty::all()->sortBy('sorting_order')->toArray();
+
+        return view('main.facultyDisciplines', compact('faculties'));
+    }
 }

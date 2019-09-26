@@ -362,4 +362,73 @@ class DisciplineController extends Controller
 
         return $result;
     }
+
+    public function facultyDisciplines(Request $request) {
+        $input = $request->all();
+
+        if (!isset($input['facultyId']))
+        {
+            return array("error" => "facultyId обязательный параметр");
+        }
+        $facultyId = $input['facultyId'];
+
+        $facultyImmediateGroupIds = DB::table('faculty_student_group')
+            ->where('faculty_student_group.faculty_id', '=', $facultyId)
+            ->select('student_group_id')
+            ->get()
+            ->map(function($item) { return $item->student_group_id;})
+            ->toArray();
+
+        $facultyGroupsConnected = StudentGroup::GetGroupsOfStudentFromGroupsConnected($facultyImmediateGroupIds);
+
+        $facultyGroupsIds = array_keys($facultyGroupsConnected);
+
+        $facultyDisciplines = DB::table('disciplines')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
+            ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->whereIn('disciplines.student_group_id', $facultyGroupsIds)
+            ->select('disciplines.name',
+                'student_groups.id as studentGroupsId', 'student_groups.name as studentGroupsName',
+                'teachers.fio as teachersFio')
+            ->get();
+
+        foreach ($facultyDisciplines as $facultyDiscipline) {
+            $facultyDiscipline->facultyGroupIds = $facultyGroupsConnected[$facultyDiscipline->studentGroupsId];
+        }
+
+        $facultyDisciplines = $facultyDisciplines->groupBy('name');
+
+        $result = array();
+        foreach ($facultyDisciplines as $disciplineName => $disciplines) {
+            $result[$disciplineName] = array();
+
+            foreach($disciplines as $discipline) {
+                foreach ($discipline->facultyGroupIds as $facultyGroupId) {
+                    if (!array_key_exists($facultyGroupId, $result[$disciplineName])) {
+                        $result[$disciplineName][$facultyGroupId] = array();
+                    }
+                    $result[$disciplineName][$facultyGroupId][] = $discipline;
+                }
+            }
+        }
+
+        $facultyGroups = DB::table('faculty_student_group')
+            ->where('faculty_student_group.faculty_id', '=', $facultyId)
+            ->join('student_groups', 'faculty_student_group.student_group_id', '=', 'student_groups.id')
+            ->select('student_group_id', 'student_groups.name as studentGroupsName')
+            ->get()
+            ->toArray();
+
+        usort($facultyGroups, function($a, $b)
+        {
+            return strcmp($a->studentGroupsName, $b->studentGroupsName);
+        });
+
+        return array (
+            'groups' => $facultyGroups,
+            'disciplines' => $result
+        );
+
+    }
 }

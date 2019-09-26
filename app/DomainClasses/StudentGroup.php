@@ -110,4 +110,56 @@ class StudentGroup extends Model
             ->unique();
         return $groupIds;
     }
+
+    public static function GetGroupsOfStudentFromGroups($groupIds)
+    {
+        $studentIds = DB::table('student_student_group')
+            ->whereIn('student_group_id', $groupIds)
+            ->select('student_id')
+            ->get()
+            ->map(function($item) { return $item->student_id;});
+
+        $groupIds = DB::table('student_student_group')
+            ->whereIn('student_id', $studentIds)
+            ->select('student_group_id')
+            ->get()
+            ->map(function($item) { return $item->student_group_id;})
+            ->unique()
+            ->toArray();
+
+        sort($groupIds);
+
+        return $groupIds;
+    }
+
+    public static function GetGroupsOfStudentFromGroupsConnected($groupIds)
+    {
+        $result = array();
+
+        foreach($groupIds as $groupId) {
+            $studentIds = DB::table('student_student_group')
+                ->where('student_group_id', '=', $groupId)
+                ->select('student_id')
+                ->get()
+                ->map(function($item) { return $item->student_id;});
+
+            $groupIds = DB::table('student_student_group')
+                ->whereIn('student_id', $studentIds)
+                ->select('student_group_id')
+                ->get()
+                ->map(function($item) { return $item->student_group_id;})
+                ->unique()
+                ->toArray();
+
+            foreach($groupIds as $id) {
+                if (!array_key_exists($id, $result)) {
+                    $result[$id] = array();
+                }
+
+                $result[$id][] = $groupId;
+            }
+        }
+
+        return $result;
+    }
 }
