@@ -57,7 +57,9 @@
 
                                     <tr v-for="ring in ringsSorted">
                                         <td>{{ring.time}}</td>
-                                        <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums">
+                                        <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums"
+                                            :class="{'computerAudColor' : computerAudNames.includes(auditoriumName), 'closedAudColor' : closedAudNames.includes(auditoriumName)}"
+                                        >
                                             <template v-if="selectedLesson.ringsTime !== undefined && ring.time === selectedLesson.ringsTime.substr(0,5)">
                                             <a @click.prevent="changeLessonAuditorium(auditoriumId);" href="#">
                                                 <font-awesome-icon icon="plus-square" />
@@ -175,6 +177,8 @@
                 blankAuds: [],
                 ssMoment: moment(this.semesterStarts, "YYYY-MM-DD").startOf('isoWeek'),
                 selectedLesson: {lessonId: -1},
+                computerAudNames: ['Ауд. 301', 'Ауд. 302', '10'],
+                closedAudNames: ['Ауд. 111', 'Ауд. 123', 'Ауд. 124', 'Ауд. 129']
             }
         },
         methods: {
@@ -484,5 +488,13 @@
         background-color: #7957d5;
         border-color: transparent;
         color: white;
+    }
+
+    .computerAudColor {
+        background-color: rgba(255,255,0,0.3);
+    }
+
+    .closedAudColor {
+        background-color: #f00;
     }
 </style>
