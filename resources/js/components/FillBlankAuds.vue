@@ -48,7 +48,7 @@
                                 Загрузка ...
                             </div>
 
-                            <div style="display: flex; flex-direction: row;">
+                            <div style="display: flex; flex-direction: column;">
                                 <table v-if="loading === false" style="overflow-y: auto; font-size: 0.6em; margin-top: 2em;" class="table table-responsive td-center is-bordered">
                                     <tr>
                                         <td></td>
@@ -106,21 +106,21 @@
                                     </tr>
                                 </table>
 
-                                <div class="card" style="margin-left: 1em;">
+                                <div class="card">
                                     <div class="card-header">
                                         <div>
                                             Занятия без аудитории
                                         </div>
                                         <button @click="loadBlankLessons();"
-                                                style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                                style="white-space:normal !important; margin-left:1em; margin-bottom: 0.5em;
                                     font-size: 0.8em; justify-content: center; text-align: center;
                                     border-radius: 5px;"
                                                 class="button isPrimary">R
                                         </button>
                                     </div>
 
-                                    <div class="card-body" style="text-align: center;">
-                                        <div v-for="blankAudLesson in blankAuds">
+                                    <div class="card-body" style="text-align: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;">
+                                        <template v-for="blankAudLesson in blankAuds">
                                             <button @click="lessonClicked(blankAudLesson)"
                                                     style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
                                     font-size: 0.8em; justify-content: center; text-align: center;
@@ -133,7 +133,7 @@
                                                 {{blankAudLesson.disciplinesName}}
                                                 ({{blankAudLesson.studentGroupsName}})
                                             </button>
-                                        </div>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
