@@ -295,4 +295,38 @@ class LessonController extends Controller
             }
         }
     }
+
+    public function changeLessonAud(Request $request) {
+        $user = Auth::user();
+        $input = $request->all();
+
+        if ((!isset($input['lessonId'])) || (!isset($input['auditoriumId'])))
+        {
+            return array("error" => "lessonId и auditoriumId обязательные параметры");
+        }
+        $lessonId = $input['lessonId'];
+        $auditoriumId = $input['auditoriumId'];
+
+        $old_lesson = Lesson::find($lessonId);
+        $old_lesson->state = 0;
+        $old_lesson->save();
+
+        $new_lesson = new Lesson();
+        $new_lesson->state = 1;
+        $new_lesson->discipline_teacher_id = $old_lesson->discipline_teacher_id;
+        $new_lesson->calendar_id = $old_lesson->calendar_id;
+        $new_lesson->ring_id = $old_lesson->ring_id;
+        $new_lesson->auditorium_id = $auditoriumId;
+        $new_lesson->save();
+
+        $lle = new LessonLogEvent();
+        $lle->old_lesson_id = $old_lesson->id;
+        $lle->new_lesson_id = $new_lesson->id;
+        $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle->public_comment = "";
+        $lle->hidden_comment = ($user !== null) ? $user->id . " @ " . $user->name . ": " : "";
+        $lle->save();
+
+
+    }
 }

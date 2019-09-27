@@ -604,4 +604,22 @@ class MainController extends Controller
 
         return view('main.facultyDisciplines', compact('faculties'));
     }
+
+    public function fillBlankAuds() {
+        $weekCount = Calendar::WeekCount();
+        $buildings = Building::all()->sortBy('name');
+        $rings = Ring::all()->toArray();
+        $semesterStarts = ConfigOption::SemesterStarts();
+
+
+        $audsWithBuilding = DB::table('auditoriums')
+            ->join('buildings', 'auditoriums.building_id', '=', 'buildings.id')
+            ->select('auditoriums.id as id', 'auditoriums.name as name',
+                'buildings.id as buildingsId', 'buildings.name as buildingsName')
+            ->get();
+
+        $audsWithBuilding = $audsWithBuilding->groupBy('buildingsId')->toArray();
+
+        return view('main.fillBlankAuds', compact('weekCount', 'buildings', 'audsWithBuilding', 'rings', 'semesterStarts'));
+    }
 }

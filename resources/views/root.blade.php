@@ -182,6 +182,9 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/fillBlankAuds">
+                                Выставить аудитории на день
+                            </a>
                         </div>
                     </div>
                     <div class="card tac">
