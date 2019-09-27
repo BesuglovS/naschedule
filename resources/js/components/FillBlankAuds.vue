@@ -60,7 +60,7 @@
                                         <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums"
                                             :class="{'computerAudColor' : computerAudNames.includes(auditoriumName), 'closedAudColor' : closedAudNames.includes(auditoriumName)}"
                                         >
-                                            <template v-if="selectedLesson.ringsTime !== undefined && ring.time === selectedLesson.ringsTime.substr(0,5)">
+                                            <template v-if="selectedLesson.ringsTime !== undefined && ring.time === selectedLesson.ringsTime.substr(0,5) && !closedAudNames.includes(auditoriumName)">
                                             <a @click.prevent="changeLessonAuditorium(auditoriumId);" href="#">
                                                 <font-awesome-icon icon="plus-square" />
                                             </a>
@@ -495,6 +495,6 @@
     }
 
     .closedAudColor {
-        background-color: #f00;
+        background-color: rgba(255,0,0,0.3);
     }
 </style>
