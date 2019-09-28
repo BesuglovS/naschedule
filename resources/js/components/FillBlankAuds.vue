@@ -130,10 +130,30 @@
                                                     :class="{
                                         'isPrimary': blankAudLesson.lessonId !== selectedLesson.lessonId,
                                         'isDanger': blankAudLesson.lessonId === selectedLesson.lessonId }">
-                                                {{blankAudLesson.teachersFio}} <br />
-                                                {{blankAudLesson.ringsTime.substr(0,5)}} <br />
-                                                {{blankAudLesson.disciplinesName}}
-                                                ({{blankAudLesson.studentGroupsName}})
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            <span style="font-size:2em;">
+                                                                {{blankAudLesson.ringsTime.substr(0,5)}}
+                                                            </span>
+                                                        </td>
+                                                        <td style="text-align: center;">
+                                                            <span style="font-size:2em; padding-left:0.5em; padding-right:0.5em;">
+                                                                {{FfromFIO(blankAudLesson.teachersFio)}}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span style="font-size:2em;">
+                                                                {{blankAudLesson.studentGroupsName}}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3" style="text-align: center;">
+                                                            {{blankAudLesson.disciplinesName}}
+                                                        </td>
+                                                    </tr>
+                                                </table>
                                             </button>
                                         </template>
                                     </div>
@@ -438,6 +458,9 @@
                     }
                     this.loadBuildingEvents();
                 }
+            },
+            FfromFIO(fio) {
+                return fio.split(' ')[0];
             },
         },
         mounted() {
