@@ -108,6 +108,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/fillBlankAuds', 'MainController@fillBlankAuds');
     Route::post('/changeLessonAud', 'LessonController@changeLessonAud');
+    Route::post('/changeLessonsAud', 'LessonController@changeLessonsAud');
 
     // newRings
     Route::get('/newRings', 'NewRingsController@index');

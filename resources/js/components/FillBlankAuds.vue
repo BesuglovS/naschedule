@@ -45,7 +45,7 @@
                             </div>
 
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
-                                Загрузка ...
+                                Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
                             </div>
 
                             <div style="display: flex; flex-direction: column;">
@@ -115,6 +115,19 @@
                                             </template>
                                         </td>
                                     </tr>
+
+                                    <template v-if="blankAuds.length !== 0">
+                                    <tr>
+                                        <td>Все</td>
+                                        <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums">
+                                            <template v-if="teacherPossibleAudIds.includes(parseInt(auditoriumId)) && blankAuds.length !== 0">
+                                                <a @click.prevent="changeLessonsAuditorium(auditoriumId);" href="#">
+                                                    <font-awesome-icon style="font-size:2em;" icon="plus-square" />
+                                                </a>
+                                            </template>
+                                        </td>
+                                    </tr>
+                                    </template>
                                 </table>
 
                                 <div class="card">
@@ -131,7 +144,7 @@
                                     </div>
 
                                     <div class="card-body" style="text-align: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;">
-                                        <template v-for="blankAudLesson in blankAuds">
+                                        <template v-if="loading === false" v-for="blankAudLesson in blankAuds">
                                             <button @click="lessonClicked(blankAudLesson)"
                                                     style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
                                     font-size: 0.8em; justify-content: center; text-align: center;
@@ -214,13 +227,26 @@
         },
         methods: {
             changeLessonAuditorium(auditoriumId) {
+                this.loading = true;
                 axios
                     .post('/changeLessonAud?lessonId=' + this.selectedLesson.lessonId +
                     '&auditoriumId=' + auditoriumId)
                 .then(response => {
                     this.loadBuildingEvents();
-                    this.loadBlankLessons();
                 });
+            },
+            changeLessonsAuditorium(auditoriumId) {
+                this.loading = true;
+                let tFio = this.selectedLesson.teachersFio;
+                let teacherLessons = this.blankAuds.filter(bal => bal.teachersFio === tFio);
+                let teacherLessonIds = teacherLessons.map(l => l.lessonId);
+
+                axios
+                    .post('/changeLessonsAud?lessonIds=' + teacherLessonIds.join('|') +
+                        '&auditoriumId=' + auditoriumId)
+                    .then(response => {
+                        this.loadBuildingEvents();
+                    });
             },
             lessonClicked(lesson) {
                 let tFio = lesson.teachersFio;
@@ -289,9 +315,10 @@
                             });
                         }
                         this.scheduleAuditoriums = buildingAuds;
+
+                        this.loadBlankLessons();
                     });
 
-                this.loadBlankLessons();
             },
             loadBlankLessons() {
                 let date = this.DateFromWeekAndDow(this.selectedWeeks[0], this.selectedDow);
@@ -315,6 +342,8 @@
                         } else {
                             this.selectedLesson = {lessonId: -1};
                         }
+
+                        this.loading = false;
                     });
             },
             loadFullBuildingEvents() {
