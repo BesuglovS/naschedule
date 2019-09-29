@@ -542,7 +542,7 @@ class MainController extends Controller
             ->whereIn('lessons.auditorium_id', $audIds)
             ->select('lessons.id as lessonId', 'student_groups.name as studentGroupsName',
                 'disciplines.name as disciplinesName', 'teachers.fio as teachersFio',
-                'calendars.date as calendarsDate', 'rings.time as ringsTime',
+                'calendars.date as calendarsDate', 'rings.id as ringsId', 'rings.time as ringsTime',
                 'auditoriums.name as auditoriumsName')
             ->get()
             ->toArray();

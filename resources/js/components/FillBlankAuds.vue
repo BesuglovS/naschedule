@@ -66,7 +66,8 @@
                                                 ((Object.values(buildingEvents[ring.id][auditoriumId]).map(item => item['lessons'][0].teacherFio).filter((v, i, a) => a.indexOf(v) === i)).length > 1)),
                                             'sameAudSameTeachers' : (((buildingEvents[ring.id] !== undefined) && (auditoriumId in buildingEvents[ring.id])) &&
                                                 (Object.keys(buildingEvents[ring.id][auditoriumId]).length > 1) &&
-                                                ((Object.values(buildingEvents[ring.id][auditoriumId]).map(item => item['lessons'][0].teacherFio).filter((v, i, a) => a.indexOf(v) === i)).length <= 1))
+                                                ((Object.values(buildingEvents[ring.id][auditoriumId]).map(item => item['lessons'][0].teacherFio).filter((v, i, a) => a.indexOf(v) === i)).length <= 1)),
+                                            'possibleStreightAud': (teacherBlankRingIds.includes(parseInt(ring.id)) && (teacherPossibleAudIds.includes(parseInt(auditoriumId))))
                                                 }">
                                             <template v-if="selectedLesson.ringsTime !== undefined && ring.time === selectedLesson.ringsTime.substr(0,5) && !closedAudNames.includes(auditoriumName)">
                                             <a @click.prevent="changeLessonAuditorium(auditoriumId);" href="#">
@@ -206,7 +207,9 @@
                 ssMoment: moment(this.semesterStarts, "YYYY-MM-DD").startOf('isoWeek'),
                 selectedLesson: {lessonId: -1},
                 computerAudNames: ['Ауд. 301', 'Ауд. 302', '10'],
-                closedAudNames: ['Ауд. 111', 'Ауд. 123', 'Ауд. 124', 'Ауд. 129']
+                closedAudNames: ['Ауд. 111', 'Ауд. 123', 'Ауд. 124', 'Ауд. 129'],
+                teacherBlankRingIds: [],
+                teacherPossibleAudIds: [],
             }
         },
         methods: {
@@ -220,6 +223,24 @@
                 });
             },
             lessonClicked(lesson) {
+                let tFio = lesson.teachersFio;
+                let teacherLessons = this.blankAuds.filter(bal => bal.teachersFio === tFio);
+                let teacherLessonRingIds = teacherLessons.map(l => l.ringsId);
+                let audIds = this.audsWithBuilding[this.buildingId]
+                    .filter(a => {
+                        if (this.closedAudNames.includes(a.name)) return false;
+
+                        for(let i = 0; i < teacherLessonRingIds.length; i++) {
+                            if (this.buildingEvents[teacherLessonRingIds[i]] === undefined) return false;
+                            if (this.buildingEvents[teacherLessonRingIds[i]][a.id] !== undefined) return false;
+                        }
+                        return true;
+                    })
+                    .map(a => a.id);
+
+                this.teacherBlankRingIds = teacherLessonRingIds;
+                this.teacherPossibleAudIds = audIds;
+
                 this.selectedLesson = lesson;
             },
             DateFromWeekAndDow(week, dow) {
@@ -251,6 +272,7 @@
                         this.loading = false;
 
                         this.buildingEvents = data.schedule;
+                        this.lessonClicked(this.selectedLesson);
 
                         let allRings = {};
                         this.rings.forEach(item => {
@@ -289,7 +311,7 @@
                             return (a.teachersFio < b.teachersFio) ? -1 : 1;
                         });
                         if (this.blankAuds.length !== 0) {
-                            this.selectedLesson = this.blankAuds[0];
+                            this.lessonClicked(this.blankAuds[0]);
                         } else {
                             this.selectedLesson = {lessonId: -1};
                         }
@@ -534,6 +556,10 @@
     }
 
     .sameAudSameTeachers {
-        border: 3px solid rgba(255,113,0,0.6) !important;
+        border: 3px solid rgba(255,113,0,1.0) !important;
+    }
+
+    .possibleStreightAud {
+        background-color: rgba(99,255,69,0.15);
     }
 </style>
