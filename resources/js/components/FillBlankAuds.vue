@@ -58,8 +58,16 @@
                                     <tr v-for="ring in ringsSorted">
                                         <td>{{ring.time}}</td>
                                         <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums"
-                                            :class="{'computerAudColor' : computerAudNames.includes(auditoriumName), 'closedAudColor' : closedAudNames.includes(auditoriumName)}"
-                                        >
+                                            :class="{
+                                            'computerAudColor' : computerAudNames.includes(auditoriumName),
+                                            'closedAudColor' : closedAudNames.includes(auditoriumName),
+                                            'sameAudManyTeachers' : (((buildingEvents[ring.id] !== undefined) && (auditoriumId in buildingEvents[ring.id])) &&
+                                                (Object.keys(buildingEvents[ring.id][auditoriumId]).length > 1) &&
+                                                ((Object.values(buildingEvents[ring.id][auditoriumId]).map(item => item['lessons'][0].teacherFio).filter((v, i, a) => a.indexOf(v) === i)).length > 1)),
+                                            'sameAudSameTeachers' : (((buildingEvents[ring.id] !== undefined) && (auditoriumId in buildingEvents[ring.id])) &&
+                                                (Object.keys(buildingEvents[ring.id][auditoriumId]).length > 1) &&
+                                                ((Object.values(buildingEvents[ring.id][auditoriumId]).map(item => item['lessons'][0].teacherFio).filter((v, i, a) => a.indexOf(v) === i)).length <= 1))
+                                                }">
                                             <template v-if="selectedLesson.ringsTime !== undefined && ring.time === selectedLesson.ringsTime.substr(0,5) && !closedAudNames.includes(auditoriumName)">
                                             <a @click.prevent="changeLessonAuditorium(auditoriumId);" href="#">
                                                 <font-awesome-icon icon="plus-square" />
@@ -519,5 +527,13 @@
 
     .closedAudColor {
         background-color: rgba(255,0,0,0.3);
+    }
+
+    .sameAudManyTeachers {
+        border: 3px solid #ff0000 !important;
+    }
+
+    .sameAudSameTeachers {
+        border: 3px solid rgba(255,113,0,0.6) !important;
     }
 </style>
