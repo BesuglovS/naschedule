@@ -231,7 +231,7 @@
                         if (this.closedAudNames.includes(a.name)) return false;
 
                         for(let i = 0; i < teacherLessonRingIds.length; i++) {
-                            if (this.buildingEvents[teacherLessonRingIds[i]] === undefined) return false;
+                            if (this.buildingEvents[teacherLessonRingIds[i]] === undefined) return true;
                             if (this.buildingEvents[teacherLessonRingIds[i]][a.id] !== undefined) return false;
                         }
                         return true;
