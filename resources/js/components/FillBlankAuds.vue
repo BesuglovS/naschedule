@@ -61,6 +61,7 @@
                                             :class="{
                                             'computerAudColor' : computerAudNames.includes(auditoriumName),
                                             'closedAudColor' : closedAudNames.includes(auditoriumName),
+                                            'smallAudColor' : smallCapacityAudNames.includes(auditoriumName),
                                             'sameAudManyTeachers' : (((buildingEvents[ring.id] !== undefined) && (auditoriumId in buildingEvents[ring.id])) &&
                                                 (Object.keys(buildingEvents[ring.id][auditoriumId]).length > 1) &&
                                                 ((Object.values(buildingEvents[ring.id][auditoriumId]).map(item => item['lessons'][0].teacherFio).filter((v, i, a) => a.indexOf(v) === i)).length > 1)),
@@ -221,6 +222,7 @@
                 selectedLesson: {lessonId: -1},
                 computerAudNames: ['Ауд. 301', 'Ауд. 302', '10'],
                 closedAudNames: ['Ауд. 111', 'Ауд. 123', 'Ауд. 124', 'Ауд. 129'],
+                smallCapacityAudNames: ['Ауд. 208', 'Ауд. 209', 'Ауд. 214'],
                 teacherBlankRingIds: [],
                 teacherPossibleAudIds: [],
             }
@@ -578,6 +580,10 @@
 
     .closedAudColor {
         background-color: rgba(255,0,0,0.3);
+    }
+
+    .smallAudColor {
+        background-color: rgba(34,235,255,0.3);
     }
 
     .sameAudManyTeachers {
