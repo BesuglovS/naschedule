@@ -32,6 +32,7 @@ Vue.component('lle', require('./components/lle').default);
 Vue.component('lleTeacher', require('./components/lleTeacher').default);
 Vue.component('faculty-teachers', require('./components/FacultyTeachers').default);
 Vue.component('fill-blank-auds', require('./components/FillBlankAuds').default);
+Vue.component('teacher-got-ill', require('./components/TeacherGotIll').default);
 
 
 import Buefy from 'buefy'

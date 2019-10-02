@@ -122,6 +122,10 @@ Route::group(['middleware' => ['auth']], function () {
     // Faculty Disciplines
     Route::get('/facTeachers', 'DisciplineController@facultyDisciplines');
     Route::get('/facultyTeachers', 'MainController@facultyDisciplinesIndex');
+
+    // Teacher Got Ill
+    Route::get('/teacherGotIll', 'TeacherGotIllController@index');
+    Route::get('/loadIllInfo', 'TeacherGotIllController@loadIllInfo');
 });
 
 //disciplineHours

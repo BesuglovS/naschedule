@@ -5,6 +5,7 @@ namespace App\DomainClasses;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use mysql_xdevapi\Table;
 
 class Calendar extends Model
 {
@@ -230,6 +231,21 @@ class Calendar extends Model
         }
 
         return $calendarWeeks;
+    }
+
+    public static function CalendarIdsBetweenTwoIds($fromId, $toId) {
+        $calendars = Calendar::all();
+
+        $calendarFrom = Calendar::find($fromId);
+        $calendarTo = Calendar::find($toId);
+
+        $calendarIds = DB::table('calendars')
+            ->whereBetween('date', [$calendarFrom->date, $calendarTo->date])
+            ->select('id')
+            ->get()
+            ->map(function($item) { return $item->id;});
+
+        return $calendarIds;
     }
 
     public function auditorium_events()
