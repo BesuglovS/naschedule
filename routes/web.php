@@ -126,6 +126,10 @@ Route::group(['middleware' => ['auth']], function () {
     // Teacher Got Ill
     Route::get('/teacherGotIll', 'TeacherGotIllController@index');
     Route::get('/loadIllInfo', 'TeacherGotIllController@loadIllInfo');
+
+    // Teacher building transfers
+    Route::get('/teacherBuildingTransfers', 'TeacherBuildingTransfersController@index');
+    Route::get('/teacherBuildingDailyTransfers', 'TeacherBuildingTransfersController@DailyTransfers');
 });
 
 //disciplineHours

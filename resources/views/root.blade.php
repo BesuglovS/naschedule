@@ -199,6 +199,9 @@
                 <div class="card-deck mb-2">
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/teacherBuildingTransfers">
+                                Переходы преподавателей между корпусами
+                            </a>
                         </div>
                     </div>
                     <div class="card tac">
