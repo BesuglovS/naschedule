@@ -151,3 +151,5 @@ Route::get('/auds', 'MainController@auds');
 Route::get('/lleTeacher', 'MainController@lleTeacher');
 Route::get('/lleByTeacher', 'LessonLogEventController@ByTeacher');
 
+//BIG RED BUTTON
+Route::get('/brb', 'BigRedButtonController@CorrectBlankAudsForBuildings');

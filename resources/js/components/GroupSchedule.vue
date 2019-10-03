@@ -606,11 +606,54 @@
                     let weeks = this.selectedWeeks[0];
                     let ringIds = this.newRingIds[0];
 
-                    let blankAudId = this.auditoriums[0].id;
-                    let aud = this.auditoriums.filter(a => a.name === '-');
-                    if (aud.length !== 0) {
-                        blankAudId = aud[0].id;
+                    let blankAudId1 = this.auditoriums[0].id;
+                    let aud1 = this.auditoriums.filter(a => a.name === '-');
+                    if (aud1.length !== 0) {
+                        blankAudId1 = aud1[0].id;
                     }
+
+                    let blankAudId2 = this.auditoriums[0].id;
+                    let aud2 = this.auditoriums.filter(a => a.name === '--');
+                    if (aud2.length !== 0) {
+                        blankAudId2 = aud2[0].id;
+                    }
+
+                    let blankAudId3 = this.auditoriums[0].id;
+                    let aud3 = this.auditoriums.filter(a => a.name === '---');
+                    if (aud3.length !== 0) {
+                        blankAudId3 = aud3[0].id;
+                    }
+
+                    let groupNameStart = Object.values(this.studentGroups).filter(g => g.id === this.studentGroupId)[0].name.split(' ')[0];
+                    const start = ['1', '2', '3', '4'];
+                    const five = ['5'];
+                    const six = ['6'];
+                    const finish = ['7', '8', '9', '10', '11'];
+
+                    let blankAudId = this.auditoriums[0].id;
+
+                    if (start.includes(groupNameStart)) {
+                        blankAudId = blankAudId1;
+                    }
+
+                    if (finish.includes(groupNameStart)) {
+                        blankAudId = blankAudId2;
+                    }
+
+                    if ((five.includes(groupNameStart)) && ([1,3,5].includes(Math.min(...this.newDows)))) {
+                        blankAudId = blankAudId2;
+                    }
+                    if ((five.includes(groupNameStart)) && ([2,4,6].includes(Math.min(...this.newDows)))) {
+                        blankAudId = blankAudId3;
+                    }
+
+                    if ((six.includes(groupNameStart)) && ([1,3,5].includes(Math.min(...this.newDows)))) {
+                        blankAudId = blankAudId3;
+                    }
+                    if ((six.includes(groupNameStart)) && ([2,4,6].includes(Math.min(...this.newDows)))) {
+                        blankAudId = blankAudId2;
+                    }
+
                     let weeksAuds = this.selectedWeeks[0] + '@' + blankAudId;
 
                     this.loading = true;
@@ -1019,11 +1062,64 @@
                 }
             },
             newWeekToggled(week) {
+                let blankAudId1 = this.auditoriums[0].id;
+                let aud1 = this.auditoriums.filter(a => a.name === '-');
+                if (aud1.length !== 0) {
+                    blankAudId1 = aud1[0].id;
+                }
+
+                let blankAudId2 = this.auditoriums[0].id;
+                let aud2 = this.auditoriums.filter(a => a.name === '--');
+                if (aud2.length !== 0) {
+                    blankAudId2 = aud2[0].id;
+                }
+
+                let blankAudId3 = this.auditoriums[0].id;
+                let aud3 = this.auditoriums.filter(a => a.name === '---');
+                if (aud3.length !== 0) {
+                    blankAudId3 = aud3[0].id;
+                }
+
+                let groupNameStart = Object.values(this.studentGroups).filter(g => g.id === this.studentGroupId)[0].name.split(' ')[0];
+                console.log('groupNameStart');
+                console.log(groupNameStart);
+                const start = ['1', '2', '3', '4'];
+                const five = ['5'];
+                const six = ['6'];
+                const finish = ['7', '8', '9', '10', '11'];
+
+                let blankAudId = this.auditoriums[0].id;
+
+                if (start.includes(groupNameStart)) {
+                    blankAudId = blankAudId1;
+                }
+
+                if (finish.includes(groupNameStart)) {
+                    blankAudId = blankAudId2;
+                }
+
+                if ((five.includes(groupNameStart)) && ([1,3,5].includes(Math.min(...this.newDows)))) {
+                    blankAudId = blankAudId2;
+                }
+                if ((five.includes(groupNameStart)) && ([2,4,6].includes(Math.min(...this.newDows)))) {
+                    blankAudId = blankAudId3;
+                }
+
+                if ((six.includes(groupNameStart)) && ([1,3,5].includes(Math.min(...this.newDows)))) {
+                    blankAudId = blankAudId3;
+                }
+                if ((six.includes(groupNameStart)) && ([2,4,6].includes(Math.min(...this.newDows)))) {
+                    blankAudId = blankAudId2;
+                }
+
+                console.log('blankAudId');
+                console.log(blankAudId);
+
                 if (this.newSelectedWeeks.length === 1 && event.shiftKey) {
                     if (week < this.newSelectedWeeks[0]) {
                         for(let i = week; i < this.newSelectedWeeks[0]; i++) {
                             if (!this.newSelectedWeeks.includes(i) && this.newWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
-                                this.newWeeksAuds[i] = this.auditoriumsSorted[0].id;
+                                this.newWeeksAuds[i] = blankAudId;
                             }
                             this.newSelectedWeeks.push(i);
                         }
@@ -1032,7 +1128,7 @@
                     if (week > this.newSelectedWeeks[0]) {
                         for(let i = this.newSelectedWeeks[0]+1; i <= week; i++) {
                             if (!this.newSelectedWeeks.includes(i) && this.newWeeksAuds[i] === -1 && this.auditoriums.length > 0) {
-                                this.newWeeksAuds[i] = this.auditoriumsSorted[0].id;
+                                this.newWeeksAuds[i] = blankAudId;
                             }
                             this.newSelectedWeeks.push(i);
                         }
@@ -1046,7 +1142,7 @@
                     this.newSelectedWeeks = [];
                     this.newSelectedWeeks.push(week);
                     if (this.newWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
-                        this.newWeeksAuds[week] = this.auditoriumsSorted[0].id;
+                        this.newWeeksAuds[week] = blankAudId;
                     }
 
                     return;
@@ -1055,7 +1151,7 @@
                 if (!this.newSelectedWeeks.includes(week))
                 {
                     if (this.newWeeksAuds[week] === -1 && this.auditoriums.length > 0) {
-                        this.newWeeksAuds[week] = this.auditoriumsSorted[0].id;
+                        this.newWeeksAuds[week] = blankAudId;
                     }
                     this.newSelectedWeeks.push(week);
                 }
