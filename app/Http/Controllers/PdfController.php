@@ -6,6 +6,7 @@ ini_set('max_execution_time', 180);
 use App\DomainClasses\Calendar;
 use App\DomainClasses\ConfigOption;
 use App\DomainClasses\Faculty;
+use App\DomainClasses\StudentGroup;
 use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -449,5 +450,79 @@ class PdfController extends Controller
         $pdfM->merge('browser', $filename);
 
         return redirect()->back();
+    }
+
+    public function StudentGroupWeek(Request $request) {
+        $dowRu = [
+            '1' => 'Понедельник',
+            '2' => 'Вторник',
+            '3' => 'Среда',
+            '4' => 'Четверг',
+            '5' => 'Пятница',
+            '6' => 'Суббота',
+            '7' => 'Воскресенье'
+        ];
+
+
+
+        $oac = new OldApiController();
+        $input = $request->all();
+
+        $input["weeks"] = $input["week"];
+        $input["compactResult"] = "1";
+
+        $schedule = $oac->GetWeeksSchedule($input);
+
+        $group = StudentGroup::find($input['groupId']);
+        $week = $input["week"];
+
+        $scheduleRings = array();
+
+        for($dow = 1; $dow <= 7; $dow++) {
+            foreach (array_keys($schedule[$dow]) as $time) {
+                if (!in_array($time, $scheduleRings)) {
+                    $scheduleRings[] = $time;
+                }
+            }
+        }
+
+        usort($scheduleRings, function ($a, $b) {
+            $aVal = intval(substr($a, 0, 2)) * 60 + intval(substr($a, 3, 2));
+            $bVal = intval(substr($b, 0, 2)) * 60 + intval(substr($b, 3, 2));
+
+            if ($aVal === $bVal) return 0;
+            return $aVal < $bVal? -1 : 1;
+        });
+
+        $mainFontSize = 10;
+
+        $data = [
+            'title' => "Расписание " . $group->name . " (" . $week . ")",
+            'dowRu' => $dowRu,
+            'groupSchedule' => $schedule,
+            'groupName' => $group->name,
+            'scheduleRings' => $scheduleRings,
+            'mainFontSize' => $mainFontSize . 'px',
+            'timestamp' => $immutable = CarbonImmutable::now()->format('d.m.Y H:i:s')
+        ];
+
+        //return $data;
+
+        PDF::setOptions([
+            'dpi' => 150,
+            'defaultFont' => 'sans-serif']);
+
+        do {
+            $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
+            $pdf->stream($data["title"] .'.pdf');
+            $pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
+            $mainFontSize -= 0.5;
+            $data["mainFontSize"] = $mainFontSize . "px";
+        } while($pageCount > 1);
+
+        ob_clean();
+
+        $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
+        return $pdf->stream($data["title"] .'.pdf');
     }
 }

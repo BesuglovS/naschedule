@@ -144,6 +144,8 @@ Route::post('/download-pdf', 'PdfController@facultyDowDownload');
 Route::post('/bulkDownload-pdf', 'PdfController@facultyBulkDownload');
 Route::post('/bulkDowDownload-pdf', 'PdfController@DowBulkDownload');
 Route::post('/bulkDowShow-pdf', 'PdfController@DowBulkShow');
+Route::get('/print-group-pdf', 'PdfController@StudentGroupWeek');
+
 
 Route::get('/auds', 'MainController@auds');
 
@@ -152,4 +154,4 @@ Route::get('/lleTeacher', 'MainController@lleTeacher');
 Route::get('/lleByTeacher', 'LessonLogEventController@ByTeacher');
 
 //BIG RED BUTTON
-Route::get('/brb', 'BigRedButtonController@CorrectBlankAudsForBuildings');
+Route::get('/brb', 'BigRedButtonController@TMP');

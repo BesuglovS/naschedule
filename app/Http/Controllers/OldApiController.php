@@ -915,7 +915,7 @@ class OldApiController extends Controller
         return $result;
     }
 
-    private function GetWeeksSchedule($input)
+    public function GetWeeksSchedule($input)
     {
         if ((!isset($input['groupId'])) || (!isset($input['weeks'])))
         {
