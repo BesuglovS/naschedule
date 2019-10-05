@@ -45,6 +45,9 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/print-group-week-pdf">
+                                Расписание одного класса на одну неделю в PDF
+                            </a>
                         </div>
                     </div>
                     <div class="card tac">

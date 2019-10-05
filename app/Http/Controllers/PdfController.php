@@ -525,4 +525,25 @@ class PdfController extends Controller
         $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
         return $pdf->stream($data["title"] .'.pdf');
     }
+
+    public function StudentGroupWeekIndex() {
+        $studentGroups = StudentGroup::allSorted();
+
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+        $today = CarbonImmutable::now()->format('Y-m-d');
+        $currentWeek = Calendar::WeekFromDate($today, $css);
+
+        $weekCount = Calendar::WeekCount();
+
+        $weeks = array();
+        for($w = 1; $w <= $weekCount; $w++) {
+            $start = $css->clone();
+            $end = $start->clone()->addDays(6);
+            $weeks[$w] = $start->format("d.m") . " - " . $end->format('d.m');
+
+            $css = $css->addWeek();
+        }
+
+        return view('pdf.studentGroupChoice', compact('studentGroups', 'weekCount', 'weeks', 'currentWeek'));
+    }
 }
