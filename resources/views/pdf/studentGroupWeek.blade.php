@@ -26,7 +26,23 @@
         @for ($dow = 1; $dow <= 6; $dow++)
             <td style="font-size: {{$mainFontSize}}">
             @if(array_key_exists($ring, $groupSchedule[$dow]))
-                @foreach($groupSchedule[$dow][$ring] as $tfd => $tfdLessons)
+                @foreach(
+                usort($groupSchedule[$dow][$ring], function($a, $b)  {
+                    $num1 = explode(" ", $a['lessons'][0]->groupName)[0];
+                    $num2 = explode(" ", $b['lessons'][0]->groupName)[0];
+
+                    if ($num1 == $num2)
+                    {
+                        if ($a['lessons'][0]->groupName == $b['lessons'][0]->groupName) return 0;
+                        return $a['lessons'][0]->groupName < $b['lessons'][0]->groupName ? -1 : 1;
+                    }
+                    else
+                    {
+                        return ($num1 < $num2) ? -1 : 1;
+                    }
+                    return 0;
+                }) !== null ? $groupSchedule[$dow][$ring] : null
+                as $tfd => $tfdLessons)
                     {{$groupSchedule[$dow][$ring][$tfd]['lessons'][0]->discName}}
                     @if($groupSchedule[$dow][$ring][$tfd]['lessons'][0]->groupName !== $groupName)
                         ({{$groupSchedule[$dow][$ring][$tfd]['lessons'][0]->groupName}})
