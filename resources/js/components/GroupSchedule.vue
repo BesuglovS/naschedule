@@ -654,6 +654,16 @@
                         blankAudId = blankAudId2;
                     }
 
+                    let blankAudIdIl = blankAudId3;
+                    let audIl = this.auditoriums.filter(a => a.name === 'Корп № 3 Спортивный зал');
+                    if (audIl.length !== 0) {
+                        blankAudIdIl = audIl[0].id;
+                    }
+
+                    if (this.groupDisciplineSelected.teacherFio === "Ильичев Евгений Борисович") {
+                        blankAudId = blankAudIdIl;
+                    }
+
                     let weeksAuds = this.selectedWeeks[0] + '@' + blankAudId;
 
                     this.loading = true;
@@ -1112,8 +1122,15 @@
                     blankAudId = blankAudId2;
                 }
 
-                console.log('blankAudId');
-                console.log(blankAudId);
+                let blankAudIdIl = blankAudId3;
+                let audIl = this.auditoriums.filter(a => a.name === 'Корп № 3 Спортивный зал');
+                if (audIl.length !== 0) {
+                    blankAudIdIl = audIl[0].id;
+                }
+
+                if (this.groupDisciplineSelected.teacherFio === "Ильичев Евгений Борисович") {
+                    blankAudId = blankAudIdIl;
+                }
 
                 if (this.newSelectedWeeks.length === 1 && event.shiftKey) {
                     if (week < this.newSelectedWeeks[0]) {

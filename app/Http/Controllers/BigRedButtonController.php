@@ -108,38 +108,5 @@ class BigRedButtonController extends Controller
     }
 
     public function TMP(Request $request) {
-        $user = Auth::user();
-
-        $lessons = DB::table('lessons')
-            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
-            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
-            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
-            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
-            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
-            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
-            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
-            ->where('calendars.date', '=', '2019-10-05')
-            ->where('lessons.state', '=', 1)
-            ->whereIn('lessons.ring_id',  [5,6,7,8,9])
-            ->select('lessons.*')
-            ->get();
-
-        //return $lessons;
-
-        foreach($lessons as $lesson) {
-            if ($lesson->state == 1) {
-                $newLle = new LessonLogEvent();
-                $newLle->old_lesson_id = $lesson->id;
-                $newLle->new_lesson_id = 0;
-                $newLle->date_time = Carbon::now()->format('Y-m-d H:i:s');
-                $newLle->public_comment = "";
-                $newLle->hidden_comment = ($user !== null) ? $user->id . " @ " . $user->name . ": " : "";
-                $newLle->save();
-
-                $l = Lesson::find($lesson->id);
-                $l->state = 0;
-                $l->save();
-            }
-        }
     }
 }
