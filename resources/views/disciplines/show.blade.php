@@ -31,6 +31,16 @@
 
                 <td>{{\App\DomainClasses\Discipline::attestation_string($discipline->attestation)}}</td>
 
+                <td>
+                    <input type="checkbox" style="transform: scale(2);" disabled name="active" id="activeDiscipline" @if($discipline->active) checked @endif />
+                </td>
+
+                <td>
+                    @if($discipline->type == 1) Бюджет @endif
+                    @if($discipline->type == 2) Внеурочные @endif
+                    @if($discipline->type == 3) Платные @endif
+                </td>
+
                 <td><a href="/disciplines/{{$discipline->id}}/edit" class="button is-primary">Редактировать</a></td>
 
                 <td>

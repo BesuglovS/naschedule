@@ -62,6 +62,8 @@ class DisciplineController extends Controller
         $newDiscipline->auditorium_hours_per_week = $request->auditorium_hours_per_week;
         $newDiscipline->lecture_hours = "0";
         $newDiscipline->practical_hours = "0";
+        $newDiscipline->active = ($request->active == null) ? "0" : 1;
+        $newDiscipline->type = $request->type;
 
         $newDiscipline->save();
 
@@ -122,6 +124,8 @@ class DisciplineController extends Controller
         $discipline->attestation = $request->attestation;
         $discipline->student_group_id = $request->student_group_id;
         $discipline->auditorium_hours_per_week = $request->auditorium_hours_per_week;
+        $discipline->active = ($request->active == null) ? "0" : 1;
+        $discipline->type = $request->type;
         $discipline->save();
 
         return redirect('disciplines?groupId=' . $discipline->student_group_id);

@@ -44,6 +44,22 @@
                 </select>
             </div>
 
+            <div style="margin-top:1em;">
+                <p>
+                    <span style="margin-right: 1em;">Активная дисциплина</span>
+                    <input type="checkbox" style="transform: scale(2);" name="active" id="activeDiscipline" @if($discipline->active) checked @endif />
+                </p>
+            </div>
+
+            <div>
+                <p>Тип дисциплины</p>
+                <select style="margin-top: 5px; width: 300px" name="type">
+                    <option value="1" @if($discipline->type == 1) selected @endif>Бюджет</option>
+                    <option value="2" @if($discipline->type == 2) selected @endif>Внеурочные занятия</option>
+                    <option value="3" @if($discipline->type == 3) selected @endif>Платные занятия</option>
+                </select>
+            </div>
+
             <div style="margin-top: 1em;">
             <button type="submit" class="button is-primary">OK</button>
             </div>

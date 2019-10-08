@@ -409,7 +409,8 @@ class OldApiController extends Controller
                 ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
                     'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
                     'disciplines.student_group_id', 'disciplines.auditorium_hours_per_week', 'student_groups.name as groupName',
-                    'teachers.id as teacherId', 'teachers.fio as teacherFio', 'discipline_teacher.id as tfdId')
+                    'teachers.id as teacherId', 'teachers.fio as teacherFio', 'discipline_teacher.id as tfdId',
+                    'disciplines.active', 'disciplines.type')
                 ->get();
         }
         else
@@ -428,7 +429,8 @@ class OldApiController extends Controller
                     ->select('disciplines.id', 'disciplines.name', 'disciplines.attestation',
                         'disciplines.auditorium_hours', 'disciplines.lecture_hours', 'disciplines.practical_hours',
                         'disciplines.student_group_id', 'disciplines.auditorium_hours_per_week', 'student_groups.name as groupName',
-                        'teachers.id as teacherId', 'teachers.fio as teacherFio', 'discipline_teacher.id as tfdId')
+                        'teachers.id as teacherId', 'teachers.fio as teacherFio', 'discipline_teacher.id as tfdId',
+                        'disciplines.active', 'disciplines.type')
                     ->get();
             }
             else {

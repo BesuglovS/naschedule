@@ -49,6 +49,17 @@
                         </div>
 
                         <table v-if="loading === false" style="margin: 10px" class="table td-center is-bordered">
+                            <tr>
+                                <td>Дисциплина</td>
+                                <td>ФИО преподавателя</td>
+                                <td>Группа</td>
+                                <td>Часы</td>
+                                <td>Отчётность</td>
+                                <td>Активная</td>
+                                <td>Тип</td>
+                                <td>Редактирование</td>
+                                <td>Удаление</td>
+                            </tr>
                             <tr v-for="discipline in disciplinesSorted">
                                 <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}</a></td>
 
@@ -69,6 +80,16 @@
                                 <td>{{discipline.AuditoriumHoursPerWeek}}</td>
 
                                 <td>{{attestation[discipline.Attestation]}}</td>
+
+                                <td>
+                                    <input v-model="discipline.active" type="checkbox" style="transform: scale(2);" disabled name="active" id="activeDiscipline" />
+                                </td>
+
+                                <td>
+                                    <template v-if="discipline.type == 1">Бюджет</template>
+                                    <template v-if="discipline.type == 2">Внеурочные</template>
+                                    <template v-if="discipline.type == 3">Платные</template>
+                                </td>
 
                                 <td><a :href="'/disciplines/' + discipline.DisciplineId + '/edit'" class="button is-primary">Редактировать</a></td>
 

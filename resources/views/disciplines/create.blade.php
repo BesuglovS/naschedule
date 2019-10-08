@@ -44,6 +44,22 @@
                 </select>
             </div>
 
+            <div style="margin-top:1em;">
+                <p>
+                    <span style="margin-right: 1em;">Активная дисциплина</span>
+                    <input type="checkbox" style="transform: scale(2);" name="active" id="activeDiscipline" checked />
+                </p>
+            </div>
+
+            <div>
+                <p>Тип дисциплины</p>
+                <select style="margin-top: 5px; width: 300px" name="type">
+                    <option value="1">Бюджет</option>
+                    <option value="2">Внеурочные занятия</option>
+                    <option value="3">Платные занятия</option>
+                </select>
+            </div>
+
             <div style="margin-top: 1em;">
                 <button type="submit" class="button is-primary">Создать</button>
 
