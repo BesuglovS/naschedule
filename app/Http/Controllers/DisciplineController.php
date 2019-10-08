@@ -176,6 +176,7 @@ class DisciplineController extends Controller
             ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
             ->select('disciplines.id as disciplineId',
                 'disciplines.name as disciplineName',
+                'disciplines.active',
                 'teachers.id as teacherId',
                 'teachers.fio as teacherFio',
                 'student_groups.name as studentGroupName',

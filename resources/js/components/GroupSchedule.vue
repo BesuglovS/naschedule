@@ -486,7 +486,7 @@
                 axios
                     .get('/disciplinesByGroupInfo?groupId=' + this.studentGroupId)
                     .then(response => {
-                        this.groupDisciplines = response.data;
+                        this.groupDisciplines = response.data.filter(d => d.active === 1);
 
                         if (this.groupDisciplinesWithTeacher.length > 0) {
                             this.disciplineClicked(this.groupDisciplinesWithTeacher[0]);
@@ -499,7 +499,7 @@
                 axios
                     .get('/disciplinesByGroupInfo?groupId=' + this.studentGroupId)
                     .then(response => {
-                        this.groupDisciplines = response.data;
+                        this.groupDisciplines = response.data.filter(d => d.active === 1);
 
                         let saved = this.groupDisciplinesWithTeacher.filter(d => d.disciplineId === save.disciplineId);
 
