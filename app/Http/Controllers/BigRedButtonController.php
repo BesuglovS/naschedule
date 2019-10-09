@@ -107,6 +107,56 @@ class BigRedButtonController extends Controller
         return array('OK' => 'Success');
     }
 
+    public function RemoveDuplicateLessons(Request $request) {
+        $user = Auth::user();
+
+        $lessons = DB::table('lessons')
+            ->where('lessons.state', '=', 1)
+            ->get();
+
+        $byCalendarRing = array();
+
+        foreach($lessons as $lesson) {
+            $calendarRing = $lesson->calendar_id . '+' . $lesson->ring_id;
+            if (!array_key_exists($calendarRing, $byCalendarRing)) {
+                $byCalendarRing[$calendarRing] = array();
+            }
+            $byCalendarRing[$calendarRing][] = $lesson;
+        }
+
+        $lessonPairs = array();
+
+        foreach($byCalendarRing as $calendarRing => $groupLessons) {
+            for($i = 0; $i < count($groupLessons); $i++) {
+                for($j = 0; $j < count($groupLessons); $j++) {
+                    if ($i !== $j &&
+                        $groupLessons[$i]->discipline_teacher_id === $groupLessons[$j]->discipline_teacher_id) {
+                        $lessonPairs[] = array($groupLessons[$i], $groupLessons[$j]);
+                    }
+                }
+            }
+        }
+
+        foreach($lessonPairs as $lessonPair) {
+            $lessonId = $lessonPair[0]->id > $lessonPair[1]->id ? $lessonPair[0]->id : $lessonPair[1]->id;
+
+            $newLle = new LessonLogEvent();
+            $newLle->old_lesson_id = $lessonId;
+            $newLle->new_lesson_id = 0;
+            $newLle->date_time = Carbon::now()->format('Y-m-d H:i:s');
+            $newLle->public_comment = "";
+            $newLle->hidden_comment = ($user !== null) ? $user->id . " @ " . $user->name . ": " : " Remove duplicate";
+            $newLle->save();
+
+            $l = Lesson::find($lessonId);
+            $l->state = 0;
+            $l->save();
+        }
+
+        return $lessonPairs;
+    }
+
     public function TMP(Request $request) {
+
     }
 }
