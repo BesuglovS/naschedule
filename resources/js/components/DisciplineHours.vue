@@ -41,9 +41,16 @@
                                 'is-danger': selectedWeeks.includes(week)}"
                             >{{week}}</button>
 
-                            <div class="custom-control custom-switch">
-                                <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
-                                <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
+                            <div style="display:flex; flex-direction:row;">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
+                                    <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
+                                </div>
+
+                                <div class="custom-control custom-switch" style="margin-left: 1em;">
+                                    <input type="checkbox" v-model="onlyActiveDisciplines"  class="custom-control-input" id="customSwitch2">
+                                    <label class="custom-control-label" for="customSwitch2">Только активные дисциплины</label>
+                                </div>
                             </div>
                         </div>
 
@@ -69,12 +76,30 @@
                                 <td v-for="week in selectedWeeksSorted">{{week}}</td>
 
                             </tr>
-                            <tr v-for="discipline in disciplinesSorted">
-                                <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}<br />{{discipline.teacherFio}}</a></td>
+                            <tr v-for="discipline in disciplinesFiltered">
+                                <td style="text-align: left !important;"
+                                    :class="{
+                                        'budget': discipline.type === 1,
+                                        'vneur': discipline.type === 2,
+                                        'plat': discipline.type === 3,
+                                        'inactive': discipline.active === 0}"
+                                >
+                                    <a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}<br />{{discipline.teacherFio}}</a>
+                                </td>
 
-                                <td>{{discipline.groupName}}</td>
+                                <td :class="{
+                                        'budget': discipline.type === 1,
+                                        'vneur': discipline.type === 2,
+                                        'plat': discipline.type === 3,
+                                        'inactive': discipline.active === 0}">
+                                    {{discipline.groupName}}
+                                </td>
 
-                                <td style="font-weight: 700;">
+                                <td style="font-weight: 700;" :class="{
+                                        'budget': discipline.type === 1,
+                                        'vneur': discipline.type === 2,
+                                        'plat': discipline.type === 3,
+                                        'inactive': discipline.active === 0}">
                                     {{discipline.AuditoriumHoursPerWeek}}
                                 </td>
 
@@ -92,8 +117,11 @@
                             <tr>
                                 <td style="font-weight:700;">Итого</td>
                                 <td></td>
-                                <td></td>
-                                <td v-for="week in selectedWeeksSorted" style="font-weight:700;">
+                                <td>
+                                    <strong>{{disciplinesFilteredHours.all}} <br />
+                                    ({{disciplinesFilteredHours[1]}} / {{disciplinesFilteredHours[2]}} / {{disciplinesFilteredHours[3]}})</strong>
+                                </td>
+                                <td v-for="week in selectedWeeksSorted" style="font-weight:700; vertical-align:middle;">
                                     {{totalWeekHours[week]}}
                                 </td>
                             </tr>
@@ -127,6 +155,7 @@
                 selectedWeeks: [],
                 severalWeeks: true,
                 weeksCount: this.weekCount,
+                onlyActiveDisciplines: true,
             }
         },
         methods: {
@@ -220,6 +249,19 @@
             }
         },
         computed: {
+            disciplinesFilteredHours() {
+                return {
+                    'all' : this.disciplinesFiltered.map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    1 : this.disciplinesFiltered.filter(d => d.type === 1).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    2 : this.disciplinesFiltered.filter(d => d.type === 2).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    3 : this.disciplinesFiltered.filter(d => d.type === 3).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0)
+                };
+            },
+            disciplinesFiltered() {
+                return this.onlyActiveDisciplines ?
+                    this.disciplinesSorted.filter(d => d.active === 1) :
+                    this.disciplinesSorted;
+            },
             disciplinesSorted() {
                 return this.groupDisciplines.sort((a,b) => {
                     if (a.Name === b.Name) {
@@ -310,6 +352,22 @@
         border: 1px solid black !important;
         padding-left: 8px !important;
         padding-right: 8px !important;
+    }
+
+    .budget {
+        background-color: rgba(255,255,0,0.2);
+    }
+
+    .vneur {
+        background-color: rgba(20,255,0,0.2);
+    }
+
+    .plat {
+        background-color: rgba(23,67,255,0.2);
+    }
+
+    .inactive {
+        background-color: rgba(33,33,33,0.2);
     }
 </style>
 

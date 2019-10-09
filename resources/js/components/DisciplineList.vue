@@ -35,9 +35,18 @@
                             <strong>{{ errorMessage }}</strong>
                         </div>
 
+                        <div style="display: flex; flex-direction: row;">
+
                         <div class="custom-control custom-switch">
                             <input type="checkbox" v-model="teachersSelect"  class="custom-control-input" id="customSwitch1">
                             <label class="custom-control-label" for="customSwitch1">Выбор преподавателей</label>
+                        </div>
+
+                        <div class="custom-control custom-switch" style="margin-left: 1em;">
+                            <input type="checkbox" v-model="onlyActiveDisciplines"  class="custom-control-input" id="customSwitch2">
+                            <label class="custom-control-label" for="customSwitch2">Только активные дисциплины</label>
+                        </div>
+
                         </div>
 
                         <div v-if="loading === true" style="font-size: 2em; text-align: center">
@@ -60,7 +69,13 @@
                                 <td>Редактирование</td>
                                 <td>Удаление</td>
                             </tr>
-                            <tr v-for="discipline in disciplinesSorted">
+                            <tr v-for="discipline in disciplinesFiltered"
+                                :class="{
+                                        'budget': discipline.type === 1,
+                                        'vneur': discipline.type === 2,
+                                        'plat': discipline.type === 3,
+                                        'inactive': discipline.active === 0}"
+                            >
                                 <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}</a></td>
 
                                 <td>
@@ -130,6 +145,7 @@
                 copyStudentGroupId: -1,
                 teacherList: this.teachers,
                 teachersSelect: false,
+                onlyActiveDisciplines: true,
             }
         },
         methods: {
@@ -191,6 +207,11 @@
             }
         },
         computed: {
+            disciplinesFiltered() {
+               return this.onlyActiveDisciplines ?
+                   this.disciplinesSorted.filter(d => d.active === 1) :
+                   this.disciplinesSorted;
+            },
             disciplinesSorted() {
                 return this.groupDisciplines.sort((a,b) => {
                     if (a.Name === b.Name) {
@@ -253,5 +274,21 @@
         background-color: #7957d5;
         border-color: transparent;
         color: white;
+    }
+
+    .budget {
+        background-color: rgba(255,255,0,0.2);
+    }
+
+    .vneur {
+        background-color: rgba(20,255,0,0.2);
+    }
+
+    .plat {
+        background-color: rgba(23,67,255,0.2);
+    }
+
+    .inactive {
+        background-color: rgba(33,33,33,0.2);
     }
 </style>

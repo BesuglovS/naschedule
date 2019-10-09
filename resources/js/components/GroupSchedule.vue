@@ -90,7 +90,8 @@
                                         </table>
                                         <template v-if="Object.keys(groupSchedule[dow]).length !== 0">
                                             <div :class="{ 'smallFont': fastInputMode }" style="border: none;" v-if="groupSchedule[dow][ring] !== undefined">
-                                                <template v-for="tfd in
+                                                <template
+                                                    v-for="tfd in
                                                     Object.keys(groupSchedule[dow][ring])
                                                     .sort((a,b) => {
                                                                 let aMin = Math.min(...Object.values(groupSchedule[dow][ring][a]['weeksAndAuds']).flat());
@@ -128,24 +129,30 @@
                                                         </tr>
                                                     </table>
 
-                                                    {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}}
-                                                    <template v-if="fastInputMode">
-                                                        (<strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>)
-                                                    </template>
-                                                    <br />
-                                                    {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
-                                                    <template v-if="!fastInputMode" v-for="auditorium in
-                                                        Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])
-                                                            .sort((a,b) => {
-                                                                let  aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
-                                                                let bMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][b]);
+                                                    <div
+                                                        :class="{
+                                                                'budget': groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 1,
+                                                                'vneur': groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2,
+                                                                'plat': groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3}">
+                                                        {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}}
+                                                        <template v-if="fastInputMode">
+                                                            (<strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>)
+                                                        </template>
+                                                        <br />
+                                                        {{groupSchedule[dow][ring][tfd]["lessons"][0]["teacherFIO"]}} <br />
+                                                        <template v-if="!fastInputMode" v-for="auditorium in
+                                                            Object.keys(groupSchedule[dow][ring][tfd]['weeksAndAuds'])
+                                                                .sort((a,b) => {
+                                                                    let  aMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][a]);
+                                                                    let bMin = Math.min(...groupSchedule[dow][ring][tfd]['weeksAndAuds'][b]);
 
-                                                                if (aMin === bMin) return 0;
-                                                                return aMin < bMin ? -1 : 1;
-                                                            })
-                                                    ">
-                                                        {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
-                                                    </template>
+                                                                    if (aMin === bMin) return 0;
+                                                                    return aMin < bMin ? -1 : 1;
+                                                                })
+                                                        ">
+                                                            {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
+                                                        </template>
+                                                    </div>
 
                                                     <template v-if="tfd !== Object.keys(groupSchedule[dow][ring])
                                                         .sort((a,b) => {
@@ -1366,5 +1373,17 @@
 
     .smallFont {
         font-size: 0.8em;
+    }
+
+    .budget {
+        background-color: rgba(255,255,0,0.2);
+    }
+
+    .vneur {
+        background-color: rgba(20,255,0,0.2);
+    }
+
+    .plat {
+        background-color: rgba(23,67,255,0.2);
     }
 </style>
