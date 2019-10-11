@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 ini_set('max_execution_time', 180);
 
+use App\DomainClasses\Building;
 use App\DomainClasses\Calendar;
 use App\DomainClasses\ConfigOption;
 use App\DomainClasses\Faculty;
@@ -16,7 +17,6 @@ use PDFMerger;
 class PdfController extends Controller
 {
     public function facultyDowChoice() {
-
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
 
         $faculties = Faculty::all()->sortBy('sorting_order');
@@ -545,5 +545,108 @@ class PdfController extends Controller
         }
 
         return view('pdf.studentGroupChoice', compact('studentGroups', 'weekCount', 'weeks', 'currentWeek'));
+    }
+
+    public function buildingEventsPdfChoice() {
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+
+        $buildings = Building::all();
+        $weekCount = Calendar::WeekCount();
+
+        $weeks = array();
+        for($w = 1; $w <= $weekCount; $w++) {
+            $start = $css->clone();
+            $end = $start->clone()->addDays(6);
+            $weeks[$w] = $start->format("d.m") . " - " . $end->format('d.m');
+
+            $css = $css->addWeek();
+        }
+
+        $today = CarbonImmutable::now()->format('Y-m-d');
+        $currentDow = Calendar::CarbonDayOfWeek(CarbonImmutable::now());
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+        $currentWeek = Calendar::WeekFromDate($today, $css);
+        $dowRu = array("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота");
+
+        return view('pdf.buildingEventsPdfChoice', compact('buildings', 'dowRu', 'weekCount', 'weeks', 'currentWeek', 'currentDow'));
+    }
+
+    public function buildingEventsPdf(Request $request) {
+        $input = $request->all();
+        $input['weeks'] = $input['week'];
+        $dowRu = array("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота");
+
+        $oac = new OldApiController();
+        $events = $oac->GetBuildingEvents($input);
+
+        PDF::setOptions([
+            'dpi' => 150,
+            'defaultFont' => 'sans-serif']);
+
+        $mainFontSize = 12;
+        $data["mainFontSize"] = $mainFontSize . "px";
+
+        $building = Building::find($input['buildingId']);
+
+        $rings = $events['rings'];
+        usort($rings, function ($a, $b) {
+            $aValue = intval(mb_substr($a,0,2)) * 60 + intval(mb_substr($a,3,2));
+            $bValue = intval(mb_substr($b,0,2)) * 60 + intval(mb_substr($b,3,2));
+
+            if ($aValue === $bValue) return 0;
+            return ($aValue < $bValue) ? -1 : 1;
+        });
+        $ringsFlipped = array_flip($events['rings']);
+        $newRings = array();
+        foreach($rings as $ring) {
+            $newRings[] = array(
+                'id' => $ringsFlipped[$ring],
+                'time' => $ring
+            );
+        }
+
+        $auds = $events['auditoriums'];
+        $auds = array_values($auds);
+        sort($auds);
+        $audsFlipped = array_flip($events['auditoriums']);
+        $newAuds = array();
+        foreach($auds as $aud) {
+            $newAuds[] = array(
+                'id' => $audsFlipped[$aud],
+                'name' => $aud
+            );
+        }
+
+        $data = [
+            'title' => 'Занятость аудиторий корпуса (' . $building->name  .  ') ' .
+                $dowRu[$input['dow']-1] . ' (' . $input['week'] . ')',
+            'title1' => 'Занятость аудиторий корпуса' ,
+            'title2' => '(' . $building->name  .  ')' ,
+            'title3' => $dowRu[$input['dow']-1] . ' (' . $input['week'] . ')',
+            'events' => $events['schedule'],
+            'rings' => $newRings,
+            'auditoriums' => $newAuds,
+            'mainFontSize' => $mainFontSize . 'px',
+            'timestamp' => $immutable = CarbonImmutable::now()->format('d.m.Y H:i:s')
+        ];
+
+        //return $data;
+
+        PDF::setOptions([
+            'dpi' => 150,
+            'defaultFont' => 'sans-serif']);
+
+        do {
+            $pdf = PDF::loadView('pdf.buildingEvents', $data)->setPaper('a4', 'landscape');
+            $pdf->stream($data["title"] .'.pdf');
+            $pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
+            $mainFontSize -= 0.5;
+            $data["mainFontSize"] = $mainFontSize . "px";
+        } while($pageCount > 1);
+
+        ob_clean();
+
+        $pdf = PDF::loadView('pdf.buildingEvents', $data)->setPaper('a4', 'landscape');
+        return $pdf->stream($data["title"] .'.pdf');
     }
 }

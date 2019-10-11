@@ -131,7 +131,22 @@ class TeacherGotIllController extends Controller
                 $teacherLesson->latterLessonsExists = false;
             }
 
-            $teacherLesson->groupLessons = $groupDayLessons;
+            $carbonLessonDate = Carbon::createFromFormat('Y-m-d', $teacherLesson->calendarsDate);
+
+            // today + 6 next days lessons
+            $allCalendars = Calendar::all()->toArray();
+            $nextWeekCalendarIds = array_filter($allCalendars, function($v, $k) use ($carbonLessonDate) {
+                $carbonDate = Carbon::createFromFormat('Y-m-d', $v['date']);
+                $diff = $carbonLessonDate->diffInDays($carbonDate, false);
+
+                return ($diff >= 0) && ($diff <= 6);
+            }, ARRAY_FILTER_USE_BOTH);
+
+            dd($nextWeekCalendarIds);
+
+            //$teacherLesson->groupLessons = $groupDayLessons;
+            unset($teacherLesson->earlierLessons);
+            unset($teacherLesson->latterLessons);
         }
 
         return $teacherLessons;

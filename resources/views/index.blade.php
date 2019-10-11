@@ -52,9 +52,11 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/buildingEventsPdfChoice">
+                                Занятость аудиторий корпуса на один день в PDF
+                            </a>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

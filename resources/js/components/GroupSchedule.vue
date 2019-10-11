@@ -40,20 +40,32 @@
                                     'is-danger': selectedWeeks.includes(week)}"
                                 >{{week}}</button>
 
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
-                                    <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
-                                </div>
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
+                                                <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
+                                            </div>
 
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" v-model="showEditTools" class="custom-control-input" id="customSwitch2">
-                                    <label class="custom-control-label" for="customSwitch2">Показывать инструменты редактирования</label>
-                                </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" v-model="showEditTools" class="custom-control-input" id="customSwitch2">
+                                                <label class="custom-control-label" for="customSwitch2">Показывать инструменты редактирования</label>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <div class="custom-control custom-switch">
+                                                <input :disabled="severalWeeks" type="checkbox" @change="fastInputModeToggled" v-model="fastInputMode" class="custom-control-input" id="customSwitch3">
+                                                <label class="custom-control-label" for="customSwitch3">Режим быстрого ввода</label>
+                                            </div>
 
-                                <div class="custom-control custom-switch">
-                                    <input :disabled="severalWeeks" type="checkbox" @change="fastInputModeToggled" v-model="fastInputMode" class="custom-control-input" id="customSwitch3">
-                                    <label class="custom-control-label" for="customSwitch3">Режим быстрого ввода</label>
-                                </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" v-model="disciplineColorCoding" class="custom-control-input" id="customSwitch4">
+                                                <label class="custom-control-label" for="customSwitch4">Цветовое обозначение видов дисциплин</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
 
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
@@ -131,9 +143,9 @@
 
                                                     <div
                                                         :class="{
-                                                                'budget': groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 1,
-                                                                'vneur': groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2,
-                                                                'plat': groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3}">
+                                                                'budget': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 1,
+                                                                'vneur': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2,
+                                                                'plat': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3}">
                                                         {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}}
                                                         <template v-if="fastInputMode">
                                                             (<strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>)
@@ -437,6 +449,7 @@
                 newTfdBusyLoading: false,
                 showEditTools: true,
                 fastInputMode: false,
+                disciplineColorCoding: false,
             }
         },
         methods: {

@@ -1462,7 +1462,7 @@ class OldApiController extends Controller
         return $result;
     }
 
-    private function GetBuildingEvents($input) {
+    public  function GetBuildingEvents($input) {
         if ((!isset($input['dow'])) || (!isset($input['weeks'])) || (!isset($input['buildingId'])))
         {
             return array("error" => "dow, weeks и buildingId обязательные параметры");
