@@ -41,6 +41,41 @@
                 </tr>
             </table>
 
+            <table style="width:100%; margin-top: 1.5em;">
+                <tr style="text-align: center;">
+                    <td>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" name="bud" class="custom-control-input" id="customSwitch1" checked>
+                            <label class="custom-control-label" for="customSwitch1">Бюджет</label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" name="vne" class="custom-control-input" id="customSwitch2">
+                            <label class="custom-control-label" for="customSwitch2">Внеурочка</label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" name="pla" class="custom-control-input" id="customSwitch3">
+                            <label class="custom-control-label" for="customSwitch3">Платные</label>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="width: 100%; text-align: center;margin-top: 1em;">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" name="signature" class="custom-control-input" id="customSwitch4">
+                    <label class="custom-control-label" for="customSwitch4">Подпись директора</label>
+                </div>
+
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" name="exportTimestamp" class="custom-control-input" id="customSwitch5" checked>
+                    <label class="custom-control-label" for="customSwitch5">Добавлять время экспорта</label>
+                </div>
+            </div>
+
             <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 1em;">
                 <button type="submit" style="font-size: 2em;" class="button is-primary">Создать PDF-файл</button>
             </div>

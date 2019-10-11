@@ -9,7 +9,28 @@
     </style>
 </head>
 <body>
-<h2 style="text-align: center">{{$title}}</h2>
+<table style="width: 100%;">
+    <tr>
+        <td
+            @if($signature == 1)
+                style="border: none; vertical-align: middle; text-align: right;"
+            @endif
+            @if($signature !== 1)
+                style="border: none; vertical-align: middle; text-align: center;"
+            @endif>
+            <h2 style="margin-right: 1em;">{{$title}}</h2>
+        </td>
+        @if($signature == 1)
+            <td style="text-align: left;border: none; vertical-align: middle; font-size: 10px; width: 430px;">
+                Утверждаю <br />
+                Директор ГБНОУ СО <br />
+                «Академия для одаренных детей (Наяновой)»    ___________________ М.В. Наянова <br />
+                «30» августа 2019 г. <br />
+
+            </td>
+        @endif
+    </tr>
+</table>
 
 <table style="margin-top: 2em; border-collapse: collapse; width: 100%;" class="table td-center is-bordered">
     <tr>
@@ -60,9 +81,10 @@
     @endforeach
 </table>
 
-
+@if($exportTimestamp == 1)
 <div style="text-align: right; font-size: 0.5em;">
     Экспорт произведён: {{$timestamp}}
 </div>
+@endif
 </body>
 </html>

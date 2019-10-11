@@ -463,10 +463,15 @@ class PdfController extends Controller
             '7' => 'Воскресенье'
         ];
 
-
-
         $oac = new OldApiController();
         $input = $request->all();
+
+        $disciplineTypes = array(
+            1 => isset($input['bud']),
+            2 => isset($input['vne']),
+            3 => isset($input['pla'])
+        );
+        $input['disciplineTypes'] = $disciplineTypes;
 
         $input["weeks"] = $input["week"];
         $input["compactResult"] = "1";
@@ -503,7 +508,9 @@ class PdfController extends Controller
             'groupName' => $group->name,
             'scheduleRings' => $scheduleRings,
             'mainFontSize' => $mainFontSize . 'px',
-            'timestamp' => $immutable = CarbonImmutable::now()->format('d.m.Y H:i:s')
+            'timestamp' => $immutable = CarbonImmutable::now()->format('d.m.Y H:i:s'),
+            'signature' => isset($input['signature']),
+            'exportTimestamp' => isset($input['exportTimestamp'])
         ];
 
         //return $data;
