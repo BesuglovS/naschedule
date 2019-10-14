@@ -65,6 +65,19 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="2" style="text-align:center;">
+                                            <template v-if="selectedWeeks.length === 1 && selectedWeeks[0] !== -1">
+                                                <button @click="switchLessons();" style="margin-right:0.5em; margin-bottom: 0.5em;"
+                                                        class="button is-primary"
+                                                >Поменять выбранные уроки местами</button>
+
+                                                <button @click="clearLessonsSelection();" style="margin-right:0.5em; margin-bottom: 0.5em;"
+                                                        class="button is-primary"
+                                                >Снять всё выделение</button>
+                                            </template>
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
 
@@ -163,6 +176,10 @@
                                                                 })
                                                         ">
                                                             {{combineWeeksToRange(groupSchedule[dow][ring][tfd]["weeksAndAuds"][auditorium])}} - {{auditorium}}<br />
+                                                        </template>
+
+                                                        <template v-if="showEditTools && selectedWeeks.length === 1 && selectedWeeks[0] !== -1">
+                                                            <input type="checkbox" v-model="groupSchedule[dow][ring][tfd].selected" style="transform: scale(1.5);" name="active" />
                                                         </template>
                                                     </div>
 
@@ -499,6 +516,14 @@
                         }
 
                         this.loading = false;
+
+                        for(let dow = 1; dow <= 7; dow++) {
+                            for (const [time, dowTimeLessons] of Object.entries(data[dow])) {
+                                for (const [tfdId, tfdData] of Object.entries(data[dow][time])) {
+                                    data[dow][time][tfdId].selected = false;
+                                }
+                            }
+                        }
 
                         this.groupSchedule = data;
                     });
@@ -1262,6 +1287,45 @@
             fastInputModeToggled() {
                 if (this.fastInputMode) {
                     this.scheduleRings = this.allRings.map(r => r.Time.substr(0,5));
+                }
+            },
+            switchLessons() {
+                let lessonsToSwitch = [];
+
+                for(let dow = 1; dow <= 7; dow++) {
+                    for (const [time, dowTimeLessons] of Object.entries(this.groupSchedule[dow])) {
+                        for (const [tfdId, tfdData] of Object.entries(this.groupSchedule[dow][time])) {
+                            if (this.groupSchedule[dow][time][tfdId].selected) {
+                                lessonsToSwitch.push(this.groupSchedule[dow][time][tfdId]);
+                            }
+                        }
+                    }
+                }
+
+                if (lessonsToSwitch.length !== 2) {
+                    alert('Необходимо чтобы было выбрано только 2 урока.');
+                    return;
+                }
+
+                let lessonId1 = lessonsToSwitch[0]['lessons'][0]['lessonId'];
+                let lessonId2 = lessonsToSwitch[1]['lessons'][0]['lessonId'];
+
+                this.loading = true;
+
+                axios
+                    .post('/switchLessons?lessonId1=' + lessonId1 +
+                        '&lessonId2=' + lessonId2)
+                    .then(response => {
+                        this.loadGroupSchedule();
+                    });
+            },
+            clearLessonsSelection() {
+                for(let dow = 1; dow <= 7; dow++) {
+                    for (const [time, dowTimeLessons] of Object.entries(this.groupSchedule[dow])) {
+                        for (const [tfdId, tfdData] of Object.entries(this.groupSchedule[dow][time])) {
+                            this.groupSchedule[dow][time][tfdId].selected = false;
+                        }
+                    }
                 }
             },
         },

@@ -70,6 +70,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/lessonsWeeksAndAudsEdit', 'LessonController@WeeksAndAudsEdit');
     Route::get('/disciplinesByGroupInfo', 'DisciplineController@DisciplinesByGroupInfo');
     Route::post('/lessonsGroupScheduleAdd', 'LessonController@GroupScheduleAdd');
+    Route::post('/switchLessons', 'LessonController@SwitchLessons');
 
     //Disciplines
     Route::post('/disciplinesCopyFromGroupToGroup', 'DisciplineController@CopyFromGroupToGroup');
