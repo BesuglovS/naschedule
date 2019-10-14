@@ -8,6 +8,7 @@ use App\DomainClasses\Calendar;
 use App\DomainClasses\ConfigOption;
 use App\DomainClasses\Faculty;
 use App\DomainClasses\StudentGroup;
+use App\DomainClasses\Teacher;
 use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -655,5 +656,100 @@ class PdfController extends Controller
 
         $pdf = PDF::loadView('pdf.buildingEvents', $data)->setPaper('a4', 'landscape');
         return $pdf->stream($data["title"] .'.pdf');
+    }
+
+    public function teacherPdf() {
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+
+        $teachers = Teacher::all()->sortBy('fio');
+        $weekCount = Calendar::WeekCount();
+
+        $weeks = array();
+        for($w = 1; $w <= $weekCount; $w++) {
+            $start = $css->clone();
+            $end = $start->clone()->addDays(6);
+            $weeks[$w] = $start->format("d.m") . " - " . $end->format('d.m');
+
+            $css = $css->addWeek();
+        }
+
+        $today = CarbonImmutable::now()->format('Y-m-d');
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+        $currentWeek = Calendar::WeekFromDate($today, $css);
+        $dowRu = array("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота");
+
+        return view('pdf.teacherPdfChoice', compact('teachers', 'weekCount', 'weeks', 'currentWeek', 'dowRu'));
+    }
+
+    public function teacherPdfWeek (Request $request) {
+        $dowRu = [
+            '1' => 'Понедельник',
+            '2' => 'Вторник',
+            '3' => 'Среда',
+            '4' => 'Четверг',
+            '5' => 'Пятница',
+            '6' => 'Суббота',
+            '7' => 'Воскресенье'
+        ];
+
+        $oac = new OldApiController();
+        $input = $request->all();
+        $input["weeks"] = $input["week"];
+        $input["compactResult"] = true;
+        $teacherSchedule = $oac->GetTeacherWeeksSchedule($input);
+        unset($teacherSchedule[7]);
+
+
+        $scheduleRings = array();
+        for($i = 1; $i <= 6; $i++) {
+            foreach (array_keys($teacherSchedule[$i]) as $time) {
+                if (!in_array($time, $scheduleRings)) {
+                    $scheduleRings[] = $time;
+                }
+            }
+        }
+
+        usort($scheduleRings, function ($a, $b) {
+            $aVal = intval(substr($a, 0, 2)) * 60 + intval(substr($a, 3, 2));
+            $bVal = intval(substr($b, 0, 2)) * 60 + intval(substr($b, 3, 2));
+
+            if ($aVal === $bVal) return 0;
+            return $aVal < $bVal? -1 : 1;
+        });
+
+        //dd($teacherSchedule, $scheduleRings);
+
+        $teacher = Teacher::find($input["teacherId"]);
+
+
+        $mainFontSize = 12;
+
+        $data = [
+            'title' => $teacher->fio . ' - ' . $input["week"],
+            'schedule' => $teacherSchedule,
+            'scheduleRings' => $scheduleRings,
+            'mainFontSize' => $mainFontSize . 'px',
+            'dowRu' => $dowRu,
+            'timestamp' => $immutable = CarbonImmutable::now()->format('d.m.Y H:i:s')
+        ];
+
+        //return $data;
+
+        PDF::setOptions([
+            'dpi' => 150,
+            'defaultFont' => 'sans-serif']);
+
+        do {
+            $pdf = PDF::loadView('pdf.teacherPdf', $data)->setPaper('a4', 'landscape');
+            $pdf->stream('Расписание (' . $data["title"] . ' (' . $data["timestamp"].')).pdf');
+            $pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
+            $mainFontSize -= 0.5;
+            $data["mainFontSize"] = $mainFontSize . "px";
+        } while($pageCount > 1);
+
+        ob_clean();
+
+        $pdf = PDF::loadView('pdf.teacherPdf', $data)->setPaper('a4', 'landscape');
+        return $pdf->stream('Расписание (' . $data["title"] . ' (' . $data["timestamp"] .')).pdf');
     }
 }

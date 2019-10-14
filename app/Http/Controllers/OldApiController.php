@@ -1171,7 +1171,7 @@ class OldApiController extends Controller
         return $lessons;
     }
 
-    private function GetTeacherWeeksSchedule($input)
+    public function GetTeacherWeeksSchedule($input)
     {
         if (!isset($input['teacherId']))
         {

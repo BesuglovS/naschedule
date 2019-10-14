@@ -148,6 +148,9 @@ Route::get('/print-group-week-pdf', 'PdfController@StudentGroupWeekIndex');
 Route::get('/print-group-pdf', 'PdfController@StudentGroupWeek');
 Route::get('/buildingEventsPdfChoice', 'PdfController@buildingEventsPdfChoice');
 Route::get('/buildingEventsPdf', 'PdfController@buildingEventsPdf');
+Route::get('/teacherPdf', 'PdfController@teacherPdf');
+Route::get('/teacherPdfWeek', 'PdfController@teacherPdfWeek');
+
 
 
 Route::get('/auds', 'MainController@auds');
