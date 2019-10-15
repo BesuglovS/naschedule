@@ -720,6 +720,8 @@ class PdfController extends Controller
             ->orderBy('student_groups.name')
             ->get();
 
+        $fileNames = array();
+
         foreach($facultyGroups as $facultyGroup) {
             for ($type = 1; $type <= 3; $type++) {
 

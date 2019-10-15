@@ -116,13 +116,13 @@
 
                 <div style="width: 100%; text-align: center;margin-top: 1em;">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" name="signature" class="custom-control-input" id="customSwitch4">
-                        <label class="custom-control-label" for="customSwitch4">Подпись директора</label>
+                        <input type="checkbox" name="signature" class="custom-control-input" id="customSwitch44">
+                        <label class="custom-control-label" for="customSwitch44">Подпись директора</label>
                     </div>
 
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" name="exportTimestamp" class="custom-control-input" id="customSwitch5" checked>
-                        <label class="custom-control-label" for="customSwitch5">Добавлять время экспорта</label>
+                        <input type="checkbox" name="exportTimestamp" class="custom-control-input" id="customSwitch55" checked>
+                        <label class="custom-control-label" for="customSwitch55">Добавлять время экспорта</label>
                     </div>
                 </div>
 
@@ -166,13 +166,13 @@
 
             <div style="width: 100%; text-align: center;margin-top: 1em;">
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" name="signature" class="custom-control-input" id="customSwitch4">
-                    <label class="custom-control-label" for="customSwitch4">Подпись директора</label>
+                    <input type="checkbox" name="signature" class="custom-control-input" id="customSwitch444">
+                    <label class="custom-control-label" for="customSwitch444">Подпись директора</label>
                 </div>
 
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" name="exportTimestamp" class="custom-control-input" id="customSwitch5" checked>
-                    <label class="custom-control-label" for="customSwitch5">Добавлять время экспорта</label>
+                    <input type="checkbox" name="exportTimestamp" class="custom-control-input" id="customSwitch555" checked>
+                    <label class="custom-control-label" for="customSwitch555">Добавлять время экспорта</label>
                 </div>
             </div>
 
