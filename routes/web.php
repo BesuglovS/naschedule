@@ -147,6 +147,8 @@ Route::post('/bulkDowDownload-pdf', 'PdfController@DowBulkDownload');
 Route::post('/bulkDowShow-pdf', 'PdfController@DowBulkShow');
 Route::get('/print-group-week-pdf', 'PdfController@StudentGroupWeekIndex');
 Route::get('/print-group-pdf', 'PdfController@StudentGroupWeek');
+Route::get('/print-group-pdf-three', 'PdfController@StudentGroupWeekThree');
+Route::get('/print-faculty-pdf-three', 'PdfController@FacultyWeekThree');
 Route::get('/buildingEventsPdfChoice', 'PdfController@buildingEventsPdfChoice');
 Route::get('/buildingEventsPdf', 'PdfController@buildingEventsPdf');
 Route::get('/teacherPdf', 'PdfController@teacherPdf');

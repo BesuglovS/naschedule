@@ -13,6 +13,7 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use PDFMerger;
 
 class PdfController extends Controller
@@ -260,9 +261,15 @@ class PdfController extends Controller
             $pdfM->addPDF($fileName, 'all');
         }
 
-        $filename = "Schedule - " . $facultyId . " (" . $week . ").pdf";
+        $faculty = Faculty::find($facultyId);
+
+        $filename = "Расписание (" . $faculty->name . " - " . $week . ").pdf";
 
         $pdfM->merge('download', $filename);
+
+        foreach ($fileNames as $fn) {
+            unlink(public_path($fn));
+        }
 
         return redirect()->back();
     }
@@ -353,9 +360,13 @@ class PdfController extends Controller
             $pdfM->addPDF($fileName, 'all');
         }
 
-        $filename = "Schedule (" . $week . ").pdf";
+        $filename = "Расписание (" . $week . ").pdf";
 
         $pdfM->merge('download', $filename);
+
+        foreach ($fileNames as $fn) {
+            unlink(public_path($fn));
+        }
 
         return redirect()->back();
     }
@@ -446,9 +457,13 @@ class PdfController extends Controller
             $pdfM->addPDF($fileName, 'all');
         }
 
-        $filename = "Schedule (" . $week . ").pdf";
+        $filename = "Расписание (" . $week . ").pdf";
 
         $pdfM->merge('browser', $filename);
+
+        foreach ($fileNames as $fn) {
+            unlink(public_path($fn));
+        }
 
         return redirect()->back();
     }
@@ -472,6 +487,18 @@ class PdfController extends Controller
             2 => isset($input['vne']),
             3 => isset($input['pla'])
         );
+
+        $typeString = "";
+        if (isset($input['bud'])) {
+            $typeString .= "Бюджет";
+        }
+        if (isset($input['vne'])) {
+            $typeString .= (($typeString === "") ? "" : " + ") . "Внеурочные";
+        }
+        if (isset($input['pla'])) {
+            $typeString .= (($typeString === "") ? "" : " + ") . "Платные";
+        }
+
         $input['disciplineTypes'] = $disciplineTypes;
 
         $input["weeks"] = $input["week"];
@@ -503,7 +530,7 @@ class PdfController extends Controller
         $mainFontSize = 10;
 
         $data = [
-            'title' => "Расписание " . $group->name . " (" . $week . ")",
+            'title' => "Расписание " . $group->name . " (" . $week . ") - " . $typeString,
             'dowRu' => $dowRu,
             'groupSchedule' => $schedule,
             'groupName' => $group->name,
@@ -536,6 +563,7 @@ class PdfController extends Controller
 
     public function StudentGroupWeekIndex() {
         $studentGroups = StudentGroup::allSorted();
+        $faculties = Faculty::all()->sortBy('sorting_order');
 
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
         $today = CarbonImmutable::now()->format('Y-m-d');
@@ -552,7 +580,247 @@ class PdfController extends Controller
             $css = $css->addWeek();
         }
 
-        return view('pdf.studentGroupChoice', compact('studentGroups', 'weekCount', 'weeks', 'currentWeek'));
+        return view('pdf.studentGroupChoice', compact('studentGroups', 'faculties', 'weekCount', 'weeks', 'currentWeek'));
+    }
+
+    public function StudentGroupWeekThree(Request $request) {
+        $dowRu = [
+            '1' => 'Понедельник',
+            '2' => 'Вторник',
+            '3' => 'Среда',
+            '4' => 'Четверг',
+            '5' => 'Пятница',
+            '6' => 'Суббота',
+            '7' => 'Воскресенье'
+        ];
+
+        $oac = new OldApiController();
+        $input = $request->all();
+
+        for($type = 1; $type <= 3; $type++) {
+
+            $disciplineTypes = array(
+                1 => $type === 1,
+                2 => $type === 2,
+                3 => $type === 3
+            );
+
+            $typeString = "";
+            switch ($type) {
+                case 1:
+                    $typeString = "Бюджет";
+                    break;
+                case 2:
+                    $typeString = "Внеурочные";
+                    break;
+                case 3:
+                    $typeString = "Платные";
+                    break;
+            }
+
+            $input['disciplineTypes'] = $disciplineTypes;
+
+            $input["weeks"] = $input["week"];
+            $input["compactResult"] = "1";
+
+            $schedule = $oac->GetWeeksSchedule($input);
+
+            $group = StudentGroup::find($input['groupId']);
+            $week = $input["week"];
+
+            $scheduleRings = array();
+
+            for ($dow = 1; $dow <= 7; $dow++) {
+                foreach (array_keys($schedule[$dow]) as $time) {
+                    if (!in_array($time, $scheduleRings)) {
+                        $scheduleRings[] = $time;
+                    }
+                }
+            }
+
+            usort($scheduleRings, function ($a, $b) {
+                $aVal = intval(substr($a, 0, 2)) * 60 + intval(substr($a, 3, 2));
+                $bVal = intval(substr($b, 0, 2)) * 60 + intval(substr($b, 3, 2));
+
+                if ($aVal === $bVal) return 0;
+                return $aVal < $bVal ? -1 : 1;
+            });
+
+            $mainFontSize = 10;
+
+            $data = [
+                'title' => "Расписание " . $group->name . " (" . $week . ") - " . $typeString,
+                'dowRu' => $dowRu,
+                'groupSchedule' => $schedule,
+                'groupName' => $group->name,
+                'scheduleRings' => $scheduleRings,
+                'mainFontSize' => $mainFontSize . 'px',
+                'timestamp' => $immutable = CarbonImmutable::now()->format('d.m.Y H:i:s'),
+                'signature' => isset($input['signature']),
+                'exportTimestamp' => isset($input['exportTimestamp'])
+            ];
+
+            //return $data;
+
+            PDF::setOptions([
+                'dpi' => 150,
+                'defaultFont' => 'sans-serif']);
+
+            do {
+                $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
+                $pdf->stream($data["title"] . ' ' . $type . '.pdf');
+                $pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
+                $mainFontSize -= 0.5;
+                $data["mainFontSize"] = $mainFontSize . "px";
+            } while ($pageCount > 1);
+
+            ob_clean();
+
+            $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
+            $pdf->save($data["title"] . ' ' . $type . '.pdf');
+            $fileNames[] = $data["title"] . ' ' . $type . '.pdf';
+        }
+
+        $pdfM = new PDFMerger();
+        foreach ($fileNames as $fileName) {
+            $pdfM->addPDF($fileName, 'all');
+        }
+
+        $group = StudentGroup::find($input['groupId']);
+
+        $filename = "Расписание (" . $group->name . " - " . $input['week'] .").pdf";
+
+        $pdfM->merge('download', $filename);
+
+        foreach ($fileNames as $fn) {
+            unlink(public_path($fn));
+        }
+
+        return redirect()->back();
+    }
+
+    public function FacultyWeekThree(Request $request) {
+        $dowRu = [
+            '1' => 'Понедельник',
+            '2' => 'Вторник',
+            '3' => 'Среда',
+            '4' => 'Четверг',
+            '5' => 'Пятница',
+            '6' => 'Суббота',
+            '7' => 'Воскресенье'
+        ];
+
+        $oac = new OldApiController();
+        $input = $request->all();
+
+        $faculty = Faculty::find($input['facultyId']);
+        $facultyGroups = DB::table('faculty_student_group')
+            ->join('student_groups', 'faculty_student_group.student_group_id', '=', 'student_groups.id')
+            ->where('faculty_student_group.faculty_id', '=', $faculty->id)
+            ->orderBy('student_groups.name')
+            ->get();
+
+        foreach($facultyGroups as $facultyGroup) {
+            for ($type = 1; $type <= 3; $type++) {
+
+                $disciplineTypes = array(
+                    1 => $type === 1,
+                    2 => $type === 2,
+                    3 => $type === 3
+                );
+
+                $typeString = "";
+                switch ($type) {
+                    case 1:
+                        $typeString = "Бюджет";
+                        break;
+                    case 2:
+                        $typeString = "Внеурочные";
+                        break;
+                    case 3:
+                        $typeString = "Платные";
+                        break;
+                }
+
+                $input['disciplineTypes'] = $disciplineTypes;
+
+                $input["groupId"] = $facultyGroup->id;
+                $input["weeks"] = $input["week"];
+                $input["compactResult"] = "1";
+
+                $schedule = $oac->GetWeeksSchedule($input);
+
+                $group = StudentGroup::find($input['groupId']);
+                $week = $input["week"];
+
+                $scheduleRings = array();
+
+                for ($dow = 1; $dow <= 7; $dow++) {
+                    foreach (array_keys($schedule[$dow]) as $time) {
+                        if (!in_array($time, $scheduleRings)) {
+                            $scheduleRings[] = $time;
+                        }
+                    }
+                }
+
+                usort($scheduleRings, function ($a, $b) {
+                    $aVal = intval(substr($a, 0, 2)) * 60 + intval(substr($a, 3, 2));
+                    $bVal = intval(substr($b, 0, 2)) * 60 + intval(substr($b, 3, 2));
+
+                    if ($aVal === $bVal) return 0;
+                    return $aVal < $bVal ? -1 : 1;
+                });
+
+                $mainFontSize = 10;
+
+                $data = [
+                    'title' => "Расписание " . $group->name . " (" . $week . ") - " . $typeString,
+                    'dowRu' => $dowRu,
+                    'groupSchedule' => $schedule,
+                    'groupName' => $group->name,
+                    'scheduleRings' => $scheduleRings,
+                    'mainFontSize' => $mainFontSize . 'px',
+                    'timestamp' => CarbonImmutable::now()->format('d.m.Y H:i:s'),
+                    'signature' => isset($input['signature']),
+                    'exportTimestamp' => isset($input['exportTimestamp'])
+                ];
+
+                //return $data;
+
+                PDF::setOptions([
+                    'dpi' => 150,
+                    'defaultFont' => 'sans-serif']);
+
+                do {
+                    $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
+                    $pdf->stream($data["title"] . ' ' . $type . '.pdf');
+                    $pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
+                    $mainFontSize -= 0.5;
+                    $data["mainFontSize"] = $mainFontSize . "px";
+                } while ($pageCount > 1);
+
+                ob_clean();
+
+                $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
+                $pdf->save($data["title"] . ' ' . $type . '.pdf');
+                $fileNames[] = $data["title"] . ' ' . $type . '.pdf';
+            }
+        }
+
+        $pdfM = new PDFMerger();
+        foreach ($fileNames as $fileName) {
+            $pdfM->addPDF($fileName, 'all');
+        }
+
+        $filename = "Расписание (" . $faculty->name . " - " . $input['week'] .").pdf";
+
+        $pdfM->merge('download', $filename);
+
+        foreach ($fileNames as $fn) {
+            unlink(public_path($fn));
+        }
+
+        return redirect()->back();
     }
 
     public function buildingEventsPdfChoice() {
