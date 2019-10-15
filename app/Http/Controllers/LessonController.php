@@ -429,4 +429,51 @@ class LessonController extends Controller
         $lle4->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $input['lessonId1'] . '/' . $input['lessonId2'] . ' add 2';
         $lle4->save();
     }
+
+    public function RemoveLessonAndReplaceWithAnother(Request $request) {
+        $user = Auth::user();
+        $input = $request->all();
+
+        if ((!isset($input['lessonToRemoveId'])) || (!isset($input['lessonToMoveId'])))
+        {
+            return array("error" => "lessonToRemove и lessonToMove обязательные параметры");
+        }
+
+        $lesson1 = Lesson::find($input['lessonToRemoveId']);
+        $lesson1->state = 0;
+        $lesson1->save();
+        $lle1 = new LessonLogEvent();
+        $lle1->old_lesson_id = $lesson1->id;
+        $lle1->new_lesson_id = 0;
+        $lle1->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle1->public_comment = "";
+        $lle1->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "" ). " RemoveAndReplace lesson " . $input['lessonToRemoveId'] . '/' . $input['lessonToMoveId'] . ' remove 1';
+        $lle1->save();
+
+        $lesson2 = Lesson::find($input['lessonToMoveId']);
+        $lesson2->state = 0;
+        $lesson2->save();
+        $lle2 = new LessonLogEvent();
+        $lle2->old_lesson_id = $lesson2->id;
+        $lle2->new_lesson_id = 0;
+        $lle2->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle2->public_comment = "";
+        $lle2->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "" ). " RemoveAndReplace lesson " . $input['lessonToRemoveId'] . '/' . $input['lessonToMoveId'] . ' remove 2';
+        $lle2->save();
+
+        $new_lesson2 = new Lesson();
+        $new_lesson2->state = 1;
+        $new_lesson2->discipline_teacher_id = $lesson2->discipline_teacher_id;
+        $new_lesson2->calendar_id = $lesson1->calendar_id;
+        $new_lesson2->ring_id = $lesson1->ring_id;
+        $new_lesson2->auditorium_id = $lesson1->auditorium_id;
+        $new_lesson2->save();
+        $lle4 = new LessonLogEvent();
+        $lle4->old_lesson_id = 0;
+        $lle4->new_lesson_id = $new_lesson2->id;
+        $lle4->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle4->public_comment = "";
+        $lle4->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " RemoveAndReplace lesson " . $input['lessonToRemoveId'] . '/' . $input['lessonToMoveId'] . ' replace';
+        $lle4->save();
+    }
 }

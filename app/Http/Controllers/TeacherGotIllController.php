@@ -60,27 +60,7 @@ class TeacherGotIllController extends Controller
 
         $calendarIds = Calendar::CalendarIdsBetweenTwoIds($calendarFromId, $calendarToId);
 
-        $teacherLessons = DB::table('lessons')
-            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
-            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
-            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
-            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
-            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
-            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
-            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
-            ->where('lessons.state', '=', 1)
-            ->whereIn('lessons.calendar_id', $calendarIds)
-            ->where('teachers.id', '=', $teacherId)
-            ->select('lessons.*',
-                'teachers.id as teachersId',
-                'teachers.fio as teachersFio',
-                'disciplines.name as disciplinesName',
-                'student_groups.id as studentGroupsId',
-                'student_groups.name as studentGroupsName',
-                'calendars.date as calendarsDate',
-                'rings.time as ringsTime'
-            )
-            ->get();
+        $teacherLessons =  Teacher::CalendarSchedule($teacherId, $calendarIds);
 
         $result = array();
 
@@ -135,14 +115,113 @@ class TeacherGotIllController extends Controller
 
             // today + 6 next days lessons
             $allCalendars = Calendar::all()->toArray();
-            $nextWeekCalendarIds = array_filter($allCalendars, function($v, $k) use ($carbonLessonDate) {
+            $nextWeekCalendars = array_filter($allCalendars, function($v, $k) use ($carbonLessonDate) {
                 $carbonDate = Carbon::createFromFormat('Y-m-d', $v['date']);
                 $diff = $carbonLessonDate->diffInDays($carbonDate, false);
 
                 return ($diff >= 0) && ($diff <= 6);
             }, ARRAY_FILTER_USE_BOTH);
 
-            dd($nextWeekCalendarIds);
+            $nextWeekCalendarIds = collect($nextWeekCalendars)->pluck('id')->toArray();
+
+            $weekLessons = DB::table('lessons')
+                ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+                ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+                ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+                ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+                ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+                ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+                ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                ->where('lessons.state', '=', 1)
+                ->whereIn('lessons.calendar_id', $nextWeekCalendarIds)
+                ->where('student_groups.id', '=', $teacherLesson->studentGroupsId)
+                ->select('lessons.*',
+                    'teachers.id as teachersId',
+                    'teachers.fio as teachersFio',
+                    'disciplines.name as disciplinesName',
+                    'student_groups.name as studentGroupsName',
+                    'calendars.date as calendarsDate',
+                    'rings.time as ringsTime'
+                )
+                ->get()
+                ->toArray();
+
+            $weekLessonsByCalendarId = array();
+
+            foreach($weekLessons as $weekLesson) {
+                if (!array_key_exists($weekLesson->calendar_id, $weekLessonsByCalendarId)) {
+                    $weekLessonsByCalendarId[$weekLesson->calendar_id] = array();
+                }
+
+                $weekLessonsByCalendarId[$weekLesson->calendar_id][] = $weekLesson;
+            }
+
+            foreach($weekLessonsByCalendarId as $calendarId => $calendarLessons) {
+                usort($calendarLessons, function($a, $b) {
+                    $aValue = intval(mb_substr($a->ringsTime,0,2)) * 60 + intval(mb_substr($a->ringsTime,3,2));
+                    $bValue = intval(mb_substr($b->ringsTime,0,2)) * 60 + intval(mb_substr($b->ringsTime,3,2));
+
+                    if ($aValue === $bValue) return 0;
+                    return ($aValue < $bValue) ? -1 : 1;
+                });
+                $weekLessonsByCalendarId[$calendarId] = $calendarLessons;
+                $lessons = array($calendarLessons[0], end($calendarLessons));
+
+                foreach($lessons as $lessonForExchange) {
+                    $teacherId = $lessonForExchange->teachersId;
+
+                    $switchTeacherLessons = Teacher::CalendarSchedule($teacherId, array($teacherLesson->calendar_id));
+
+                    $sourceTeacherLessons = Teacher::CalendarSchedule($teacherId, array($lessonForExchange->calendar_id));
+
+                    $srcPositiveDiff = false;
+                    $srcNegativeDiff = false;
+                    foreach($sourceTeacherLessons as $sourceTeacherLesson) {
+                        $aValue = intval(mb_substr($lessonForExchange->ringsTime,0,2)) * 60 + intval(mb_substr($lessonForExchange->ringsTime,3,2));
+                        $bValue = intval(mb_substr($sourceTeacherLesson->ringsTime,0,2)) * 60 + intval(mb_substr($sourceTeacherLesson->ringsTime,3,2));
+                        $diff = $aValue - $bValue;
+                        if ($diff > 0) $srcPositiveDiff = true;
+                        if ($diff < 0) $srcNegativeDiff = true;
+                    }
+
+                    $minDiff = 2000;
+                    $busy = false;
+                    $positiveDiff = false;
+                    $negativeDiff = false;
+
+                    foreach($switchTeacherLessons as $switchTeacherLesson) {
+                        $aValue = intval(mb_substr($teacherLesson->ringsTime,0,2)) * 60 + intval(mb_substr($teacherLesson->ringsTime,3,2));
+                        $bValue = intval(mb_substr($switchTeacherLesson->ringsTime,0,2)) * 60 + intval(mb_substr($switchTeacherLesson->ringsTime,3,2));
+                        $diff = $aValue - $bValue;
+                        if ($diff === 0) $busy = true;
+                        if ($diff > 0) $positiveDiff = true;
+                        if ($diff < 0) $negativeDiff = true;
+                        if ($minDiff > $diff) {
+                            $minDiff = $diff;
+                        }
+                    }
+
+                    if (count($switchTeacherLessons) !== 0 && !$busy && $minDiff < 80) {
+                        if (!array_key_exists('possibleFill', $teacherLesson)) {
+                            $teacherLesson->possibleFill = array();
+                        }
+
+                        $teacherLesson->possibleFill[] = array(
+                            'lessonForExchangeId' => $lessonForExchange->id,
+                            'teacherFio' => $lessonForExchange->teachersFio,
+                            'disciplinesName' => $lessonForExchange->disciplinesName,
+                            'lessonForExchangeDate' => $lessonForExchange->calendarsDate,
+                            'lessonForExchangeTime' => $lessonForExchange->ringsTime,
+                            'earlierSourceLessonsExists' => $srcPositiveDiff,
+                            'latterSourceLessonsExists' => $srcNegativeDiff,
+                            'earlierTargetLessonsExists' => $positiveDiff,
+                            'latterTargetLessonsExists' => $negativeDiff
+                        );
+                    }
+                }
+            }
+
+            //dd($weekLessonsByCalendarId);
 
             //$teacherLesson->groupLessons = $groupDayLessons;
             unset($teacherLesson->earlierLessons);

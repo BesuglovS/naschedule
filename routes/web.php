@@ -71,6 +71,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/disciplinesByGroupInfo', 'DisciplineController@DisciplinesByGroupInfo');
     Route::post('/lessonsGroupScheduleAdd', 'LessonController@GroupScheduleAdd');
     Route::post('/switchLessons', 'LessonController@SwitchLessons');
+    Route::post('/removeLessonAndReplaceWithAnother', 'LessonController@RemoveLessonAndReplaceWithAnother');
+
 
     //Disciplines
     Route::post('/disciplinesCopyFromGroupToGroup', 'DisciplineController@CopyFromGroupToGroup');

@@ -75,6 +75,47 @@
                                     <img :src="'./assets/img/red-cross.png'" style="height:25px;" />
                                 </template>
                             </div>
+
+                            <div>
+                                <template v-if="lesson.possibleFill == undefined">
+                                    <strong>
+                                        Не удалось подобрать занятия для замены.
+                                    </strong>
+                                </template>
+                                <template v-if="lesson.possibleFill !== undefined">
+                                    <div v-for="fillLesson in lesson.possibleFill">
+                                        <table style="width:100%;">
+                                            <tr>
+                                                <td style="border: none; vertical-align: middle;">
+                                                    Можно заменить уроком <br />
+                                                    <strong>{{fillLesson.disciplinesName}} ({{fillLesson.teacherFio}})</strong> <br />
+                                                    {{reformatDate(fillLesson.lessonForExchangeDate)}} {{fillLesson.lessonForExchangeTime.substr(0,5)}}
+                                                    <div v-if="fillLesson.earlierTargetLessonsExists && fillLesson.latterTargetLessonsExists">
+                                                        <img :src="'./assets/img/green-checkmark.png'" style="height:25px;" />
+                                                        Перенос в окно
+                                                    </div>
+                                                    <div v-if="!fillLesson.earlierSourceLessonsExists">
+                                                        <img :src="'./assets/img/green-checkmark.png'" style="height:25px;" />
+                                                        Перенос самого раннего урока преподавателя
+                                                    </div>
+                                                    <div v-if="!fillLesson.latterSourceLessonsExists">
+                                                        <img :src="'./assets/img/green-checkmark.png'" style="height:25px;" />
+                                                        Перенос самого позднего урока преподавателя
+                                                    </div>
+
+                                                    <div v-if="fillLesson.earlierSourceLessonsExists && fillLesson.latterSourceLessonsExists">
+                                                        <img :src="'./assets/img/red-cross.png'" style="height:25px;" />
+                                                        В дне из которого осуществляется перенос у преподавателя есть более ранние и более поздние занятия.
+                                                    </div>
+                                                </td>
+                                                <td style="border: none; vertical-align: middle;">
+                                                    <button @click="replaceWithLesson(lesson, fillLesson);" style="font-size: 1em;" class="button btn-sm is-primary">Заменить окно уроком</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </template>
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -160,6 +201,15 @@
             },
             range(start, end) {
                 return Array(end - start + 1).fill().map((_, idx) => start + idx)
+            },
+            replaceWithLesson(lesson, fillLesson) {
+                axios
+                    .post('/removeLessonAndReplaceWithAnother' +
+                        '?lessonToRemoveId=' + lesson.id +
+                        '&lessonToMoveId=' + fillLesson.lessonForExchangeId)
+                    .then(response => {
+                        this.loadIllInfo();
+                    });
             },
         },
         mounted() {
