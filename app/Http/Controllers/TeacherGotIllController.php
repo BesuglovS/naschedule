@@ -260,7 +260,7 @@ class TeacherGotIllController extends Controller
                     if ($diff === 0) $busy = true;
                     if ($diff > 0) $positiveDiff = true;
                     if ($diff < 0) $negativeDiff = true;
-                    if ($minDiff >= abs($diff)) {
+                    if ($minDiff + 10 >= abs($diff)) {
                         if (abs($minDiff - abs($diff)) <= 10) {
                             $nearestLessons[] = $substituteTeacherLesson;
                         } else {

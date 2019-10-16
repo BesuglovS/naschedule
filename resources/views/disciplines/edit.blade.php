@@ -29,8 +29,8 @@
             <div>
                 <p>Количество часов в неделю</p>
                 <select style="margin-top: 5px; width: 300px" name="auditorium_hours_per_week">
-                    @foreach(range(1, 18) as $hours_count)
-                        <option value="{{$hours_count}}" @if($hours_count == $discipline->auditorium_hours_per_week) selected @endif>{{$hours_count}}</option>
+                    @foreach(range(1, 36) as $hours_count)
+                        <option value="{{$hours_count/2}}" @if($hours_count/2 == $discipline->auditorium_hours_per_week) selected @endif>{{$hours_count/2}}</option>
                     @endforeach
                 </select>
             </div>
