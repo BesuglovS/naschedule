@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\DomainClasses\Calendar;
+use App\DomainClasses\Discipline;
 use App\DomainClasses\Lesson;
 use App\DomainClasses\LessonLogEvent;
+use App\DomainClasses\Teacher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -475,5 +477,91 @@ class LessonController extends Controller
         $lle4->public_comment = "";
         $lle4->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " RemoveAndReplace lesson " . $input['lessonToRemoveId'] . '/' . $input['lessonToMoveId'] . ' replace';
         $lle4->save();
+    }
+
+    public function SubstituteTeacherForLesson(Request $request) {
+        $user = Auth::user();
+        $input = $request->all();
+
+        if ((!isset($input['lessonId'])) || (!isset($input['teacherId'])))
+        {
+            return array("error" => "lessonId и teacherId обязательные параметры");
+        }
+        $lessonId = $input['lessonId'];
+        $teacherId = $input['teacherId'];
+
+        $lesson1 = Lesson::find($input['lessonId']);
+        $lesson1->state = 0;
+        $lesson1->save();
+        $lle1 = new LessonLogEvent();
+        $lle1->old_lesson_id = $lesson1->id;
+        $lle1->new_lesson_id = 0;
+        $lle1->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle1->public_comment = "";
+        $lle1->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "" ). " SubstituteTeacher For Lesson " . $input['lessonId'] . '/' . $input['teacherId'] . ' remove 1';
+        $lle1->save();
+
+        $lessonTfd = DB::table('discipline_teacher')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('discipline_teacher.id', '=', $lesson1->discipline_teacher_id)
+            ->select(
+                'disciplines.name as disciplinesName',
+                'disciplines.student_group_id as disciplineStudentGroupId',
+                'disciplines.type as disciplinesType'
+            )
+            ->first();
+
+        $findTfd = DB::table('discipline_teacher')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('discipline_teacher.teacher_id', '=', $teacherId)
+            ->where('disciplines.name', '=', $lessonTfd->disciplinesName)
+            ->where('disciplines.student_group_id', '=', $lessonTfd->disciplineStudentGroupId)
+            ->select('discipline_teacher.id')
+            ->first();
+
+        if ($findTfd == null) {
+            $newDiscipline = new Discipline();
+            $newDiscipline->name = $lessonTfd->disciplinesName;
+            $newDiscipline->attestation = 0;
+            $newDiscipline->auditorium_hours = 0;
+            $newDiscipline->auditorium_hours_per_week = 0;
+            $newDiscipline->lecture_hours = 0;
+            $newDiscipline->practical_hours = 0;
+            $newDiscipline->active = 0;
+            $newDiscipline->type = $lessonTfd->disciplinesType;
+            $newDiscipline->student_group_id = $lessonTfd->disciplineStudentGroupId;
+            $newDiscipline->save();
+
+            // new Tfd
+            $teacher = Teacher::find($teacherId);
+            $discipline = Discipline::find($newDiscipline->id);
+            $teacher->disciplines()->attach($discipline);
+
+            $findTfd = DB::table('discipline_teacher')
+                ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+                ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                ->where('discipline_teacher.teacher_id', '=', $teacherId)
+                ->where('disciplines.name', '=', $lessonTfd->disciplinesName)
+                ->where('disciplines.student_group_id', '=', $lessonTfd->disciplineStudentGroupId)
+                ->select('discipline_teacher.id')
+                ->first();
+        }
+
+        $new_lesson1 = new Lesson();
+        $new_lesson1->state = 1;
+        $new_lesson1->discipline_teacher_id = $findTfd->id;
+        $new_lesson1->calendar_id = $lesson1->calendar_id;
+        $new_lesson1->ring_id = $lesson1->ring_id;
+        $new_lesson1->auditorium_id = $lesson1->auditorium_id;
+        $new_lesson1->save();
+        $lle2 = new LessonLogEvent();
+        $lle2->old_lesson_id = 0;
+        $lle2->new_lesson_id = $new_lesson1->id;
+        $lle2->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle2->public_comment = "";
+        $lle2->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " SubstituteTeacher For Lesson " . $input['lessonId'] . '/' . $input['teacherId'] . ' substitute';
+        $lle2->save();
     }
 }

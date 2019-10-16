@@ -243,6 +243,7 @@
                 return Array(end - start + 1).fill().map((_, idx) => start + idx)
             },
             replaceWithLesson(lesson, fillLesson) {
+                this.loading = true;
                 axios
                     .post('/removeLessonAndReplaceWithAnother' +
                         '?lessonToRemoveId=' + lesson.id +
@@ -254,6 +255,17 @@
             dow(date) {
                 let m = moment(date, "YYYY-MM-DD");
                 return this.dowRu[m.format('E')-1];
+            },
+            replaceWithSubstitute(lesson, teacherId) {
+                this.loading = true;
+                axios
+                    .post('/substituteTeacherForLesson' +
+                        '?lessonId=' + lesson.id +
+                        '&teacherId=' + teacherId
+                    )
+                    .then(response => {
+                        this.loadIllInfo();
+                    });
             },
         },
         mounted() {

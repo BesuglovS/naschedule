@@ -72,6 +72,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/lessonsGroupScheduleAdd', 'LessonController@GroupScheduleAdd');
     Route::post('/switchLessons', 'LessonController@SwitchLessons');
     Route::post('/removeLessonAndReplaceWithAnother', 'LessonController@RemoveLessonAndReplaceWithAnother');
+    Route::post('/substituteTeacherForLesson', 'LessonController@SubstituteTeacherForLesson');
 
 
     //Disciplines
