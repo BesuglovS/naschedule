@@ -60,7 +60,7 @@ class TeacherGotIllController extends Controller
 
         $calendarIds = Calendar::CalendarIdsBetweenTwoIds($calendarFromId, $calendarToId);
 
-        $teacherLessons =  Teacher::CalendarSchedule($teacherId, $calendarIds);
+        $teacherLessons = Teacher::CalendarSchedule($teacherId, $calendarIds);
 
         $result = array();
 
@@ -94,7 +94,6 @@ class TeacherGotIllController extends Controller
             $earlierLessons = array_filter($groupDayLessons, function($lesson, $k) use ($teacherLesson, $lessonDayOrder, $ringsById) {
                 return $lesson->id !== $teacherLesson->id && $ringsById[$lesson->ring_id]['dayOrder'] < $lessonDayOrder;
             }, ARRAY_FILTER_USE_BOTH);
-            $teacherLesson->earlierLessons = $earlierLessons;
             $teacherLesson->earlierLessonsExists = count($earlierLessons) !== 0;
             $earlierLessonsTeacherIds = array_values(array_unique(array_map(function ($lesson) { return $lesson->teachersId;}, $earlierLessons)));
             if (count($earlierLessonsTeacherIds) === 1 && $earlierLessonsTeacherIds[0] == $teacherLesson->teachersId) {
@@ -104,7 +103,6 @@ class TeacherGotIllController extends Controller
             $latterLessons = array_filter($groupDayLessons, function($lesson, $k) use ($teacherLesson, $lessonDayOrder, $ringsById) {
                 return $lesson->id !== $teacherLesson->id && $ringsById[$lesson->ring_id]['dayOrder'] > $lessonDayOrder;
             }, ARRAY_FILTER_USE_BOTH);
-            $teacherLesson->latterLessons = $latterLessons;
             $latterLessonsTeacherIds = array_values(array_unique(array_map(function ($lesson) { return $lesson->teachersId;}, $latterLessons)));
             $teacherLesson->latterLessonsExists = count($latterLessons) !== 0;
             if (count($latterLessonsTeacherIds) === 1 && $latterLessonsTeacherIds[0] == $teacherLesson->teachersId) {
@@ -170,8 +168,6 @@ class TeacherGotIllController extends Controller
                 foreach($lessons as $lessonForExchange) {
                     $teacherId = $lessonForExchange->teachersId;
 
-                    $switchTeacherLessons = Teacher::CalendarSchedule($teacherId, array($teacherLesson->calendar_id));
-
                     $sourceTeacherLessons = Teacher::CalendarSchedule($teacherId, array($lessonForExchange->calendar_id));
 
                     $srcPositiveDiff = false;
@@ -189,6 +185,8 @@ class TeacherGotIllController extends Controller
                     $positiveDiff = false;
                     $negativeDiff = false;
 
+                    $switchTeacherLessons = Teacher::CalendarSchedule($teacherId, array($teacherLesson->calendar_id));
+
                     foreach($switchTeacherLessons as $switchTeacherLesson) {
                         $aValue = intval(mb_substr($teacherLesson->ringsTime,0,2)) * 60 + intval(mb_substr($teacherLesson->ringsTime,3,2));
                         $bValue = intval(mb_substr($switchTeacherLesson->ringsTime,0,2)) * 60 + intval(mb_substr($switchTeacherLesson->ringsTime,3,2));
@@ -196,8 +194,8 @@ class TeacherGotIllController extends Controller
                         if ($diff === 0) $busy = true;
                         if ($diff > 0) $positiveDiff = true;
                         if ($diff < 0) $negativeDiff = true;
-                        if ($minDiff > $diff) {
-                            $minDiff = $diff;
+                        if ($minDiff > abs($diff)) {
+                            $minDiff = abs($diff);
                         }
                     }
 
@@ -221,11 +219,80 @@ class TeacherGotIllController extends Controller
                 }
             }
 
-            //dd($weekLessonsByCalendarId);
+            //dd($teacherLesson);
 
-            //$teacherLesson->groupLessons = $groupDayLessons;
-            unset($teacherLesson->earlierLessons);
-            unset($teacherLesson->latterLessons);
+            $substituteTeacherDisciplines = DB::table('discipline_teacher')
+                ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+                ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+                ->where('disciplines.name', '=', $teacherLesson->disciplinesName)
+                ->where('discipline_teacher.teacher_id', '!=', $teacherLesson->teachersId)
+                ->get();
+
+            $elementaryLesson = in_array(intval(explode(' ', $teacherLesson->studentGroupsName)[0]), array(1,2,3,4));
+
+            $substituteTeacherDisciplinesFiltered = $substituteTeacherDisciplines->filter(function ($value, $key) use ($elementaryLesson) {
+                if ($elementaryLesson) {
+                    return in_array(intval(explode(' ', $value->name)[0]), array(1,2,3,4));
+                } else {
+                    return !in_array(intval(explode(' ', $value->name)[0]), array(1,2,3,4));
+                }
+            });
+
+            $substituteTeacherIds = $substituteTeacherDisciplinesFiltered->pluck('teacher_id')->unique();
+
+            $teacherLesson->substitutes = array();
+
+            foreach($substituteTeacherIds as $substituteTeacherId) {
+                $substituteTeacher = Teacher::find($substituteTeacherId);
+
+                $substituteTeacherLessons = Teacher::CalendarSchedule($substituteTeacher->id, array($teacherLesson->calendar_id));
+
+                $busy = false;
+                $positiveDiff = false;
+                $negativeDiff = false;
+                $minDiff = 2000;
+                $nearestLessons = array();
+                $diffs = array();
+                foreach($substituteTeacherLessons as $substituteTeacherLesson) {
+                    $aValue = intval(mb_substr($teacherLesson->ringsTime,0,2)) * 60 + intval(mb_substr($teacherLesson->ringsTime,3,2));
+                    $bValue = intval(mb_substr($substituteTeacherLesson->ringsTime,0,2)) * 60 + intval(mb_substr($substituteTeacherLesson->ringsTime,3,2));
+                    $diff = $aValue - $bValue;
+                    if ($diff === 0) $busy = true;
+                    if ($diff > 0) $positiveDiff = true;
+                    if ($diff < 0) $negativeDiff = true;
+                    if ($minDiff >= abs($diff)) {
+                        if ($minDiff === abs($diff)) {
+                            $nearestLessons[] = $substituteTeacherLesson;
+                        } else {
+                            $nearestLessons = array($substituteTeacherLesson);
+                        }
+
+                        $minDiff = abs($diff);
+                    }
+
+                    $diffs[] = array(
+                        '$teacherLesson->ringsTime' => $teacherLesson->ringsTime,
+                        '$substituteTeacherLesson->ringsTime' => $substituteTeacherLesson->ringsTime,
+                        '$aValue' => $aValue,
+                        '$bValue' => $bValue,
+                        '$diff' => $diff,
+                        '$minDiff' => $minDiff
+                    );
+                }
+
+
+
+                if (count($substituteTeacherLessons) !== 0 && !$busy && $minDiff < 80) {
+                    $teacherLesson->substitutes[] = array(
+                        'teacherFio' => $substituteTeacher->fio,
+                        'teacherId' => $substituteTeacher->id,
+                        'earlierLessonsExists' => $positiveDiff,
+                        'latterLessonsExists' => $negativeDiff,
+                        'nearestLessons' => $nearestLessons,
+                        '$diffs' => $diffs
+                    );
+                }
+            }
         }
 
         return $teacherLessons;

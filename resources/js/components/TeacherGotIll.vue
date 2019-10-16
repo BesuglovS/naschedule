@@ -50,7 +50,7 @@
 
                     <tr v-for="lesson in illInfo">
                         <td>
-                            {{reformatDate(lesson.calendarsDate)}}  - {{lesson.ringsTime.substr(0,5)}} <br />
+                            {{reformatDate(lesson.calendarsDate)}} ({{dow(lesson.calendarsDate)}})  - {{lesson.ringsTime.substr(0,5)}} <br />
                             {{lesson.disciplinesName}} ({{lesson.studentGroupsName}})
                         </td>
                         <td>
@@ -89,7 +89,7 @@
                                                 <td style="border: none; vertical-align: middle;">
                                                     Можно заменить уроком <br />
                                                     <strong>{{fillLesson.disciplinesName}} ({{fillLesson.teacherFio}})</strong> <br />
-                                                    {{reformatDate(fillLesson.lessonForExchangeDate)}} {{fillLesson.lessonForExchangeTime.substr(0,5)}}
+                                                    {{reformatDate(fillLesson.lessonForExchangeDate)}} ({{dow(fillLesson.lessonForExchangeDate)}}) {{fillLesson.lessonForExchangeTime.substr(0,5)}}
                                                     <div v-if="fillLesson.earlierTargetLessonsExists && fillLesson.latterTargetLessonsExists">
                                                         <img :src="'./assets/img/green-checkmark.png'" style="height:25px;" />
                                                         Перенос в окно
@@ -115,6 +115,46 @@
                                         </table>
                                     </div>
                                 </template>
+                            </div>
+
+                            <div v-if="lesson.substitutes.length === 0">
+                                <strong>Не удалось подобрать преподавателя для замены</strong>
+                            </div>
+
+                            <div>
+                                <table style="width:100%;">
+                                    <tr v-for="substitute in lesson.substitutes">
+                                        <td style="border: none; vertical-align: middle;">
+                                            Возможная замена преподавателем <br />
+                                            <strong>{{substitute.teacherFio}}</strong>
+                                            <div v-if="substitute.earlierLessonsExists && substitute.latterLessonsExists">
+                                                <img :src="'./assets/img/green-checkmark.png'" style="height:25px;" />
+                                                Перенос в окно
+                                            </div>
+
+                                            <div v-if="substitute.earlierLessonsExists && !substitute.latterLessonsExists">
+                                                <img :src="'./assets/img/green-checkmark.png'" style="height:25px;" />
+                                                У преподавателя есть <strong>только более ранние занятия</strong>
+                                            </div>
+
+                                            <div v-if="!substitute.earlierLessonsExists && substitute.latterLessonsExists">
+                                                <img :src="'./assets/img/green-checkmark.png'" style="height:25px;" />
+                                                У преподавателя есть <strong>только более поздние занятия</strong>
+                                            </div>
+
+                                            <template v-if="substitute.nearestLessons.length === 1">Ближайший урок:</template>
+                                            <template v-if="substitute.nearestLessons.length > 1">Ближайшие уроки:</template>
+                                            <div v-for="nearestLesson in substitute.nearestLessons">
+                                                <strong>{{nearestLesson.ringsTime.substr(0,5)}}</strong>
+                                                {{nearestLesson.disciplinesName}}
+                                                ({{nearestLesson.studentGroupsName}})
+                                            </div>
+                                        </td>
+                                        <td style="border: none; vertical-align: middle;">
+                                            <button @click="replaceWithSubstitute(lesson, substitute.teacherId);" style="font-size: 1em;" class="button btn-sm is-primary">Сделать замену учителя</button>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
                         </td>
                     </tr>
@@ -210,6 +250,10 @@
                     .then(response => {
                         this.loadIllInfo();
                     });
+            },
+            dow(date) {
+                let m = moment(date, "YYYY-MM-DD");
+                return this.dowRu[m.format('E')-1];
             },
         },
         mounted() {
