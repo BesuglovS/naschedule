@@ -1136,8 +1136,6 @@
                 }
 
                 let groupNameStart = Object.values(this.studentGroups).filter(g => g.id === this.studentGroupId)[0].name.split(' ')[0];
-                console.log('groupNameStart');
-                console.log(groupNameStart);
                 const start = ['1', '2', '3', '4'];
                 const five = ['5'];
                 const six = ['6'];

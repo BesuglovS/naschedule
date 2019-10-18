@@ -47,6 +47,7 @@ class WeekController extends Controller
         }
 
         $facultyId = $input["facultyId"];
+        $faculty = Faculty::find($facultyId);
         $fromWeek = $input["fromWeek"];
         $toWeek = $input["toWeek"];
         $dows = explode('|', $input["dows"]);
@@ -93,7 +94,8 @@ class WeekController extends Controller
                     $lle->new_lesson_id = $newLesson->id;
                     $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
                     $lle->public_comment = "";
-                    $lle->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . "copy";
+                    $lle->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . "copy " .
+                        "faculty = " . $faculty->name . " fromWeek = " . $fromWeek . " toWeek = " . $toWeek;
                     $lle->save();
                 }
             }
@@ -112,6 +114,7 @@ class WeekController extends Controller
         }
 
         $facultyId = $input["facultyId"];
+        $faculty = Faculty::find($facultyId);
         $week = $input["week"];
         $dows = explode('|', $input["dows"]);
 
@@ -145,7 +148,8 @@ class WeekController extends Controller
                 $lle->new_lesson_id = 0;
                 $lle->date_time = Carbon::now()->format('Y-m-d H:i:s');
                 $lle->public_comment = "";
-                $lle->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . "delete";
+                $lle->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . "delete " .
+                    "faculty = " . $faculty->name . " week = " . $week;
                 $lle->save();
             }
         }
