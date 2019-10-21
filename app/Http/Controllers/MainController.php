@@ -577,6 +577,62 @@ class MainController extends Controller
         return $lessonsWithBlankAuds;
     }
 
+    public function GetBlankAudsChap(Request $request) {
+        $input = $request->all();
+
+        if(!isset($input['date']))
+        {
+            return array("error" => "date - обязательный параметр");
+        }
+        $date = $input["date"];
+        $calendarId = Calendar::IdfromDate($date);
+
+        $audNames = array('-', '--', '---');
+
+        $audIds = DB::table('auditoriums')
+            ->whereIn('name', $audNames)
+            ->get()
+            ->pluck('id');
+
+        $lessonsWithBlankAuds = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('lessons.state', '=', 1)
+            ->where('lessons.calendar_id', '=', $calendarId)
+            ->whereIn('lessons.auditorium_id', $audIds)
+            ->select('lessons.id as lessonId', 'student_groups.name as studentGroupsName',
+                'disciplines.name as disciplinesName', 'teachers.fio as teachersFio',
+                'calendars.date as calendarsDate', 'rings.id as ringsId', 'rings.time as ringsTime',
+                'auditoriums.name as auditoriumsName')
+            ->get()
+            ->toArray();
+
+        $lessonsWithBlankAuds = array_filter($lessonsWithBlankAuds, function($k, $v) {
+            return (($this->startsWith($k->studentGroupsName, "1 ")) ||
+                ($this->startsWith($k->studentGroupsName, "2 ")) ||
+                ($this->startsWith($k->studentGroupsName, "3 ")) ||
+                ($this->startsWith($k->studentGroupsName, "4 ")));
+        }, ARRAY_FILTER_USE_BOTH);
+
+        usort($lessonsWithBlankAuds, function($a, $b) {
+            if ($a->teachersFio < $b->teachersFio) return -1;
+            if ($a->teachersFio > $b->teachersFio) return 1;
+            $aVal = mb_substr($a->ringsTime, 0, 2) * 60 + mb_substr($a->ringsTime, 3, 2);
+            $bVal = mb_substr($b->ringsTime, 0, 2) * 60 + mb_substr($b->ringsTime, 3, 2);
+
+            if ($aVal === $bVal) return 0;
+
+            return ($aVal < $bVal) ? -1 : 1;
+        });
+
+        return $lessonsWithBlankAuds;
+    }
+
     public function lle() {
         $lleController = new LessonLogEventController();
         $dates = $lleController->Dates();
@@ -620,6 +676,28 @@ class MainController extends Controller
 
         $audsWithBuilding = $audsWithBuilding->groupBy('buildingsId')->toArray();
 
-        return view('main.fillBlankAuds', compact('weekCount', 'buildings', 'audsWithBuilding', 'rings', 'semesterStarts'));
+        $chap = "false";
+
+        return view('main.fillBlankAuds', compact('weekCount', 'buildings', 'audsWithBuilding', 'rings', 'semesterStarts', 'chap'));
+    }
+
+    public function fillBlankAudsChap() {
+        $weekCount = Calendar::WeekCount();
+        $buildings = Building::all()->sortBy('name');
+        $rings = Ring::all()->toArray();
+        $semesterStarts = ConfigOption::SemesterStarts();
+
+
+        $audsWithBuilding = DB::table('auditoriums')
+            ->join('buildings', 'auditoriums.building_id', '=', 'buildings.id')
+            ->select('auditoriums.id as id', 'auditoriums.name as name',
+                'buildings.id as buildingsId', 'buildings.name as buildingsName')
+            ->get();
+
+        $audsWithBuilding = $audsWithBuilding->groupBy('buildingsId')->toArray();
+
+        $chap = "true";
+
+        return view('main.fillBlankAuds', compact('weekCount', 'buildings', 'audsWithBuilding', 'rings', 'semesterStarts', 'chap'));
     }
 }

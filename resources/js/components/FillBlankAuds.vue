@@ -198,6 +198,7 @@
         props: [
             'buildings',
             'weekCount',
+            'chap',
             'audsWithBuilding',
             'rings',
             'semesterStarts',
@@ -325,8 +326,12 @@
             loadBlankLessons() {
                 let date = this.DateFromWeekAndDow(this.selectedWeeks[0], this.selectedDow);
 
+                let blankAudsUrl = (this.chap) ?
+                    '/getBlankAudsChap?date=' + date :
+                    '/getBlankAuds?date=' + date;
+
                 axios
-                    .get('/getBlankAuds?date=' + date)
+                    .get(blankAudsUrl)
                     .then(response => {
                         this.blankAuds = response.data.sort((a,b) => {
                             if (a.teachersFio === b.teachersFio) {

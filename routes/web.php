@@ -109,10 +109,12 @@ Route::group(['middleware' => ['auth']], function () {
     // emptyAuds
     Route::get('/blankAuds', 'MainController@BlankAuds');
     Route::get('/getBlankAuds', 'MainController@GetBlankAuds');
+    Route::get('/getBlankAudsChap', 'MainController@GetBlankAudsChap');
 
     Route::get('/fillBlankAuds', 'MainController@fillBlankAuds');
     Route::post('/changeLessonAud', 'LessonController@changeLessonAud');
     Route::post('/changeLessonsAud', 'LessonController@changeLessonsAud');
+    Route::get('/fillBlankAudsChap', 'MainController@fillBlankAudsChap');
 
     // newRings
     Route::get('/newRings', 'NewRingsController@index');

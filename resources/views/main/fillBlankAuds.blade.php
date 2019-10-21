@@ -10,6 +10,7 @@
                     :auds-with-building="{{json_encode($audsWithBuilding)}}"
                     :rings="{{json_encode($rings)}}"
                     :semester-starts="{{json_encode($semesterStarts)}}"
+                    :chap="{{$chap}}"
                 >
                 </fill-blank-auds>
             </div>
