@@ -170,5 +170,6 @@ Route::get('/lleByTeacher', 'LessonLogEventController@ByTeacher');
 //BIG RED BUTTON
 Route::get('/brb', 'BigRedButtonController@TMP');
 
+Route::get('/cba', 'BigRedButtonController@CorrectBlankAudsForBuildings');
 Route::get('/rdl', 'BigRedButtonController@RemoveDuplicateLessons');
 

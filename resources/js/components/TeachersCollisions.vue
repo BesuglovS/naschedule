@@ -14,6 +14,8 @@
                                     border-radius: 5px;"
                                 class="button is-primary">R
                         </button>
+
+                        <span style="margin-left: 2em; font-size: 2em;">{{totalCount}}</span>
                     </div>
 
                     <div class="card-body">
@@ -107,6 +109,7 @@
                 severalWeeks: true,
                 collisions: {},
                 dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+                totalCount: 0,
             }
         },
         methods: {
@@ -137,10 +140,13 @@
                 axios
                     .get(apiUrl)
                     .then(response => {
+                        let count = 0;
                         let result = []
                         Object.keys(response.data).forEach((id) => {
                             result.push(response.data[id]);
+                            count += Object.keys(response.data[id]['collisions']).length;
                         });
+                        this.totalCount = count;
 
                         result.sort((a,b) => {
                             if (a.fio === b.fio) return 0;

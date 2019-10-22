@@ -371,7 +371,6 @@ class LessonController extends Controller
     }
 
     public function SwitchLessons(Request $request) {
-        $user = Auth::user();
         $input = $request->all();
 
         if ((!isset($input['lessonId1'])) || (!isset($input['lessonId2'])))
@@ -379,57 +378,7 @@ class LessonController extends Controller
             return array("error" => "lessonId1 и lessonId2 обязательные параметры");
         }
 
-        $lesson1 = Lesson::find($input['lessonId1']);
-        $lesson1->state = 0;
-        $lesson1->save();
-        $lle1 = new LessonLogEvent();
-        $lle1->old_lesson_id = $lesson1->id;
-        $lle1->new_lesson_id = 0;
-        $lle1->date_time = Carbon::now()->format('Y-m-d H:i:s');
-        $lle1->public_comment = "";
-        $lle1->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "" ). " switch lessons " . $input['lessonId1'] . '/' . $input['lessonId2'] . ' remove 1';
-        $lle1->save();
-
-        $lesson2 = Lesson::find($input['lessonId2']);
-        $lesson2->state = 0;
-        $lesson2->save();
-        $lle2 = new LessonLogEvent();
-        $lle2->old_lesson_id = $lesson2->id;
-        $lle2->new_lesson_id = 0;
-        $lle2->date_time = Carbon::now()->format('Y-m-d H:i:s');
-        $lle2->public_comment = "";
-        $lle2->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "" ). " switch lessons " . $input['lessonId1'] . '/' . $input['lessonId2'] . ' remove 2';
-        $lle2->save();
-
-        $new_lesson1 = new Lesson();
-        $new_lesson1->state = 1;
-        $new_lesson1->discipline_teacher_id = $lesson1->discipline_teacher_id;
-        $new_lesson1->calendar_id = $lesson2->calendar_id;
-        $new_lesson1->ring_id = $lesson2->ring_id;
-        $new_lesson1->auditorium_id = $lesson2->auditorium_id;
-        $new_lesson1->save();
-        $lle3 = new LessonLogEvent();
-        $lle3->old_lesson_id = 0;
-        $lle3->new_lesson_id = $new_lesson1->id;
-        $lle3->date_time = Carbon::now()->format('Y-m-d H:i:s');
-        $lle3->public_comment = "";
-        $lle3->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $input['lessonId1'] . '/' . $input['lessonId2'] . ' add 1';
-        $lle3->save();
-
-        $new_lesson2 = new Lesson();
-        $new_lesson2->state = 1;
-        $new_lesson2->discipline_teacher_id = $lesson2->discipline_teacher_id;
-        $new_lesson2->calendar_id = $lesson1->calendar_id;
-        $new_lesson2->ring_id = $lesson1->ring_id;
-        $new_lesson2->auditorium_id = $lesson1->auditorium_id;
-        $new_lesson2->save();
-        $lle4 = new LessonLogEvent();
-        $lle4->old_lesson_id = 0;
-        $lle4->new_lesson_id = $new_lesson2->id;
-        $lle4->date_time = Carbon::now()->format('Y-m-d H:i:s');
-        $lle4->public_comment = "";
-        $lle4->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $input['lessonId1'] . '/' . $input['lessonId2'] . ' add 2';
-        $lle4->save();
+        $this->SwapLessons($input['lessonId1'], $input['lessonId2']);
     }
 
     public function RemoveLessonAndReplaceWithAnother(Request $request) {
@@ -563,5 +512,66 @@ class LessonController extends Controller
         $lle2->public_comment = "";
         $lle2->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " SubstituteTeacher For Lesson " . $input['lessonId'] . '/' . $input['teacherId'] . ' substitute';
         $lle2->save();
+    }
+
+    /**
+     * @param array $input
+     * @param \Illuminate\Contracts\Auth\Authenticatable|null $user
+     */
+    public function SwapLessons($lesson1Id, $lesson2Id): void
+    {
+        $user = Auth::user();
+
+        $lesson1 = Lesson::find($lesson1Id);
+        $lesson1->state = 0;
+        $lesson1->save();
+        $lle1 = new LessonLogEvent();
+        $lle1->old_lesson_id = $lesson1->id;
+        $lle1->new_lesson_id = 0;
+        $lle1->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle1->public_comment = "";
+        $lle1->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $lesson1Id . '/' . $lesson2Id . ' remove 1';
+        $lle1->save();
+
+        $lesson2 = Lesson::find($lesson2Id);
+        $lesson2->state = 0;
+        $lesson2->save();
+        $lle2 = new LessonLogEvent();
+        $lle2->old_lesson_id = $lesson2->id;
+        $lle2->new_lesson_id = 0;
+        $lle2->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle2->public_comment = "";
+        $lle2->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $lesson1Id . '/' . $lesson2Id . ' remove 2';
+        $lle2->save();
+
+        $new_lesson1 = new Lesson();
+        $new_lesson1->state = 1;
+        $new_lesson1->discipline_teacher_id = $lesson1->discipline_teacher_id;
+        $new_lesson1->calendar_id = $lesson2->calendar_id;
+        $new_lesson1->ring_id = $lesson2->ring_id;
+        $new_lesson1->auditorium_id = $lesson2->auditorium_id;
+        $new_lesson1->save();
+        $lle3 = new LessonLogEvent();
+        $lle3->old_lesson_id = 0;
+        $lle3->new_lesson_id = $new_lesson1->id;
+        $lle3->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle3->public_comment = "";
+        $lle3->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $lesson1Id . '/' . $lesson2Id . ' add 1';
+        $lle3->save();
+
+        $new_lesson2 = new Lesson();
+        $new_lesson2->state = 1;
+        $new_lesson2->discipline_teacher_id = $lesson2->discipline_teacher_id;
+        $new_lesson2->calendar_id = $lesson1->calendar_id;
+        $new_lesson2->ring_id = $lesson1->ring_id;
+        $new_lesson2->auditorium_id = $lesson1->auditorium_id;
+        $new_lesson2->save();
+        $lle4 = new LessonLogEvent();
+        $lle4->old_lesson_id = 0;
+        $lle4->new_lesson_id = $new_lesson2->id;
+        $lle4->date_time = Carbon::now()->format('Y-m-d H:i:s');
+        $lle4->public_comment = "";
+        $lle4->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $lesson1Id . '/' . $lesson2Id . ' add 2';
+        $lle4->save();
     }
 }
