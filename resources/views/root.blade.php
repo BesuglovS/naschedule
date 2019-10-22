@@ -175,8 +175,8 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
-                            <a href="/facultyTeachers">
-                                Преподаватели параллели
+                            <a href="/fillBlankAudsChap">
+                                Выставить аудитории на день (Чапаевская)
                             </a>
                         </div>
                     </div>
@@ -237,8 +237,8 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
-                            <a href="/fillBlankAudsChap">
-                                Выставить аудитории на день (Чапаевская)
+                            <a href="/facultyTeachers">
+                                Преподаватели параллели
                             </a>
                         </div>
                     </div>

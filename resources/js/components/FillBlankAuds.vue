@@ -142,6 +142,14 @@
                                     border-radius: 5px;"
                                                 class="button isPrimary">R
                                         </button>
+
+                                        <div style="margin-left: 2em;">
+                                            <div class="custom-control custom-switch">
+                                                <span style="margin-right: 2.5em;">Сортировать по названию группы</span>
+                                                <input type="checkbox" @change="blankAudsSortSwitchFlipped();" v-model="sortByTeacherFio" class="custom-control-input" id="customSwitch1">
+                                                <label class="custom-control-label" for="customSwitch1">по ФИО преподавателя</label>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="card-body" style="text-align: center; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between;">
@@ -226,6 +234,7 @@
                 smallCapacityAudNames: ['Ауд. 208', 'Ауд. 209', 'Ауд. 214'],
                 teacherBlankRingIds: [],
                 teacherPossibleAudIds: [],
+                sortByTeacherFio: true,
             }
         },
         methods: {
@@ -333,17 +342,33 @@
                 axios
                     .get(blankAudsUrl)
                     .then(response => {
-                        this.blankAuds = response.data.sort((a,b) => {
-                            if (a.teachersFio === b.teachersFio) {
-                                let aTime = parseInt(a.ringsTime.substr(0,2))*60 + parseInt(a.ringsTime.substr(3,2));
-                                let bTime = parseInt(b.ringsTime.substr(0,2))*60 + parseInt(b.ringsTime.substr(3,2));
+                        if (this.sortByTeacherFio) {
+                            this.blankAuds = response.data.sort((a, b) => {
+                                if (a.teachersFio === b.teachersFio) {
+                                    let aTime = parseInt(a.ringsTime.substr(0, 2)) * 60 + parseInt(a.ringsTime.substr(3, 2));
+                                    let bTime = parseInt(b.ringsTime.substr(0, 2)) * 60 + parseInt(b.ringsTime.substr(3, 2));
 
-                                if (aTime === bTime) return 0;
-                                return (aTime < bTime) ? -1 : 1;
-                            }
+                                    if (aTime === bTime) return 0;
+                                    return (aTime < bTime) ? -1 : 1;
+                                }
 
-                            return (a.teachersFio < b.teachersFio) ? -1 : 1;
-                        });
+                                return (a.teachersFio < b.teachersFio) ? -1 : 1;
+                            });
+                        }
+                        else {
+                            this.blankAuds = response.data.sort((a, b) => {
+                                if (a.studentGroupsName === b.studentGroupsName) {
+                                    let aTime = parseInt(a.ringsTime.substr(0, 2)) * 60 + parseInt(a.ringsTime.substr(3, 2));
+                                    let bTime = parseInt(b.ringsTime.substr(0, 2)) * 60 + parseInt(b.ringsTime.substr(3, 2));
+
+                                    if (aTime === bTime) return 0;
+                                    return (aTime < bTime) ? -1 : 1;
+                                }
+
+                                return (a.studentGroupsName < b.studentGroupsName) ? -1 : 1;
+                            });
+                        }
+
                         if (this.blankAuds.length !== 0) {
                             this.lessonClicked(this.blankAuds[0]);
                         } else {
@@ -352,6 +377,40 @@
 
                         this.loading = false;
                     });
+            },
+            blankAudsSortSwitchFlipped() {
+                if (this.sortByTeacherFio) {
+                    this.blankAuds = this.blankAuds.sort((a, b) => {
+                        if (a.teachersFio === b.teachersFio) {
+                            let aTime = parseInt(a.ringsTime.substr(0, 2)) * 60 + parseInt(a.ringsTime.substr(3, 2));
+                            let bTime = parseInt(b.ringsTime.substr(0, 2)) * 60 + parseInt(b.ringsTime.substr(3, 2));
+
+                            if (aTime === bTime) return 0;
+                            return (aTime < bTime) ? -1 : 1;
+                        }
+
+                        return (a.teachersFio < b.teachersFio) ? -1 : 1;
+                    });
+                }
+                else {
+                    this.blankAuds = this.blankAuds.sort((a, b) => {
+                        if (a.studentGroupsName === b.studentGroupsName) {
+                            let aTime = parseInt(a.ringsTime.substr(0, 2)) * 60 + parseInt(a.ringsTime.substr(3, 2));
+                            let bTime = parseInt(b.ringsTime.substr(0, 2)) * 60 + parseInt(b.ringsTime.substr(3, 2));
+
+                            if (aTime === bTime) return 0;
+                            return (aTime < bTime) ? -1 : 1;
+                        }
+
+                        return (a.studentGroupsName < b.studentGroupsName) ? -1 : 1;
+                    });
+                }
+
+                if (this.blankAuds.length !== 0) {
+                    this.lessonClicked(this.blankAuds[0]);
+                } else {
+                    this.selectedLesson = {lessonId: -1};
+                }
             },
             loadFullBuildingEvents() {
                 this.severalWeeks = true;
