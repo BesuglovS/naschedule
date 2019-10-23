@@ -26,6 +26,17 @@
                 </table>
             </div>
 
+            <div style="align-items: center; display: flex; flex-direction: row; justify-content: center; margin-top: 1em;">
+                <button
+                    v-for="lleUser in lleUsers.sort((a,b) => { if (a.id === b.id) return 0; return (a.id < b.id) ? -1: 1;})"
+                    @click="userToggled(lleUser);"
+                    style="margin-right:0.5em; margin-bottom: 0.5em;"
+                    :class="{'button': true,
+                                    'is-primary': !selectedUserIds.includes(lleUser.id),
+                                    'is-danger': selectedUserIds.includes(lleUser.id) }"
+                >{{lleUser.name}}</button>
+            </div>
+
             <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 1em;">
                 <div v-if="loading === true" style="font-size: 2em; text-align: center; margin-left: 2em;">
                     Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
@@ -41,7 +52,7 @@
                         <td>Скрытый комментарий</td>
                     </tr>
 
-                    <tr v-for="event in this.lessonLogEvents">
+                    <tr v-for="event in this.filteredEvents">
                         <td style="vertical-align: middle;">{{reformatDateTime(event.lessonLogEventDateTime)}}</td>
                         <td>
                             <template v-if="event.lessonOldId !== null">
@@ -105,6 +116,8 @@
                 lessonLogEvents: [],
                 dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
                 totalCount: "",
+                lleUsers: [],
+                selectedUserIds: [],
             }
         },
         methods: {
@@ -129,7 +142,30 @@
                     .then(response => {
                         this.loading = false;
                         this.lessonLogEvents = response.data.events;
+
+                        let users = [];
+                        for(let i = 0; i < this.lessonLogEvents.length; i++) {
+                            let user = this.lessonLogEvents[i].lessonLogEventHiddenComment.split(':')[0];
+                            let id = user.split(' ')[0];
+
+                            this.lessonLogEvents[i].user = user;
+                            this.lessonLogEvents[i].userId = id;
+                            if (users.filter(u => u.id === id).length === 0) {
+                                users.push({'id': id, 'name': user});
+                            }
+                        }
+
+                        this.lleUsers = users;
+                        this.selectedUserIds = users.map(u => u.id);
                     });
+            },
+            userToggled(user) {
+                if (this.selectedUserIds.includes(user.id)) {
+                    let index = this.selectedUserIds.indexOf(user.id);
+                    this.selectedUserIds.splice(index,1);
+                } else {
+                    this.selectedUserIds.push(user.id);
+                }
             },
             chunkChange() {
                 this.loadLLE();
@@ -170,6 +206,11 @@
                 }
 
                 this.loadDateInfo();
+            }
+        },
+        computed: {
+            filteredEvents() {
+                return this.lessonLogEvents.filter(e => this.selectedUserIds.includes(e.userId));
             }
         }
     }
