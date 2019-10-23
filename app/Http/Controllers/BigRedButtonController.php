@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class BigRedButtonController extends Controller
 {
@@ -193,7 +194,7 @@ class BigRedButtonController extends Controller
             ->toArray();
     }
 
-    public function TMP(Request $request) {
+    public function removeCollisions20(Request $request) {
         $mc = new MainController();
         $request->request->add(['weeks' => '20']);
         $collisions = $mc->teachersCollisions($request);
@@ -225,5 +226,9 @@ class BigRedButtonController extends Controller
         }
 
         return array('success' => 'ok');
+    }
+
+    public function TMP(Request $request) {
+
     }
 }

@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use PDFMerger;
 
 class PdfController extends Controller
@@ -252,8 +253,9 @@ class PdfController extends Controller
             ob_clean();
 
             $pdf = PDF::loadView('pdf.facultyDow', $data)->setPaper('a4', 'landscape');
-            $pdf->save('Расписание (' . $data["title"] . ').pdf');
-            $fileNames[] = 'Расписание (' . $data["title"] . ').pdf';
+            $filename = 'fbd ' . $facultyId . " " . $dow . '.pdf';
+            $pdf->save($filename);
+            $fileNames[] = $filename;
         }
 
         $pdfM = new PDFMerger();
@@ -268,7 +270,7 @@ class PdfController extends Controller
         $pdfM->merge('download', $filename);
 
         foreach ($fileNames as $fn) {
-            unlink(public_path($fn));
+            unlink($fn);
         }
 
         return redirect()->back();
@@ -351,8 +353,9 @@ class PdfController extends Controller
             ob_clean();
 
             $pdf = PDF::loadView('pdf.facultyDow', $data)->setPaper('a4', 'landscape');
-            $pdf->save('Расписание (' . $data["title"] . ').pdf');
-            $fileNames[] = 'Расписание (' . $data["title"] . ').pdf';
+            $filename = 'dbd ' . $dow . " " . $week . " " . $faculty->id . '.pdf';
+            $pdf->save($filename);
+            $fileNames[] = $filename;
         }
 
         $pdfM = new PDFMerger();
@@ -360,12 +363,12 @@ class PdfController extends Controller
             $pdfM->addPDF($fileName, 'all');
         }
 
-        $filename = "Расписание (" . $week . ").pdf";
+        $filename = "Расписание (" . $dowRu[$dow] . " - " . $week . ").pdf";
 
         $pdfM->merge('download', $filename);
 
         foreach ($fileNames as $fn) {
-            unlink(public_path($fn));
+            unlink($fn);
         }
 
         return redirect()->back();
@@ -448,8 +451,9 @@ class PdfController extends Controller
             ob_clean();
 
             $pdf = PDF::loadView('pdf.facultyDow', $data)->setPaper('a4', 'landscape');
-            $pdf->save('Расписание (' . $data["title"] . ').pdf');
-            $fileNames[] = 'Расписание (' . $data["title"] . ').pdf';
+            $filename = 'dbs ' . $dow . " " . $week . " " . $faculty->id . '.pdf';
+            $pdf->save($filename);
+            $fileNames[] = $filename;
         }
 
         $pdfM = new PDFMerger();
@@ -462,7 +466,7 @@ class PdfController extends Controller
         $pdfM->merge('browser', $filename);
 
         foreach ($fileNames as $fn) {
-            unlink(public_path($fn));
+            unlink($fn);
         }
 
         return redirect()->back();
@@ -668,7 +672,7 @@ class PdfController extends Controller
 
             do {
                 $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
-                $pdf->stream($data["title"] . ' ' . $type . '.pdf');
+                $pdf->stream($week . " " . $type . '.pdf');
                 $pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
                 $mainFontSize -= 0.5;
                 $data["mainFontSize"] = $mainFontSize . "px";
@@ -677,8 +681,8 @@ class PdfController extends Controller
             ob_clean();
 
             $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
-            $pdf->save($data["title"] . ' ' . $type . '.pdf');
-            $fileNames[] = $data["title"] . ' ' . $type . '.pdf';
+            $pdf->save($week . " " . $type . '.pdf');
+            $fileNames[] = $week . " " . $type . '.pdf';
         }
 
         $pdfM = new PDFMerger();
@@ -693,7 +697,7 @@ class PdfController extends Controller
         $pdfM->merge('download', $filename);
 
         foreach ($fileNames as $fn) {
-            unlink(public_path($fn));
+            unlink($fn);
         }
 
         return redirect()->back();
@@ -795,7 +799,7 @@ class PdfController extends Controller
 
                 do {
                     $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
-                    $pdf->stream($data["title"] . ' ' . $type . '.pdf');
+                    $pdf->stream($facultyGroup->id . ' ' . $input["week"] . " " . $type . '.pdf');
                     $pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
                     $mainFontSize -= 0.5;
                     $data["mainFontSize"] = $mainFontSize . "px";
@@ -804,8 +808,9 @@ class PdfController extends Controller
                 ob_clean();
 
                 $pdf = PDF::loadView('pdf.studentGroupWeek', $data)->setPaper('a4', 'landscape');
-                $pdf->save($data["title"] . ' ' . $type . '.pdf');
-                $fileNames[] = $data["title"] . ' ' . $type . '.pdf';
+                $filename = $facultyGroup->id . ' ' . $input["week"] . " " . $type . '.pdf';
+                $pdf->save($filename);
+                $fileNames[] = $filename;
             }
         }
 
@@ -819,7 +824,7 @@ class PdfController extends Controller
         $pdfM->merge('download', $filename);
 
         foreach ($fileNames as $fn) {
-            unlink(public_path($fn));
+            unlink($fn);
         }
 
         return redirect()->back();
