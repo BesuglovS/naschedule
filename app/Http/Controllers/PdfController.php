@@ -180,7 +180,6 @@ class PdfController extends Controller
         ob_clean();
 
         $pdf = PDF::loadView('pdf.facultyDow', $data)->setPaper('a4', 'landscape');
-        $pdf->save('Расписание (' . $data["title"] .').pdf');
         return $pdf->download('Расписание (' . $data["title"] .').pdf');
     }
 
@@ -197,6 +196,7 @@ class PdfController extends Controller
 
         $oac = new OldApiController();
         $input = $request->all();
+        $download = $input["download"];
         $input["weeks"] = $input["week"];
         $schedule = $oac->GetFacultyWeeksSchedule($input);
 
@@ -267,7 +267,11 @@ class PdfController extends Controller
 
         $filename = "Расписание (" . $faculty->name . " - " . $week . ").pdf";
 
-        $pdfM->merge('download', $filename);
+        if ($download == "true") {
+            $pdfM->merge('download', $filename);
+        } else {
+            $pdfM->merge('browser', $filename);
+        }
 
         foreach ($fileNames as $fn) {
             unlink($fn);
