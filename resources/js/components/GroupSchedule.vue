@@ -97,7 +97,14 @@
                                 </tr>
 
                                 <tr v-for="ring in this.scheduleRings">
-                                    <td><strong>{{ring}}</strong></td>
+                                    <td>
+                                        <strong>
+                                            {{ring}} <br />
+                                            <span style="font-size:4em;">
+                                                {{ringFromTime(ring).RingId}}
+                                            </span>
+                                        </strong>
+                                    </td>
                                     <td v-for="dow in 6">
                                         <table v-if="showEditTools" style="width: 100%; text-align: center; border:none !important;">
                                             <tr>
