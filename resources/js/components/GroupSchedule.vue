@@ -167,7 +167,7 @@
                                                                 'vneur': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2,
                                                                 'plat': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3}">
                                                         {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}}
-                                                        <template v-if="fastInputMode">
+                                                        <template v-if="fastInputMode || ((!showEditTools) && (groupSchedule[dow][ring][tfd]['lessons'][0]['groupName'] !== selectedGroupName))">
                                                             (<strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>)
                                                         </template>
                                                         <br />
@@ -227,7 +227,7 @@
                     </div>
                 </div>
 
-                <div class="card" style="margin-left: 1em;">
+                <div v-if="showEditTools" class="card" style="margin-left: 1em;">
                     <div class="card-header">
                         <div>
                             Дисциплины группы
@@ -1435,7 +1435,10 @@
                 });
 
                 return result;
-            }
+            },
+            selectedGroupName() {
+              return Object.values(this.groups).filter(g => g.id === this.studentGroupId)[0].name;
+            },
         }
     }
 </script>
