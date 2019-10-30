@@ -124,7 +124,7 @@
             loadDateInfo() {
                 this.loading = true;
                 axios
-                    .get('/lleDateInfo?date=' + this.date)
+                    .get('/lleDateInfo?date=' + this.date + '&internal=1')
                     .then(response => {
                         this.loading = false;
                         this.dateInfo = response.data;
@@ -138,7 +138,7 @@
             loadLLE() {
                 this.loading = true;
                 axios
-                    .get('/lleEvents?date=' + this.date + '&offset=' + this.selectedChunk.offset)
+                    .get('/lleEvents?date=' + this.date + '&offset=' + this.selectedChunk.offset + '&internal=1')
                     .then(response => {
                         this.loading = false;
                         this.lessonLogEvents = response.data.events;

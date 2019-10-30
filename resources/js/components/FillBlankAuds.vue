@@ -303,7 +303,7 @@
                 }
 
                 axios
-                    .get(apiUrl)
+                    .get(apiUrl + '&internal=1')
                     .then(response => {
                         let data = response.data;
 
@@ -340,7 +340,7 @@
                     '/getBlankAuds?date=' + date;
 
                 axios
-                    .get(blankAudsUrl)
+                    .get(blankAudsUrl + '&internal=1')
                     .then(response => {
                         if (this.sortByTeacherFio) {
                             this.blankAuds = response.data.sort((a, b) => {

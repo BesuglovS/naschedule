@@ -138,10 +138,10 @@
                 }
 
                 axios
-                    .get(apiUrl)
+                    .get(apiUrl + '&internal=1')
                     .then(response => {
                         let count = 0;
-                        let result = []
+                        let result = [];
                         Object.keys(response.data).forEach((id) => {
                             result.push(response.data[id]);
                             count += Object.keys(response.data[id]['collisions']).length;

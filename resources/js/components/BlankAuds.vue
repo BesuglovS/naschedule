@@ -76,7 +76,7 @@
                 let selectedDate = this.calendarList.filter(c => c.id === this.calendarId)[0].date;
                 this.loading = true;
                 axios
-                    .get('/getBlankAuds?date=' + selectedDate)
+                    .get('/getBlankAuds?date=' + selectedDate + '&internal=1')
                     .then(response => {
                         this.blankAudsLessons = response.data;
                         this.loading = false;

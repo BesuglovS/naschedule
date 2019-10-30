@@ -212,7 +212,7 @@
                 axios
                     .get('/loadIllInfo?teacherId=' + this.teacherId +
                         '&calendarFromId=' + this.calendarFromId +
-                        '&calendarToId=' + this.calendarToId)
+                        '&calendarToId=' + this.calendarToId + '&internal=1')
                     .then(response => {
                         this.loading = false;
                         this.illInfo = response.data.sort((a,b) => {

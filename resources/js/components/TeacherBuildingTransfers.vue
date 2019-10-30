@@ -79,7 +79,7 @@
             loadTransfersInfo() {
                 this.loading = true;
                 axios
-                    .get('/teacherBuildingDailyTransfers?calendarId=' + this.calendarId)
+                    .get('/teacherBuildingDailyTransfers?calendarId=' + this.calendarId + '&internal=1')
                     .then(response => {
                         this.loading = false;
                         this.teacherTransfers = response.data;

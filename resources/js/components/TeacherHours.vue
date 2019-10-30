@@ -142,7 +142,7 @@
             loadTeacherDisciplines() {
                 this.loading = true;
                 axios
-                    .get('/api.php?action=list&listtype=disciplines&teacherId=' + this.selectedTeacherId + '&hoursByWeek')
+                    .get('/api.php?action=list&listtype=disciplines&teacherId=' + this.selectedTeacherId + '&hoursByWeek' + '&internal=1')
                     .then(response => {
                         this.loading = false;
                         this.teacherDisciplines = response.data;

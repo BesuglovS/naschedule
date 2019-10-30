@@ -169,7 +169,7 @@
 
                 this.lessonLogEvents = [];
                 this.loading = true;
-                axios.get(apiUrl)
+                axios.get(apiUrl + '&internal=1')
                     .then(response => {
                         this.weekLessonLogEvents = response.data;
                         this.filterEvents();

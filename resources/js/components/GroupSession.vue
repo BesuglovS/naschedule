@@ -86,7 +86,7 @@
                 this.loading = true;
                 this.firstLoad = false;
                 axios
-                    .get('/api.php?action=groupExams&groupId=' + this.studentGroupId)
+                    .get('/api.php?action=groupExams&groupId=' + this.studentGroupId + '&internal=1')
                     .then(response => {
                         let data = response.data[this.studentGroupId].Exams;
                         this.exams = data.sort((a,b) => {

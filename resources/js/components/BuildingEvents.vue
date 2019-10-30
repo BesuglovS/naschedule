@@ -171,7 +171,7 @@
                 }
 
                 axios
-                    .get(apiUrl)
+                    .get(apiUrl + '&internal=1')
                     .then(response => {
                         let data = response.data;
 

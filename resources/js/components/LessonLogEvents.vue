@@ -120,7 +120,7 @@
                     apiUrl = '/lessonLogEventsByGroup?groupId=' + this.studentGroupId + '&weeks=' + weeksString;
                 }
 
-                axios.get(apiUrl)
+                axios.get(apiUrl + '&internal=1')
                     .then(response => {
                         this.groupLessonLogEvents = response.data;
                     });
@@ -313,7 +313,7 @@
         },
         mounted() {
             axios
-                .get('/api.php?action=list&listtype=rings')
+                .get('/api.php?action=list&listtype=rings' + '&internal=1')
                 .then(response => {
                     this.allRings = response.data.sort((a,b) => {
                         if (a.Time === b.Time) return 0;

@@ -175,7 +175,7 @@
                     this.selectedWeeks.join('|');
 
                 axios
-                    .get('/api.php?action=teachersWeeksSchedule&teacherIds=' + teacherIds.join('|') + '&weeks=' + weeks)
+                    .get('/api.php?action=teachersWeeksSchedule&teacherIds=' + teacherIds.join('|') + '&weeks=' + weeks + '&internal=1')
                     .then(response => {
                         let teachersRings = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []};
                         Object.keys(response.data).forEach((teacherId) => {
@@ -203,7 +203,7 @@
             loadTeacherGroupSchedule() {
                 this.loading = true;
                 axios
-                    .get('/teacherTeacherGroups/teacherGroupTeachers/' + this.selectedTeacherGroupId)
+                    .get('/teacherTeacherGroups/teacherGroupTeachers/' + this.selectedTeacherGroupId + '&internal=1')
                     .then(response => {
                         let teacherIds = response.data.map(teacher => teacher.id);
                         this.loadTeachersSchedule(teacherIds);

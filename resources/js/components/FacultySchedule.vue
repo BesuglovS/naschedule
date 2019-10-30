@@ -418,7 +418,7 @@
 
                 this.loadingDisciplines = true;
                 axios
-                    .get('/disciplinesByFacultyInfo?facultyId=' + this.facId)
+                    .get('/disciplinesByFacultyInfo?facultyId=' + this.facId + '&internal=1')
                     .then(response => {
                         this.facultyDisciplines = response.data;
                         this.loadingDisciplines = false;
@@ -442,7 +442,7 @@
                 }
 
                 axios
-                    .get(apiUrl)
+                    .get(apiUrl + '&internal=1')
                     .then(response => {
                         let data = response.data;
 
@@ -745,7 +745,7 @@
                 axios
                     .get('/api.php?action=freeAuditoriums' +
                         '&dows=' + this.newDows.join('|') +
-                        '&ringIds=' + this.newRingIds.join('|'))
+                        '&ringIds=' + this.newRingIds.join('|') + '&internal=1')
                     .then(response => {
                         this.freeAuds = response.data;
                     });
@@ -907,7 +907,7 @@
                 axios
                     .get('/api.php?action=freeAuditoriums' +
                         '&dows=' + this.newDows.join('|') +
-                        '&ringIds=' + this.newRingIds.join('|'))
+                        '&ringIds=' + this.newRingIds.join('|') + '&internal=1')
                     .then(response => {
                         this.freeAuds = response.data;
                         this.showNewWindow = true;
@@ -917,7 +917,7 @@
                 this.newTfdBusyLoading = true;
 
                 axios
-                    .get('/api.php?action=teacherWeeksSchedule&teacherId=' + groupDisciplineSelected.teacherId + '&compactResult')
+                    .get('/api.php?action=teacherWeeksSchedule&teacherId=' + groupDisciplineSelected.teacherId + '&compactResult' + '&internal=1')
                     .then(response => {
                         this.disciplineTeacherSchedule = response.data;
                         this.newTfdBusyLoading = false;
@@ -977,7 +977,7 @@
                 axios
                     .get('/api.php?action=freeAuditoriums' +
                         '&dows=' + this.newDows.join('|') +
-                        '&ringIds=' + this.newRingIds.join('|'))
+                        '&ringIds=' + this.newRingIds.join('|') + '&internal=1')
                     .then(response => {
                         this.freeAuds = response.data;
                     });
@@ -1017,7 +1017,7 @@
                 axios
                     .get('/api.php?action=freeAuditoriums' +
                         '&dows=' + dow +
-                        '&ringIds=' + this.getRingFromAllRingsByFiveTime(time).RingId)
+                        '&ringIds=' + this.getRingFromAllRingsByFiveTime(time).RingId + '&internal=1')
                     .then(response => {
                         this.editFreeAuds = response.data;
 
@@ -1027,7 +1027,7 @@
                     });
 
                 axios
-                    .get('/api.php?action=teacherWeeksSchedule&teacherId=' + lessonsData.lessons[0].teacherId + '&compactResult')
+                    .get('/api.php?action=teacherWeeksSchedule&teacherId=' + lessonsData.lessons[0].teacherId + '&compactResult' + '&internal=1')
                     .then(response => {
                         this.editDisciplineTeacherSchedule = response.data;
                     });
@@ -1162,7 +1162,7 @@
         },
         mounted() {
             axios
-                .get('/api.php?action=list&listtype=rings')
+                .get('/api.php?action=list&listtype=rings' + '&internal=1')
                 .then(response => {
                     this.allRings = response.data.sort((a,b) => {
                         if (a.Time === b.Time) return 0;

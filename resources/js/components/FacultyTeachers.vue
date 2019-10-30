@@ -77,7 +77,7 @@
                 this.loading = true;
                 this.firstLoad = false;
 
-                axios.get('/facTeachers?facultyId=' + this.facultyId)
+                axios.get('/facTeachers?facultyId=' + this.facultyId + '&internal=1')
                     .then(response => {
                         this.facultyTeachers = response.data;
                     });

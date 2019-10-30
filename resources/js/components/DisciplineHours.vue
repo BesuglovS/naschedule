@@ -162,7 +162,7 @@
             loadGroupDisciplines() {
                 this.loading = true;
                 axios
-                    .get('/api.php?action=list&listtype=disciplines&groupId=' + this.studentGroupId + '&hoursByWeek')
+                    .get('/api.php?action=list&listtype=disciplines&groupId=' + this.studentGroupId + '&hoursByWeek' + '&internal=1')
                     .then(response => {
                         this.loading = false;
                         this.groupDisciplines = response.data;
