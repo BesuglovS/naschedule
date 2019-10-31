@@ -151,7 +151,7 @@ class OldApiController extends Controller
         $lessonsList = Lesson::GetDailyTFDLessons($disciplineTeacherIds, $calendarId);
 
         if (!isset($input['internal'])) {
-            $lessonsList = array();
+            $lessonsList = collect(array());
         }
 
         $lessonsList->map(function ($lesson) use ($date) {
@@ -243,7 +243,7 @@ class OldApiController extends Controller
         $Exams = Exam::FromGroupId_OldAPI($groupId);
 
         if (!isset($input['internal'])) {
-            $Exams = array();
+            $Exams = collect(array());
         }
 
         $Exams->map(function ($exam) {
@@ -856,7 +856,7 @@ class OldApiController extends Controller
         $tfdId = $input["tfdId"];
 
         if (!isset($input['internal'])) {
-            return array();
+            return collect(array());
         }
 
         $result = DB::table('lessons')
@@ -998,7 +998,7 @@ class OldApiController extends Controller
                     ->get();
 
                 if (!isset($input['internal'])) {
-                    $rawLessons = array();
+                    $rawLessons = collect(array());
                 }
 
                 $lessons = array();
@@ -1036,7 +1036,7 @@ class OldApiController extends Controller
                 ->get();
 
             if (!isset($input['internal'])) {
-                $rawLessons = array();
+                $rawLessons = collect(array());
             }
 
             $lessons = array("1" => array(), "2" => array(), "3" => array(), "4" => array(),
@@ -1197,7 +1197,7 @@ class OldApiController extends Controller
             ->get();
 
         if (!isset($input['internal'])) {
-            $result = array();
+            $lessons = collect(array());
         }
 
         return $lessons;
