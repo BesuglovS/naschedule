@@ -465,7 +465,7 @@ class PdfController extends Controller
             $pdfM->addPDF($fileName, 'all');
         }
 
-        $filename = "Расписание (" . $week . ").pdf";
+        $filename = "Расписание (" . $dowRu[$dow] . " - " . $week . ").pdf";
 
         $pdfM->merge('browser', $filename);
 
@@ -975,6 +975,7 @@ class PdfController extends Controller
         $input = $request->all();
         $input["weeks"] = $input["week"];
         $input["compactResult"] = true;
+        $input["internal"] = 1;
         $teacherSchedule = $oac->GetTeacherWeeksSchedule($input);
         unset($teacherSchedule[7]);
 
