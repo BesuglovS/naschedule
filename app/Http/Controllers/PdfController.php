@@ -56,6 +56,7 @@ class PdfController extends Controller
         $oac = new OldApiController();
         $input = $request->all();
         $input["weeks"] = $input["week"];
+        $input["internal"] = 1;
         $schedule = $oac->GetFacultyWeeksSchedule($input);
 
         $facultyId = $input["facultyId"];
@@ -127,6 +128,7 @@ class PdfController extends Controller
         $oac = new OldApiController();
         $input = $request->all();
         $input["weeks"] = $input["week"];
+        $input["internal"] = 1;
         $schedule = $oac->GetFacultyWeeksSchedule($input);
 
         $facultyId = $input["facultyId"];
@@ -198,6 +200,7 @@ class PdfController extends Controller
         $input = $request->all();
         $download = $input["download"];
         $input["weeks"] = $input["week"];
+        $input["internal"] = 1;
         $schedule = $oac->GetFacultyWeeksSchedule($input);
 
         $facultyId = $input["facultyId"];
@@ -295,6 +298,7 @@ class PdfController extends Controller
         $input = $request->all();
 
         $input["weeks"] = $input["week"];
+        $input["internal"] = 1;
 
         $schedule = $oac->GetFacultyWeeksSchedule($input);
 
@@ -393,6 +397,7 @@ class PdfController extends Controller
         $input = $request->all();
 
         $input["weeks"] = $input["week"];
+        $input["internal"] = 1;
 
         $schedule = $oac->GetFacultyWeeksSchedule($input);
 
@@ -511,6 +516,7 @@ class PdfController extends Controller
 
         $input["weeks"] = $input["week"];
         $input["compactResult"] = "1";
+        $input["internal"] = 1;
 
         $schedule = $oac->GetWeeksSchedule($input);
 
@@ -630,6 +636,7 @@ class PdfController extends Controller
 
             $input["weeks"] = $input["week"];
             $input["compactResult"] = "1";
+            $input["internal"] = 1;
 
             $schedule = $oac->GetWeeksSchedule($input);
 
@@ -720,6 +727,7 @@ class PdfController extends Controller
 
         $oac = new OldApiController();
         $input = $request->all();
+        $input["internal"] = 1;
 
         $faculty = Faculty::find($input['facultyId']);
         $facultyGroups = DB::table('faculty_student_group')
@@ -861,6 +869,7 @@ class PdfController extends Controller
     public function buildingEventsPdf(Request $request) {
         $input = $request->all();
         $input['weeks'] = $input['week'];
+        $input["internal"] = 1;
         $dowRu = array("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота");
 
         $oac = new OldApiController();
