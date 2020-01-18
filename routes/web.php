@@ -19,7 +19,8 @@ Route::post('/import.php', 'ApiController@import')
 
 Route::get('/', 'MainController@index');
 
-Auth::routes();
+Auth::routes(['register' => false]);
+
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/admin', 'MainController@root');
 

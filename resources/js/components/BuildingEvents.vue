@@ -74,7 +74,11 @@
 
                                 <tr v-for="ring in ringsSorted">
                                     <td>{{ring.time}}</td>
-                                    <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums">
+                                    <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums"
+                                        :class="{
+                                            'redBorder': redBorder(buildingEvents[ring.id][auditoriumId]),
+                                            'yellowBorder': yellowBorder(buildingEvents[ring.id][auditoriumId]) }"
+                                    >
                                         <template v-if="(buildingEvents[ring.id] !== undefined) && (auditoriumId in buildingEvents[ring.id])">
                                             <template v-for="tfd in
                                                 Object.keys(buildingEvents[ring.id][auditoriumId])
@@ -187,6 +191,40 @@
                 this.selectedWeeks = [];
                 this.selectedWeeks.push(-1);
                 this.loadBuildingEvents();
+            },
+            redBorder(events) {
+                if (events === undefined || Object.keys(events).length === 1) return false;
+
+                var teacherFIOs = [];
+                for (var tfdId in events) {
+                    var item = events[tfdId];
+                    if (item['lessons'] !== undefined) {
+                        if (!teacherFIOs.includes(item['lessons'][0]['teacherFio'])) {
+                            teacherFIOs.push(item['lessons'][0]['teacherFio']);
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+
+                return (teacherFIOs.length > 1);
+            },
+            yellowBorder(events) {
+                if (events === undefined || Object.keys(events).length === 1) return false;
+
+                var teacherFIOs = [];
+                for (var tfdId in events) {
+                    var item = events[tfdId];
+                    if (item['lessons'] !== undefined) {
+                        if (!teacherFIOs.includes(item['lessons'][0]['teacherFio'])) {
+                            teacherFIOs.push(item['lessons'][0]['teacherFio']);
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+
+                return (Object.keys(events).length > 1 && teacherFIOs.length === 1);
             },
             combineWeeksToRange(ws) {
                 let weeks = ws.slice(0);
@@ -392,5 +430,13 @@
 </script>
 
 <style scoped>
+    .redBorder {
+        border: 3px solid #ee222c !important;
+        background-color: rgba(241, 11, 30, 0.31);
+    }
 
+    .yellowBorder {
+        border: 3px solid #8a860b !important;
+        background-color: rgba(255, 254, 19, 0.31);
+    }
 </style>

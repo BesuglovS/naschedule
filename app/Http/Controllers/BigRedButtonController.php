@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class BigRedButtonController extends Controller
@@ -229,6 +230,8 @@ class BigRedButtonController extends Controller
     }
 
     public function TMP(Request $request) {
-
+        $input = $request->input();
+        $hash = Hash::make($input['password']);
+        return array('hash' => $hash);
     }
 }
