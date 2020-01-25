@@ -22,6 +22,8 @@
             <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 1em;">
                 <button :disabled="loading" @click="putAuditoriums();" style="font-size: 2em;" class="button is-primary">Расставить аудитории</button>
 
+                <button :disabled="loading" @click="clearAuditoriums();" style="font-size: 2em; margin-left: 1em;" class="button is-primary">Сбросить аудитории</button>
+
                 <div v-if="loading === true" style="font-size: 2em; text-align: center; margin-left: 2em;">
                     Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
                 </div>
@@ -37,7 +39,6 @@
                 </div>
             </template>
         </modal>
-
     </div>
 </template>
 
@@ -67,6 +68,15 @@
                 this.loading = true;
                 axios
                     .post('/putDailyAuds?date=' + selectedDate)
+                    .then(response => {
+                        this.loading = false;
+                    });
+            },
+            clearAuditoriums() {
+                let selectedDate = this.calendarList.filter(c => c.id === this.calendarId)[0].date;
+                this.loading = true;
+                axios
+                    .post('/clearDailyAuds?date=' + selectedDate)
                     .then(response => {
                         this.loading = false;
                     });

@@ -106,6 +106,7 @@ Route::group(['middleware' => ['auth']], function () {
     // putAuds
     Route::get('/putAuds', 'MainController@putAudsIndex');
     Route::post('/putDailyAuds', 'MainController@putDailyAuds');
+    Route::post('/clearDailyAuds', 'MainController@clearDailyAuds');
 
     // emptyAuds
     Route::get('/blankAuds', 'MainController@BlankAuds');
