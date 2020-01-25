@@ -503,6 +503,13 @@ class MainController extends Controller
                             continue;
                         }
 
+                        if (($this->startsWith($teacherLesson->studentGroupName, "1 ")) ||
+                            ($this->startsWith($teacherLesson->studentGroupName, "2 ")) ||
+                            ($this->startsWith($teacherLesson->studentGroupName, "3 ")) ||
+                            ($this->startsWith($teacherLesson->studentGroupName, "4 "))) {
+                            continue;
+                        }
+
                         if (($this->startsWith($teacherLesson->studentGroupName, "5 ") &&
                                 in_array($lessonDow, array(2, 4, 6))) ||
                             ($this->startsWith($teacherLesson->studentGroupName, "6 ") &&
@@ -521,12 +528,12 @@ class MainController extends Controller
                             ->where('lessons.state', '=', '1')
                             ->where('calendars.id', '=', $teacherLesson->calendarsId)
                             ->where('rings.id', '=', $teacherLesson->ringsId)
-                            ->where('rings.id', '=', $teacherLesson->ringsId)
+                            ->where('auditoriums.id', '=', $audId)
                             ->whereIn('teachers.id', $highPriorityTeacherIds)
                             ->select('lessons.id as lessonId', 'student_groups.name as studentGroupName', 'calendars.date as calendarsDate')
                             ->get();
 
-                        if (count($audLessons) != 0) {
+                        if ($audLessons->count() !== 0) {
                             continue;
                         }
 
@@ -588,7 +595,7 @@ class MainController extends Controller
             ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
             ->where('lessons.state', '=', '1')
             ->where('calendars.id', '=', $calendarId)
-            ->whereIn('student_groups.id', $groupIds )
+            ->whereIn('student_groups.id', $groupIds)
             ->select('lessons.id as lessonId', 'student_groups.name as studentGroupName',
                 'calendars.date as calendarsDate', 'lessons.auditorium_id')
             ->get();
@@ -597,6 +604,11 @@ class MainController extends Controller
 
         foreach($calendarLessons as $calendarLesson) {
             $lessonDow = Calendar::CarbonDayOfWeek(Carbon::createFromFormat('Y-m-d', $calendarLesson->calendarsDate));
+
+            if ((strpos($calendarLesson->studentGroupName, "1 ") === 0) || (strpos($calendarLesson->studentGroupName, "2 ") === 0) ||
+                (strpos($calendarLesson->studentGroupName, "3 ") === 0) || (strpos($calendarLesson->studentGroupName, "4 ") === 0)) {
+                $emptyAudId = DB::table('auditoriums')->where('name', '=', '-')->first()->id;
+            }
 
             if ($calendarLesson->auditorium_id === $emptyAudId) {
                 continue;
