@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\DomainClasses\Auditorium;
 use App\DomainClasses\Calendar;
+use App\DomainClasses\Discipline;
 use App\DomainClasses\Lesson;
 use App\DomainClasses\LessonLogEvent;
+use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -229,9 +231,267 @@ class BigRedButtonController extends Controller
         return array('success' => 'ok');
     }
 
-    public function TMP(Request $request) {
+    public function TMP(Request $request)
+    {
         $input = $request->input();
         $hash = Hash::make($input['password']);
         return array('hash' => $hash);
+    }
+
+    public function AudsTable5_11(Request $request) {
+        $calendarIds = array(128, 129, 130, 131, 132, 133); // 20
+
+        $lessons = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('lessons.state', '=', '1')
+            ->whereIn('calendars.id', $calendarIds)
+            ->select('lessons.id as lessonId',
+                'student_groups.id as studentGroupsId',
+                'student_groups.name as studentGroupName',
+                'disciplines.id as disciplinesId',
+                'disciplines.name as disciplinesName',
+                'teachers.id as teachersId',
+                'teachers.fio as teachersFio',
+                'auditoriums.id as auditoriumsId',
+                'auditoriums.name as auditoriumsName')
+            ->get();
+
+        $filteredLessons = $lessons->filter(function ($value, $key) {
+            return (
+                (strpos($value->studentGroupName, "5 ") === 0) ||
+                (strpos($value->studentGroupName, "6 ") === 0) ||
+                (strpos($value->studentGroupName, "7 ") === 0) ||
+                (strpos($value->studentGroupName, "8 ") === 0) ||
+                (strpos($value->studentGroupName, "9 ") === 0) ||
+                (strpos($value->studentGroupName, "10 ") === 0) ||
+                (strpos($value->studentGroupName, "11 ") === 0)
+            );
+        });
+
+        $result = [];
+
+        foreach($filteredLessons as $filteredLesson) {
+            $key = $filteredLesson->studentGroupsId . " " . $filteredLesson->disciplinesId . " " .
+                $filteredLesson->teachersId;
+
+            if (!array_key_exists($key, $result)) {
+                $result[$key] = [];
+            }
+
+            if (!in_array($filteredLesson->auditoriumsId, $result[$key])) {
+                $result[$key][] = $filteredLesson->auditoriumsId;
+            }
+
+        }
+
+        $groups = StudentGroup::all();
+        $groupNameById = array();
+        foreach ($groups as $group) {
+            $groupNameById[$group->id] = $group->name;
+        }
+
+        $disciplines = Discipline::all();
+        $discNameById = array();
+        foreach ($disciplines as $discipline) {
+            $discNameById[$discipline->id] = $discipline->name;
+        }
+
+        $teachers = Teacher::all();
+        $teacherFioById = array();
+        foreach ($teachers as $teacher) {
+            $teacherFioById[$teacher->id] = $teacher->fio;
+        }
+
+        $auditoriums = Auditorium::all();
+        $audsById = array();
+        foreach ($auditoriums as $auditorium) {
+            $audsById[$auditorium->id] = $auditorium->name;
+        }
+
+        $textResult = [];
+
+        foreach($result as $resultItem => $auds) {
+            $split = explode(' ', $resultItem);
+            $groupId = $split[0];
+            $discId = $split[1];
+            $teacherId = $split[2];
+
+            foreach($auds as $aud) {
+                $tri = [];
+                $tri["Класс"] = $groupNameById[$groupId];
+                $tri["Дисциплина"] = $discNameById[$discId];
+                $tri["Учитель"] = $teacherFioById[$teacherId];
+                $tri["Кабинет"] = $audsById[$aud];
+
+                $textResult[] = $tri;
+            }
+        }
+
+        usort($textResult, function($a, $b){
+            if ($a["Класс"] == $b["Класс"]) {
+                if ($a["Дисциплина"] == $b["Дисциплина"]) {
+                    if ($a["Учитель"] == $b["Учитель"]) {
+                        if ($a["Кабинет"] == $b["Кабинет"]) {
+                            return 0;
+                        } else {
+                            return $a["Кабинет"] < $b["Кабинет"] ? -1 : 1;
+                        }
+                    } else {
+                        return $a["Учитель"] < $b["Учитель"] ? -1 : 1;
+                    }
+                } else {
+                    return $a["Дисциплина"] < $b["Дисциплина"] ? -1 : 1;
+                }
+            } else {
+                $num1 = explode(" ", $a["Класс"])[0];
+                $num2 = explode(" ", $b["Класс"])[0];
+
+                if ($num1 == $num2)
+                {
+                    if ($a["Класс"] == $b["Класс"]) return 0;
+                    return $a["Класс"] < $b["Класс"] ? -1 : 1;
+                }
+                else
+                {
+                    return ($num1 < $num2) ? -1 : 1;
+                }
+            }
+        });
+
+        return view('brb.auds511', compact('textResult'));
+        //return $textResult;
+    }
+
+    public function AudsTable1_4(Request $request) {
+        $calendarIds = array(93, 94, 95, 96, 97, 98); // 15
+
+        $lessons = DB::table('lessons')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->where('lessons.state', '=', '1')
+            ->whereIn('calendars.id', $calendarIds)
+            ->select('lessons.id as lessonId',
+                'student_groups.id as studentGroupsId',
+                'student_groups.name as studentGroupName',
+                'disciplines.id as disciplinesId',
+                'disciplines.name as disciplinesName',
+                'teachers.id as teachersId',
+                'teachers.fio as teachersFio',
+                'auditoriums.id as auditoriumsId',
+                'auditoriums.name as auditoriumsName')
+            ->get();
+
+        $filteredLessons = $lessons->filter(function ($value, $key) {
+            return (
+                (strpos($value->studentGroupName, "1 ") === 0) ||
+                (strpos($value->studentGroupName, "2 ") === 0) ||
+                (strpos($value->studentGroupName, "3 ") === 0) ||
+                (strpos($value->studentGroupName, "4 ") === 0)
+            );
+        });
+
+        $result = [];
+
+        foreach($filteredLessons as $filteredLesson) {
+            $key = $filteredLesson->studentGroupsId . " " . $filteredLesson->disciplinesId . " " .
+                $filteredLesson->teachersId;
+
+            if (!array_key_exists($key, $result)) {
+                $result[$key] = [];
+            }
+
+            if (!in_array($filteredLesson->auditoriumsId, $result[$key])) {
+                $result[$key][] = $filteredLesson->auditoriumsId;
+            }
+
+        }
+
+        $groups = StudentGroup::all();
+        $groupNameById = array();
+        foreach ($groups as $group) {
+            $groupNameById[$group->id] = $group->name;
+        }
+
+        $disciplines = Discipline::all();
+        $discNameById = array();
+        foreach ($disciplines as $discipline) {
+            $discNameById[$discipline->id] = $discipline->name;
+        }
+
+        $teachers = Teacher::all();
+        $teacherFioById = array();
+        foreach ($teachers as $teacher) {
+            $teacherFioById[$teacher->id] = $teacher->fio;
+        }
+
+        $auditoriums = Auditorium::all();
+        $audsById = array();
+        foreach ($auditoriums as $auditorium) {
+            $audsById[$auditorium->id] = $auditorium->name;
+        }
+
+        $textResult = [];
+
+        foreach($result as $resultItem => $auds) {
+            $split = explode(' ', $resultItem);
+            $groupId = $split[0];
+            $discId = $split[1];
+            $teacherId = $split[2];
+
+            foreach($auds as $aud) {
+                $tri = [];
+                $tri["Класс"] = $groupNameById[$groupId];
+                $tri["Дисциплина"] = $discNameById[$discId];
+                $tri["Учитель"] = $teacherFioById[$teacherId];
+                $tri["Кабинет"] = $audsById[$aud];
+
+                $textResult[] = $tri;
+            }
+        }
+
+        usort($textResult, function($a, $b){
+            if ($a["Класс"] == $b["Класс"]) {
+                if ($a["Дисциплина"] == $b["Дисциплина"]) {
+                    if ($a["Учитель"] == $b["Учитель"]) {
+                        if ($a["Кабинет"] == $b["Кабинет"]) {
+                            return 0;
+                        } else {
+                            return $a["Кабинет"] < $b["Кабинет"] ? -1 : 1;
+                        }
+                    } else {
+                        return $a["Учитель"] < $b["Учитель"] ? -1 : 1;
+                    }
+                } else {
+                    return $a["Дисциплина"] < $b["Дисциплина"] ? -1 : 1;
+                }
+            } else {
+                $num1 = explode(" ", $a["Класс"])[0];
+                $num2 = explode(" ", $b["Класс"])[0];
+
+                if ($num1 == $num2)
+                {
+                    if ($a["Класс"] == $b["Класс"]) return 0;
+                    return $a["Класс"] < $b["Класс"] ? -1 : 1;
+                }
+                else
+                {
+                    return ($num1 < $num2) ? -1 : 1;
+                }
+            }
+        });
+
+        //return $textResult;
+        return view('brb.auds14', compact('textResult'));
     }
 }
