@@ -259,7 +259,8 @@ class BigRedButtonController extends Controller
                 'teachers.id as teachersId',
                 'teachers.fio as teachersFio',
                 'auditoriums.id as auditoriumsId',
-                'auditoriums.name as auditoriumsName')
+                'auditoriums.name as auditoriumsName',
+                'disciplines.type as disciplinesType')
             ->get();
 
         $filteredLessons = $lessons->filter(function ($value, $key) {
@@ -278,7 +279,7 @@ class BigRedButtonController extends Controller
 
         foreach($filteredLessons as $filteredLesson) {
             $key = $filteredLesson->studentGroupsId . " " . $filteredLesson->disciplinesId . " " .
-                $filteredLesson->teachersId;
+                $filteredLesson->teachersId . " " . $filteredLesson->disciplinesType;
 
             if (!array_key_exists($key, $result)) {
                 $result[$key] = [];
@@ -321,6 +322,7 @@ class BigRedButtonController extends Controller
             $groupId = $split[0];
             $discId = $split[1];
             $teacherId = $split[2];
+            $discType = $split[3];
 
             foreach($auds as $aud) {
                 $tri = [];
@@ -328,6 +330,18 @@ class BigRedButtonController extends Controller
                 $tri["Дисциплина"] = $discNameById[$discId];
                 $tri["Учитель"] = $teacherFioById[$teacherId];
                 $tri["Кабинет"] = $audsById[$aud];
+
+                switch ($discType) {
+                    case 1:
+                        $tri["Тип дисциплины"] = "Бюджет";
+                        break;
+                    case 2:
+                        $tri["Тип дисциплины"] = "Внеурочная деятельность";
+                        break;
+                    case 3:
+                        $tri["Тип дисциплины"] = "Платные";
+                        break;
+                }
 
                 $textResult[] = $tri;
             }
@@ -365,7 +379,6 @@ class BigRedButtonController extends Controller
         });
 
         return view('brb.auds511', compact('textResult'));
-        //return $textResult;
     }
 
     public function AudsTable1_4(Request $request) {
@@ -389,7 +402,8 @@ class BigRedButtonController extends Controller
                 'teachers.id as teachersId',
                 'teachers.fio as teachersFio',
                 'auditoriums.id as auditoriumsId',
-                'auditoriums.name as auditoriumsName')
+                'auditoriums.name as auditoriumsName',
+                'disciplines.type as disciplinesType')
             ->get();
 
         $filteredLessons = $lessons->filter(function ($value, $key) {
@@ -405,7 +419,7 @@ class BigRedButtonController extends Controller
 
         foreach($filteredLessons as $filteredLesson) {
             $key = $filteredLesson->studentGroupsId . " " . $filteredLesson->disciplinesId . " " .
-                $filteredLesson->teachersId;
+                $filteredLesson->teachersId . " " . $filteredLesson->disciplinesType;
 
             if (!array_key_exists($key, $result)) {
                 $result[$key] = [];
@@ -448,6 +462,7 @@ class BigRedButtonController extends Controller
             $groupId = $split[0];
             $discId = $split[1];
             $teacherId = $split[2];
+            $discType = $split[3];
 
             foreach($auds as $aud) {
                 $tri = [];
@@ -455,6 +470,18 @@ class BigRedButtonController extends Controller
                 $tri["Дисциплина"] = $discNameById[$discId];
                 $tri["Учитель"] = $teacherFioById[$teacherId];
                 $tri["Кабинет"] = $audsById[$aud];
+
+                switch ($discType) {
+                    case 1:
+                        $tri["Тип дисциплины"] = "Бюджет";
+                        break;
+                    case 2:
+                        $tri["Тип дисциплины"] = "Внеурочная деятельность";
+                        break;
+                    case 3:
+                        $tri["Тип дисциплины"] = "Платные";
+                        break;
+                }
 
                 $textResult[] = $tri;
             }
