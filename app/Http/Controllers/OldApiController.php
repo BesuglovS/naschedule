@@ -88,7 +88,7 @@ class OldApiController extends Controller
                 }
 
                 switch ($listType) {
-                    case "auditoriums":             return $this->GetAuditoriumsList();
+                    case "auditoriums":             return $this->GetAuditoriumsList($input);
                     case "calendars":               return $this->GetCalendarsList();
                     case "configOptions":           return $this->GetConfigOptionsList();
                     case "disciplines":             return $this->GetDisciplinesList($input);
@@ -342,9 +342,16 @@ class OldApiController extends Controller
     /**
      * @return Collection|static[]
      */
-    private function GetAuditoriumsList()
+    private function GetAuditoriumsList($input)
     {
-        $result = Auditorium::all();
+        if (isset($input['buildingId'])) {
+            $buildingId = $input['buildingId'];
+            $result = DB::table('auditoriums')
+                ->where('building_id', '=', $buildingId)
+                ->get();
+        } else {
+            $result = Auditorium::all();
+        }
 
         $result->map(function ($aud) {
             $aud->AuditoriumId = (string) $aud->id;

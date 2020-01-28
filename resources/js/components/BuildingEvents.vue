@@ -69,53 +69,53 @@
                             <table v-if="scheduleRings.length !== 0 && loading === false" style="overflow-y: auto; font-size: 0.6em; margin-top: 2em;" class="table table-responsive td-center is-bordered">
                                 <tr>
                                     <td></td>
-                                    <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums">{{auditoriumName}}</td>
+                                    <td v-for="auditorium in auditoriumsSorted">{{auditorium.name}}</td>
                                 </tr>
 
                                 <tr v-for="ring in ringsSorted">
                                     <td>{{ring.time}}</td>
-                                    <td v-for="(auditoriumName, auditoriumId) in scheduleAuditoriums"
+                                    <td v-for="auditorium in auditoriumsSorted"
                                         :class="{
-                                            'redBorder': redBorder(buildingEvents[ring.id][auditoriumId]),
-                                            'yellowBorder': yellowBorder(buildingEvents[ring.id][auditoriumId]) }"
+                                            'redBorder': redBorder(buildingEvents[ring.id][auditorium.id]),
+                                            'yellowBorder': yellowBorder(buildingEvents[ring.id][auditorium.id]) }"
                                     >
-                                        <template v-if="(buildingEvents[ring.id] !== undefined) && (auditoriumId in buildingEvents[ring.id])">
+                                        <template v-if="(buildingEvents[ring.id] !== undefined) && (auditorium.id in buildingEvents[ring.id])">
                                             <template v-for="tfd in
-                                                Object.keys(buildingEvents[ring.id][auditoriumId])
+                                                Object.keys(buildingEvents[ring.id][auditorium.id])
                                                     .sort((a,b) => {
-                                                        let aMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][a]['weeksAndAuds']).flat());
-                                                        let bMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][b]['weeksAndAuds']).flat());
+                                                        let aMin = Math.min(...Object.values(buildingEvents[ring.id][auditorium.id][a]['weeksAndAuds']).flat());
+                                                        let bMin = Math.min(...Object.values(buildingEvents[ring.id][auditorium.id][b]['weeksAndAuds']).flat());
 
                                                         if (aMin === bMin) return 0;
                                                         return aMin < bMin ? -1 : 1;
                                                     })
                                             ">
-                                                <div v-if="buildingEvents[ring.id][auditoriumId][tfd]['lessons'] !== undefined"
+                                                <div v-if="buildingEvents[ring.id][auditorium.id][tfd]['lessons'] !== undefined"
                                                     :title="
-                                                    buildingEvents[ring.id][auditoriumId][tfd]['lessons'][0]['disciplineName'] + '@' +
-                                                    buildingEvents[ring.id][auditoriumId][tfd]['lessons'][0]['teacherFio']
+                                                    buildingEvents[ring.id][auditorium.id][tfd]['lessons'][0]['disciplineName'] + '@' +
+                                                    buildingEvents[ring.id][auditorium.id][tfd]['lessons'][0]['teacherFio']
                                                 ">
-                                                    <strong>{{buildingEvents[ring.id][auditoriumId][tfd]["lessons"][0]["studentGroupName"]}}</strong><br />
-                                                    {{combineWeeksToRange(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"]
-                                                        [Object.keys(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"])[0]])}}
+                                                    <strong>{{buildingEvents[ring.id][auditorium.id][tfd]["lessons"][0]["studentGroupName"]}}</strong><br />
+                                                    {{combineWeeksToRange(buildingEvents[ring.id][auditorium.id][tfd]["weeksAndAuds"]
+                                                        [Object.keys(buildingEvents[ring.id][auditorium.id][tfd]["weeksAndAuds"])[0]])}}
                                                 </div>
 
-                                                <div v-if="buildingEvents[ring.id][auditoriumId][tfd]['events'] !== undefined">
-                                                    <strong>{{buildingEvents[ring.id][auditoriumId][tfd]["events"][0]["name"]}}</strong><br />
-                                                    {{combineWeeksToRange(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"]
-                                                    [Object.keys(buildingEvents[ring.id][auditoriumId][tfd]["weeksAndAuds"])[0]])}}
+                                                <div v-if="buildingEvents[ring.id][auditorium.id][tfd]['events'] !== undefined">
+                                                    <strong>{{buildingEvents[ring.id][auditorium.id][tfd]["events"][0]["name"]}}</strong><br />
+                                                    {{combineWeeksToRange(buildingEvents[ring.id][auditorium.id][tfd]["weeksAndAuds"]
+                                                    [Object.keys(buildingEvents[ring.id][auditorium.id][tfd]["weeksAndAuds"])[0]])}}
                                                 </div>
 
 
                                                 <template v-if="
-                                                    Object.keys(buildingEvents[ring.id][auditoriumId])
+                                                    Object.keys(buildingEvents[ring.id][auditorium.id])
                                                     .sort((a,b) => {
-                                                        let aMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][a]['weeksAndAuds']).flat());
-                                                        let bMin = Math.min(...Object.values(buildingEvents[ring.id][auditoriumId][b]['weeksAndAuds']).flat());
+                                                        let aMin = Math.min(...Object.values(buildingEvents[ring.id][auditorium.id][a]['weeksAndAuds']).flat());
+                                                        let bMin = Math.min(...Object.values(buildingEvents[ring.id][auditorium.id][b]['weeksAndAuds']).flat());
 
                                                         if (aMin === bMin) return 0;
                                                         return aMin < bMin ? -1 : 1;
-                                                    }) [Object.keys(buildingEvents[ring.id][auditoriumId]).length-1] !== tfd
+                                                    }) [Object.keys(buildingEvents[ring.id][auditorium.id]).length-1] !== tfd
                                                 ">
                                                     <hr>
                                                 </template>
@@ -153,7 +153,8 @@
                 severalWeeks: true,
                 buildingEvents: {},
                 dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
-                selectedDow: 1
+                selectedDow: 1,
+                allAuditoriums:[],
             }
         },
         methods: {
@@ -175,6 +176,20 @@
                 }
 
                 axios
+                    .get('/api.php?action=list&listtype=auditoriums&buildingId=' + this.buildingId)
+                    .then(response => {
+                        let data = response.data;
+
+                        let result = {};
+
+                        data.forEach(aud => {
+                            result[aud["AuditoriumId"]] = aud["Name"];
+                        });
+
+                        this.scheduleAuditoriums = result;
+                    });
+
+                axios
                     .get(apiUrl + '&internal=1')
                     .then(response => {
                         let data = response.data;
@@ -182,7 +197,7 @@
                         this.loading = false;
 
                         this.buildingEvents = data.schedule;
-                        this.scheduleAuditoriums = data.auditoriums;
+                        //this.scheduleAuditoriums = data.auditoriums;
                         this.scheduleRings = data.rings;
                     });
             },
@@ -421,6 +436,21 @@
 
                     if (aVal === bVal) return 0;
                     return aVal < bVal ? -1 : 1;
+                });
+
+                return result;
+            },
+            auditoriumsSorted() {
+                let result = [];
+                for (var k in this.scheduleAuditoriums) {
+                    if (this.scheduleAuditoriums.hasOwnProperty(k)) {
+                        result.push({'id' : k, 'name' : this.scheduleAuditoriums[k]})
+                    }
+                }
+
+                result.sort((a,b) => {
+                    if (a.name == b.name) return 0;
+                    return (a.name < b.name) ? -1 : 1;
                 });
 
                 return result;
