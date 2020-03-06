@@ -34,6 +34,7 @@ Vue.component('faculty-teachers', require('./components/FacultyTeachers').defaul
 Vue.component('fill-blank-auds', require('./components/FillBlankAuds').default);
 Vue.component('teacher-got-ill', require('./components/TeacherGotIll').default);
 Vue.component('teacher-building-transfers', require('./components/TeacherBuildingTransfers').default);
+Vue.component('rdl', require('./components/Rdl').default);
 
 
 import Buefy from 'buefy'

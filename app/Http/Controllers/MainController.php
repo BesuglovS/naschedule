@@ -844,4 +844,8 @@ class MainController extends Controller
 
         return view('main.fillBlankAuds', compact('weekCount', 'buildings', 'audsWithBuilding', 'rings', 'semesterStarts', 'chap'));
     }
+
+    public function removeDuplicateLessons() {
+        return view('main.removeDuplicateLessons');
+    }
 }

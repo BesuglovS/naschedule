@@ -138,6 +138,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Teacher building transfers
     Route::get('/teacherBuildingTransfers', 'TeacherBuildingTransfersController@index');
     Route::get('/teacherBuildingDailyTransfers', 'TeacherBuildingTransfersController@DailyTransfers');
+
+    Route::get('/removeDuplicateLessons', 'MainController@removeDuplicateLessons');
 });
 
 //disciplineHours
