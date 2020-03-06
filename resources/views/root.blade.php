@@ -244,6 +244,9 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/removeDuplicateLessons">
+                                Удалить дублирующиеся уроки
+                            </a>
                         </div>
                     </div>
                     <div class="card tac">

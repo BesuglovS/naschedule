@@ -2,12 +2,11 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="0c49492c-a3ac-437c-8f22-8a9d7d05c282" name="wiki-nayanova-edu" url="http://u461885.ftp.masterhost.ru">
-        <fileTransfer host="u461885.ftp.masterhost.ru" port="21">
+      <webServer id="4c8453d0-7f5e-4d9e-a3e5-f22cc09802c3" name="wne - SFTP" url="http://wiki.nayanova.edu">
+        <fileTransfer rootFolder="/home/u461885/wiki.nayanova.edu/" accessType="SFTP" host="u461885.ssh.masterhost.ru" port="22" sshConfig="u461885@u461885.ssh.masterhost.ru:22 (p)">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
-          <option name="port" value="21" />
         </fileTransfer>
       </webServer>
     </option>

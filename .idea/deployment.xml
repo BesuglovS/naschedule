@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="wiki-nayanova-edu">
+  <component name="PublishConfigData" serverName="wne - SFTP">
     <serverData>
-      <paths name="wiki-nayanova-edu">
+      <paths name="wne - SFTP">
         <serverdata>
           <mappings>
-            <mapping deploy="/wiki.nayanova.edu/www" local="$PROJECT_DIR$/public" web="/" />
-            <mapping deploy="/wiki.nayanova.edu/wne" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/www" local="$PROJECT_DIR$/public" web="/" />
+            <mapping deploy="/wne" local="$PROJECT_DIR$" web="/" />
           </mappings>
-          <excludedPaths>
-            <excludedPath path="/wiki.nayanova.edu/wne/.env" />
-            <excludedPath local="true" path="$PROJECT_DIR$/.env" />
-            <excludedPath path="/wiki.nayanova.edu/www/index.php" />
-            <excludedPath local="true" path="$PROJECT_DIR$/public/index.php" />
-          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>

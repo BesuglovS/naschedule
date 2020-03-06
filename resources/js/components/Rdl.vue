@@ -9,8 +9,8 @@
         <modal v-if="showOKWindow">
             <template v-slot:body>
                 <div style="width: 100%; text-align: center;">
-                    <button style="width: 400px; font-size: 2em;" @click="showOKWindow = false;" class="button is-primary">
-                        Операция завершена
+                    <button style="width: 800px; font-size: 2em;" @click="showOKWindow = false;" class="button is-primary">
+                        Операция завершена. Удалено {{lessons.length}} уроков.
                     </button>
                 </div>
             </template>
@@ -42,6 +42,8 @@
                         this.showOKWindow = true;
 
                         this.lessons = response.data;
+
+
                     });
             },
         },
