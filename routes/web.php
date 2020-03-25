@@ -140,6 +140,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/teacherBuildingDailyTransfers', 'TeacherBuildingTransfersController@DailyTransfers');
 
     Route::get('/removeDuplicateLessons', 'MainController@removeDuplicateLessons');
+
+    Route::get('/bu', 'BackupDbController@Download');
 });
 
 //disciplineHours
@@ -179,4 +181,6 @@ Route::get('/AudsTable5-11', 'BigRedButtonController@AudsTable5_11');
 
 Route::get('/cba', 'BigRedButtonController@CorrectBlankAudsForBuildings');
 Route::get('/rdl', 'BigRedButtonController@RemoveDuplicateLessons');
+
+Route::get('/DistanceLearning', 'DistanceLearningController@index');
 
