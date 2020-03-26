@@ -182,5 +182,6 @@ Route::get('/AudsTable5-11', 'BigRedButtonController@AudsTable5_11');
 Route::get('/cba', 'BigRedButtonController@CorrectBlankAudsForBuildings');
 Route::get('/rdl', 'BigRedButtonController@RemoveDuplicateLessons');
 
+// DistanceLearning
 Route::get('/DistanceLearning', 'DistanceLearningController@index');
 
