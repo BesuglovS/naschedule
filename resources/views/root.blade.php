@@ -251,6 +251,9 @@
                     </div>
                     <div class="card tac">
                         <div class="card-body">
+                            <a href="/trelloExport">
+                                Экспорт расписания в Trello
+                            </a>
                         </div>
                     </div>
                 </div>

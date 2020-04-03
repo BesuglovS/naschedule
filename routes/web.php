@@ -142,6 +142,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/removeDuplicateLessons', 'MainController@removeDuplicateLessons');
 
     Route::get('/bu', 'BackupDbController@Download');
+
+    // Trello
+    Route::get('/trelloExport', 'TrelloController@index');
+    Route::post('/trelloExport', 'TrelloController@upload');
 });
 
 //disciplineHours

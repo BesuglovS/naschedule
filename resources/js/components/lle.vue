@@ -123,6 +123,7 @@
         methods: {
             loadDateInfo() {
                 this.loading = true;
+
                 axios
                     .get('/lleDateInfo?date=' + this.date + '&internal=1')
                     .then(response => {
@@ -185,7 +186,7 @@
             let today = moment();
             let todayString = today.format('YYYY-MM-DD');
             let minDate = {};
-            let minDiff = 1000000000;
+            let minDiff = 1000000000000;
             if (this.dates.length !== 0) {
                 let c = this.dates.filter(d => d === todayString);
 

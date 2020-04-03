@@ -48,11 +48,11 @@
                 <div style="display: flex; flex-direction: row; ">
                     <table style="margin-top: 1.5em;">
                         <tr>
-                            <td colspan="2" style="text-align: center;">
-                                <button :disabled="loading" @click="setDefaultSet(1);" style="font-size: 1em; margin-bottom: 1em;" class="button is-primary">С 08:30 на 08:00</button>
+                            <td colspan="2" style="text-align: center; padding-right: 1em;">
+                                <button :disabled="loading" @click="setDefaultSet(1);" style="font-size: 1em; margin-bottom: 1em;" class="button is-primary">С обычных (40) на онлайн (30)</button>
                             </td>
                             <td colspan="2" style="text-align: center;">
-                                <button :disabled="loading" @click="setDefaultSet(2);" style="font-size: 1em;" class="button is-primary">С 08:00 на 08:30</button>
+                                <button :disabled="loading" @click="setDefaultSet(2);" style="font-size: 1em;" class="button is-primary">С онлайн (30) на обычные (40)</button>
                             </td>
                         </tr>
                         <tr v-for="ringIndex in 9">

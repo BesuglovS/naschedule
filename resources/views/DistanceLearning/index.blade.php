@@ -23,7 +23,12 @@
             </li>
             <li>
                 <a href="http://nayanova.edu/documents/distant2020/3-Zoom-start.pdf">
-                    Первый запуск и тестирование трансляции (без участников)
+                    Первый запуск и тестирование трансляции Zoom (без участников)
+                </a>
+            </li>
+			<li>
+                <a href="http://nayanova.edu/documents/distant2020/4-Zoom-tutorial.pdf">
+                    Инструкция для проведения трансляции Zoom с участниками
                 </a>
             </li>
             <li>

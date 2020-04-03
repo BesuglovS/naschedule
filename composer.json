@@ -13,6 +13,8 @@
         "barryvdh/laravel-dompdf": "^0.8.5",
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
+        "guzzlehttp/guzzle": "^6.5",
+        "guzzlehttp/oauth-subscriber": "^0.3.0",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "rguedes/pdfmerger": "^1.0",

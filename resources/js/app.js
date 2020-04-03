@@ -35,6 +35,7 @@ Vue.component('fill-blank-auds', require('./components/FillBlankAuds').default);
 Vue.component('teacher-got-ill', require('./components/TeacherGotIll').default);
 Vue.component('teacher-building-transfers', require('./components/TeacherBuildingTransfers').default);
 Vue.component('rdl', require('./components/Rdl').default);
+Vue.component('trello-export', require('./components/TrelloExport').default);
 
 
 import Buefy from 'buefy'
