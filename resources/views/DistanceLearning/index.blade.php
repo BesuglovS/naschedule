@@ -6,9 +6,7 @@
 
 @section('content')
     <div style="text-align: center; font-size: 4em;">Дистанционное обучение</div>
-    <div style="text-align: center; margin-top: 1em; margin-bottom: 1em;">
-        Ссылка на календарь и инструкция по внесению занятий будут размещены здесь позже.
-    </div>
+    
     <div class="container" style="align-items: center; display: flex; flex-direction: column; justify-content: center; margin-bottom: 2em;">
         <ol>
             <li>
@@ -39,6 +37,16 @@
             <li>
                 <a href="https://onlinetestpad.com/">
                     Сервис для создания тестов 2 (onlinetestpad.com)
+                </a>
+            </li>
+            <li>
+                <a href="http://nayanova.edu/documents/distant2020/OPD-distant.pdf">
+                    <strong>ВАЖНО!!!</strong> Памятка по персональным данным.
+                </a>
+            </li>
+            <li>
+                <a href="http://nayanova.edu/documents/distant2020/Calendar.pdf ">
+                    Инструкция по календарю Trello.com
                 </a>
             </li>
         </ol>
