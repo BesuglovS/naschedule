@@ -58,11 +58,11 @@
             </div>
         </div>
 
-        <div v-if="this.checkItems.length !== 0" style="border: 1px solid black; border-radius: 10px; padding-bottom:1em;">
+        <div v-if="this.checkItems.length !== 0" style="border: 1px solid black; border-radius: 10px; padding:1em;">
             <table  class="table td-center is-bordered" style="margin-top: 1em;">
                 <tr>
-                    <th style="text-align: center;">Урок</th>
-                    <th style="text-align: center;">Результат проверки</th>
+                    <td style="text-align: center;">Урок</td>
+                    <td style="text-align: center;">Результат проверки</td>
                 </tr>
                 <tr v-for="item in this.checkItems">
                     <td>{{item.name}}</td>

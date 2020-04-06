@@ -306,7 +306,7 @@ class TrelloController extends Controller
                 $dow = $carbonDate->dayOfWeekIso;
 
                 if (in_array($dow, $dows)) {
-                    if ($cardData->desc == "" ) {
+                    if ($cardData->desc == "") {
                         $item = array();
                         $item["name"] = $cardData->name;
                         $item["description"] = "Описание пустое";
@@ -314,8 +314,8 @@ class TrelloController extends Controller
                     }
                 }
             }
-
-            return $result;
         }
+
+        return $result;
     }
 }
