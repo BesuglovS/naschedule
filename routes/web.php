@@ -189,4 +189,6 @@ Route::get('/rdl', 'BigRedButtonController@RemoveDuplicateLessons');
 // DistanceLearning
 Route::get('/DistanceLearning', 'DistanceLearningController@index');
 
-Route::get('/tr', 'TrelloController@brb');
+Route::get('/trellobrb', 'TrelloController@brb');
+Route::get('/trello', 'TrelloController@checkIndex');
+Route::get('/trelloCheck', 'TrelloController@checkAction');
