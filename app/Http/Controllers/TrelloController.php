@@ -300,8 +300,8 @@ class TrelloController extends Controller
             //dd($data);
 
             foreach ($data as $cardData) {
-                $cardDate = mb_substr($cardData->due, 0, 10);
-                $carbonDate = Carbon::createFromFormat('Y-m-d', $cardDate);
+                $cardDate = mb_substr($cardData->due, 0, 10) . " " . mb_substr($cardData->due, 11, 8);
+                $carbonDate = Carbon::createFromFormat('Y-m-d H:i:s', $cardDate);
                 $dowRu = array( 1 => "Пн", 2 => "Вт", 3 => "Ср", 4 => "Чт", 5 => "Пт", 6 => "Сб", 7 => "Вс");
                 $dow = $carbonDate->dayOfWeekIso;
 
@@ -311,6 +311,15 @@ class TrelloController extends Controller
                         $item["name"] = $cardData->name;
                         $item["description"] = "Описание пустое";
                         $result[] = $item;
+                    }
+
+                    if (Carbon::now()->gt($carbonDate->copy()->addMinutes(40))) {
+                        if ($cardData->dueComplete == false) {
+                            $item = array();
+                            $item["name"] = $cardData->name;
+                            $item["description"] = "Нет отметки о проведении урока";
+                            $result[] = $item;
+                        }
                     }
                 }
             }

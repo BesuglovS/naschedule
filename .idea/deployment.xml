@@ -5,8 +5,8 @@
       <paths name="wne - SFTP">
         <serverdata>
           <mappings>
-            <mapping deploy="/www" local="$PROJECT_DIR$/public" web="/" />
             <mapping deploy="/wne" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/www" local="$PROJECT_DIR$/public" web="/" />
           </mappings>
         </serverdata>
       </paths>
