@@ -301,12 +301,14 @@ class TrelloController extends Controller
 
             foreach ($data as $cardData) {
                 $cardDate = mb_substr($cardData->due, 0, 10) . " " . mb_substr($cardData->due, 11, 8);
-                $carbonDate = Carbon::createFromFormat('Y-m-d H:i:s', $cardDate);
+                $carbonDate = Carbon::createFromFormat('Y-m-d H:i:s', $cardDate)->addMinutes(240);
                 $dowRu = array( 1 => "Пн", 2 => "Вт", 3 => "Ср", 4 => "Чт", 5 => "Пт", 6 => "Сб", 7 => "Вс");
                 $dow = $carbonDate->dayOfWeekIso;
 
                 if (in_array($dow, $dows)) {
-                    if ($cardData->desc == "") {
+                    $descriptionFillDeadlineTime = $carbonDate->copy()->subDay();
+                    $descriptionFillDeadlineTime->setTime(16, 0, 0);
+                    if ($cardData->desc == "" && (Carbon::now()->gt($descriptionFillDeadlineTime))) {
                         $item = array();
                         $item["name"] = $cardData->name;
                         $item["description"] = "Описание пустое";
@@ -318,6 +320,15 @@ class TrelloController extends Controller
                             $item = array();
                             $item["name"] = $cardData->name;
                             $item["description"] = "Нет отметки о проведении урока";
+                            $result[] = $item;
+                        }
+                    }
+
+                    if (Carbon::now()->lt($carbonDate->copy())) {
+                        if ($cardData->dueComplete == true) {
+                            $item = array();
+                            $item["name"] = $cardData->name;
+                            $item["description"] = "Отметка о выполнении проставлена до начала урока";
                             $result[] = $item;
                         }
                     }

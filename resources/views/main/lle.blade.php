@@ -4,7 +4,10 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12">
-                <lle :dates="{{json_encode($dates)}}"></lle>
+                <lle
+                    :week-count="{{$weekCount}}"
+                    :dates="{{json_encode($dates)}}">
+                </lle>
             </div>
         </div>
     </div>

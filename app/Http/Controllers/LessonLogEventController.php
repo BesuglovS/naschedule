@@ -185,6 +185,14 @@ class LessonLogEventController extends Controller
         }
 
         $date = $input['date'];
+        if (array_key_exists('weeks', $input)) {
+            $weeks = explode('|', $input['weeks']);
+            sort($weeks);
+        } else {
+            $weeks = range(1, Calendar::WeekCount());
+        }
+
+        $calendarIds = Calendar::IdsFromWeeks($weeks);
 
         $carbonStartDate = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
         $carbonEndDate = $carbonStartDate->copy()->addDay();
@@ -211,6 +219,9 @@ class LessonLogEventController extends Controller
 
             ->select('lesson_log_events.id as lessonLogEventId', 'lesson_log_events.date_time as lessonLogEventDateTime')
             ->whereBetween('lesson_log_events.date_time', array($carbonStartDate, $carbonEndDate))
+            ->where(function ($query) use ($calendarIds) {
+                $query->whereIn('cOld.id', $calendarIds)
+                    ->orWhereIn('cNew.id', $calendarIds);})
             ->orderBy('lesson_log_events.date_time')
             ->get();
 
@@ -256,7 +267,13 @@ class LessonLogEventController extends Controller
         $limit = $this->limit;
         $carbonStartDate = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
         $carbonEndDate = $carbonStartDate->copy()->addDay();
-
+        if (array_key_exists('weeks', $input)) {
+            $weeks = explode('|', $input['weeks']);
+            sort($weeks);
+        } else {
+            $weeks = range(1, Calendar::WeekCount());
+        }
+        $calendarIds = Calendar::IdsFromWeeks($weeks);
 
         $events = DB::table('lesson_log_events')
             ->leftJoin('lessons as lessonOld', 'lesson_log_events.old_lesson_id', '=', 'lessonOld.id')
@@ -295,6 +312,9 @@ class LessonLogEventController extends Controller
                 'sgNew.name as lessonNewStudentGroupName'
             )
             ->whereBetween('lesson_log_events.date_time', array($carbonStartDate, $carbonEndDate))
+            ->where(function ($query) use ($calendarIds) {
+                $query->whereIn('cOld.id', $calendarIds)
+                    ->orWhereIn('cNew.id', $calendarIds);})
             ->orderBy('lesson_log_events.date_time')
             ->offset($offset)
             ->limit($limit)

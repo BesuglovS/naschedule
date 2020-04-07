@@ -780,8 +780,9 @@ class MainController extends Controller
     public function lle() {
         $lleController = new LessonLogEventController();
         $dates = $lleController->Dates();
+        $weekCount = Calendar::WeekCount();
 
-        return view('main.lle', compact( 'dates'));
+        return view('main.lle', compact( 'dates', 'weekCount'));
     }
 
     public function lleTeacher() {
