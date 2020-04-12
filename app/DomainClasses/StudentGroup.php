@@ -58,6 +58,22 @@ class StudentGroup extends Model
             ->map(function($item) { return $item->student_id;});
     }
 
+    public static function FacultiesGroups()
+    {
+        return DB::table('student_groups')
+            ->join('faculty_student_group', 'faculty_student_group.student_group_id', '=', 'student_groups.id')
+            ->join('faculties', 'faculties.id', '=', 'faculty_student_group.faculty_id')
+            ->select(
+                'student_groups.id as groupId',
+                'student_groups.name as name',
+                'faculty_student_group.faculty_id as facultyId',
+                'faculties.sorting_order as facultiesSortingOrder'
+            )
+            ->orderBy('faculties.sorting_order')
+            ->orderBy('student_groups.name')
+            ->get();
+    }
+
     public function disciplines()
     {
         return $this->hasMany(Discipline::class);

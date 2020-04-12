@@ -192,3 +192,6 @@ Route::get('/DistanceLearning', 'DistanceLearningController@index');
 Route::get('/trellobrb', 'TrelloController@brb');
 Route::get('/trello', 'TrelloController@checkIndex');
 Route::get('/trelloCheck', 'TrelloController@checkAction');
+
+Route::get('/rasp', 'TrelloController@trelloDayIndex');
+Route::get('/trelloLoadGroup', 'TrelloController@trelloDayLoadGroup');

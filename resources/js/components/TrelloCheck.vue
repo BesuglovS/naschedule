@@ -61,12 +61,22 @@
         <div v-if="this.checkItems.length !== 0" style="border: 1px solid black; border-radius: 10px; padding:1em;">
             <table  class="table td-center is-bordered" style="margin-top: 1em;">
                 <tr>
-                    <td style="text-align: center;">Урок</td>
+                    <td style="text-align: center;">Дата</td>
+                    <td style="text-align: center;">День недели</td>
+                    <td style="text-align: center;">Время</td>
+                    <td style="text-align: center;">Дисциплина</td>
+                    <td style="text-align: center;">Группа</td>
+                    <td style="text-align: center;">Преподаватель</td>
                     <td style="text-align: center;">Результат проверки</td>
                 </tr>
                 <tr v-for="item in this.checkItems">
-                    <td>{{item.name}}</td>
-                    <td>{{item.description}}</td>
+                    <td>{{item.date}}</td>
+                    <td>{{item.dow}}</td>
+                    <td>{{item.time}}</td>
+                    <td style="text-align: left !important;">{{item.discName}}</td>
+                    <td>{{item.groupName}}</td>
+                    <td>{{item.teacherFio}}</td>
+                    <td>{{item.description}} <a  target=”_blank” :href="item.url"> (Trello)</a></td>
                 </tr>
             </table>
         </div>
@@ -131,6 +141,22 @@
                     .get('/trelloCheck?facultyId=' + this.facultyId + '&week=' + this.week + '&dows=' + this.selectedDows.join('|'))
                     .then(response => {
                         this.checkItems = response.data;
+
+                        this.checkItems.forEach(item => {
+                           let mainSplit = item.name.split(" - ");
+                           let dtSplit = mainSplit[0].split(" ");
+                           let groupLeftLeftBracket = mainSplit[1].lastIndexOf('(');
+                           let groupRightLeftBracket = mainSplit[1].lastIndexOf(')');
+                           let discName = mainSplit[1].substr(0, groupLeftLeftBracket - 1);
+                           let groupName = mainSplit[1].substr(groupLeftLeftBracket + 1, groupRightLeftBracket - groupLeftLeftBracket - 1);
+                           item.date = dtSplit[0];
+                           item.dow = dtSplit[1];
+                           item.time = dtSplit[2];
+                           item.discName = discName;
+                           item.groupName = groupName;
+                           item.teacherFio = mainSplit[2];
+                        });
+
                         this.loading = false;
                     });
             },

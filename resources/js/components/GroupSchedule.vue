@@ -1465,7 +1465,7 @@
     }
 
     .vneur {
-        background-color: rgba(20,255,0,0.2);
+        background-color: rgba(0,255,0,0.5);
     }
 
     .plat {
