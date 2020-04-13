@@ -24,7 +24,7 @@
                         <td>&nbsp;</td>
                         <td>
                             <select style="margin-right: 1em; font-size: 1.5em; width: 310px;" name="week" v-model="week" id="week">
-                                <option v-for="i in weekCount" :selected="i === week" :value="i">{{i}} ({{weeks[i]}})</option>
+                                <option v-for="(weekString, weekNumber) in weeks" :selected="weekNumber === week" :value="weekNumber">{{weekString}} ({{weekNumber}})</option>
                             </select>
                         </td>
                     </tr>

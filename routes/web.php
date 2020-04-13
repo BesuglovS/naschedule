@@ -195,3 +195,6 @@ Route::get('/trelloCheck', 'TrelloController@checkAction');
 
 Route::get('/rasp', 'TrelloController@trelloDayIndex');
 Route::get('/trelloLoadGroup', 'TrelloController@trelloDayLoadGroup');
+
+Route::get('/tr', 'TrelloController@trelloTeacherIndex');
+Route::get('/trelloLoadTeacher', 'TrelloController@trelloLoadTeacher');

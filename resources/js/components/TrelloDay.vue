@@ -55,12 +55,12 @@
                     </tr>
                     <tr>
                         <td colspan="7" style="text-align: left !important;">
-                            {{lesson.desc}}
+                            <span v-html="lesson.desc" style="white-space: pre-wrap;">{{lesson.desc}}</span>
                             <span v-if="lesson.desc == ''" style="font-size: 2em;">Описание отсутствует</span>
                         </td>
                     </tr>
                     <tr v-for="comment in lesson.comments">
-                        <td colspan="7" style="text-align: left !important;">{{comment.data.text}}</td>
+                        <td v-html="comment.data.text" colspan="7" style="text-align: left !important;">{{comment.data.text}}</td>
                     </tr>
                 </template>
             </table>
@@ -118,6 +118,7 @@
                 }
             },
             loadGroup() {
+                this.loading = true;
                 axios
                     .get('/trelloLoadGroup?date=' + this.dateSelected + '&groupId=' + this.studentGroupId)
                     .then(response => {
@@ -136,7 +137,17 @@
                             item.discName = discName;
                             item.groupName = groupName;
                             item.teacherFio = mainSplit[2];
+
+                            const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[A-ZА-Яа-я0-9+&@#\/%=~_|$])/igm
+
+                            item.desc = item.desc.replace(URLMatcher, match => `<a href="${match}">${match}</a>`);
+
+                            Object.values(item.comments).forEach(comment => {
+                                comment.data.text = comment.data.text.replace(URLMatcher, match => `<a href="${match}">${match}</a>`);
+                            });
                         });
+
+                        this.loading = false;
                     }
                 );
             },
@@ -156,7 +167,7 @@
                 let minDiff = 1000000000000;
 
                 let today = moment();
-                let todayString = today.format('YYYY-MM-DD');
+                let todayString = today.format('DD.MM.YYYY');
 
                 let c = dts.filter(d => d === todayString);
 

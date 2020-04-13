@@ -49,6 +49,20 @@ class TrelloController extends Controller
         )
     );
 
+    public static $boardIds = array(
+        1 => '5e84908288998f4bc0162576',
+        2 => '5e8490615ce1dc1f62755847',
+        3 => '5e8490a4f7623a3391f25573',
+        4 => '5e8490b46e12625566881223',
+        5 => '5e84909554059625212bd682',
+        6 => '5e84913fea0a03324a67d330',
+        7 => '5e849183f40cf6677629c477',
+        8 => '5e84919549e82b4b15d0f84e',
+        9 => '5e8491a5d05b0136de001dee',
+        10 => '5e8491b0d6b2a584af21fbea',
+        11 => '5e8491bfd99d19471c0d2388'
+    );
+
     public function index() {
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
 
@@ -210,14 +224,15 @@ class TrelloController extends Controller
         $faculties = Faculty::all()->sortBy('sorting_order');
         $weekCount = Calendar::WeekCount();
 
-        $weeks = array();
+        /*$weeks = array();
         for($w = 1; $w <= $weekCount; $w++) {
             $start = $css->clone();
             $end = $start->clone()->addDays(6);
             $weeks[$w] = $start->format("d.m") . " - " . $end->format('d.m');
 
             $css = $css->addWeek();
-        }
+        }*/
+        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04");
 
         $today = CarbonImmutable::now()->format('Y-m-d');
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
@@ -300,7 +315,7 @@ class TrelloController extends Controller
                         $descriptionFillDeadlineTime = $carbonDate->copy()->subDays(3);
                         $descriptionFillDeadlineTime->setTime(11, 0, 0);
                     }
-                    if ($cardData->desc == "" && (($dow == 8) || (Carbon::now()->gt($descriptionFillDeadlineTime)))) {
+                    if ($cardData->desc == "" && (true || (($dow == 8) || (Carbon::now()->gt($descriptionFillDeadlineTime))))) {
                         $item = array();
                         $item["name"] = $cardData->name;
                         $item["description"] = "Описание пустое";
@@ -402,5 +417,75 @@ class TrelloController extends Controller
         }
 
         return $data;
+    }
+
+    public function trelloTeacherIndex() {
+        $dates = array(
+            '06.04.2020', '07.04.2020', '08.04.2020', '09.04.2020', '10.04.2020', '11.04.2020',
+            '13.04.2020', '14.04.2020', '15.04.2020', '16.04.2020', '17.04.2020', '18.04.2020'
+        );
+        $teachers = Teacher::all()->sortBy('fio');
+
+        return view('trello.dayTeacherIndex', compact('dates', 'teachers'));
+    }
+
+    public function  trelloLoadTeacher(Request $request) {
+        $input = $request->all();
+
+        $date = $input['date']; //13.04.2020
+        $mysqlDate = mb_substr($date, 6, 4) . '-' . mb_substr($date, 3, 2) . '-' . mb_substr($date, 0, 2);
+        $teacherId = $input['teacherId'];
+        $teacher = Teacher::find($teacherId);
+        $fioSplit = explode(' ', $teacher->fio);
+        $teacherFio = $fioSplit[0] . " " . mb_substr($fioSplit[1], 0, 1) . "." . mb_substr($fioSplit[2], 0, 1) . ".";
+
+        $dateWeek = array(
+            '06.04.2020' => 33, '07.04.2020' => 33, '08.04.2020' => 33, '09.04.2020' => 33, '10.04.2020' => 33, '11.04.2020' => 33,
+            '13.04.2020' => 34, '14.04.2020' => 34, '15.04.2020' => 34, '16.04.2020' => 34, '17.04.2020' => 34, '18.04.2020' => 34
+        );
+        $week = $dateWeek[$date];
+
+        $listIds = TrelloController::$trelloListIds[$week];
+
+        $stack = HandlerStack::create();
+        $middleware = new Oauth1([
+            'consumer_key'    => 'a8c89955d4d62ad9bd2f50c304d3dd9d',
+            'consumer_secret' => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf',
+            'token'           => 'f41efa8a36f62ce93bcd4b0aee9777ccc0e4dac326840cd6c2caf9df3f586153',
+            'token_secret'    => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf'
+        ]);
+        $stack->push($middleware);
+        $client = new Client([
+            'base_uri' => 'https://api.trello.com/1/',
+            'handler' => $stack,
+            'auth' => 'oauth'
+        ]);
+
+        $result = array();
+
+        $trelloBoardIds = array_values(TrelloController::$boardIds);
+        foreach ($trelloBoardIds as $boardId) {
+            $res = $client->get('boards/' . $boardId .'/cards');
+            $data = json_decode($res->getBody());
+
+            $data = array_filter($data, function($lesson) use ($teacherFio, $mysqlDate) {
+                return (mb_substr($lesson->due, 0, 10) == $mysqlDate) && (strpos($lesson->name, $teacherFio) !== false);
+            });
+
+            foreach ($data as $lesson) {
+                $res = $client->get('cards/' . $lesson->id . '/actions');
+                $lessonData = json_decode($res->getBody());
+
+                $lessonData = array_filter($lessonData, function($action)  {
+                    return $action->type == "commentCard";
+                });
+
+                $lesson->comments = $lessonData;
+            }
+
+            $result = array_merge($result, $data);
+        }
+
+        return $result;
     }
 }

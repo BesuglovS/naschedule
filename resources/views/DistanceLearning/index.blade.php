@@ -6,7 +6,7 @@
 
 @section('content')
     <div style="text-align: center; font-size: 4em;">Дистанционное обучение</div>
-    
+
     <div class="container" style="align-items: center; display: flex; flex-direction: column; justify-content: center; margin-bottom: 2em;">
         <ol>
             <li>
@@ -45,8 +45,13 @@
                 </a>
             </li>
             <li>
-                <a href="http://nayanova.edu/documents/distant2020/Calendar.pdf ">
+                <a href="http://nayanova.edu/documents/distant2020/Calendar.pdf">
                     Инструкция по календарю Trello.com
+                </a>
+            </li>
+            <li>
+                <a href="http://nayanova.edu/documents/distant2020/5-Zoom-secure.pdf">
+                    Настройки безопасности Zoom
                 </a>
             </li>
         </ol>
