@@ -55,12 +55,14 @@
                     </tr>
                     <tr>
                         <td colspan="7" style="text-align: left !important;">
-                            <span v-html="lesson.desc" style="white-space: pre-wrap;">{{lesson.desc}}</span>
+                            <span v-html="lesson.desc" style="white-space: pre-wrap; word-wrap:break-word;">{{lesson.desc}}</span>
                             <span v-if="lesson.desc == ''" style="font-size: 2em;">Описание отсутствует</span>
                         </td>
                     </tr>
                     <tr v-for="comment in lesson.comments">
-                        <td v-html="comment.data.text" colspan="7" style="text-align: left !important;">{{comment.data.text}}</td>
+                        <td v-html="comment.data.text"  colspan="7" style="text-align: left !important; white-space: pre-wrap; word-wrap:break-word;">
+                            {{comment.data.text}}
+                        </td>
                     </tr>
                 </template>
             </table>
@@ -141,11 +143,18 @@
 
                                 const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[A-ZА-Яа-я0-9+&@#\/%=~_|$])/igm
 
-                                item.desc = item.desc.replace(URLMatcher, match => `<a href="${match}">${match}</a>`);
+                                item.desc = item.desc.replace(URLMatcher, match => `<a href="${match}">` + match.substr(0,25) + (match.length > 25 ? '...':'') + `</a>`);
 
                                 Object.values(item.comments).forEach(comment => {
-                                    comment.data.text = comment.data.text.replace(URLMatcher, match => `<a href="${match}">${match}</a>`);
+                                    comment.data.text = comment.data.text.replace(URLMatcher, match => `<a href="${match}">` + match.substr(0,25) + (match.length > 25 ? '...':'') + `</a>`);
                                 });
+                            });
+
+                            this.lessons.sort((a,b) => {
+                                let aValue = a.time.substr(0,2)*60 + a.time.substr(3,2);
+                                let bValue = b.time.substr(0,2)*60 + b.time.substr(3,2);
+
+                                return (aValue < bValue) ? -1 : 1;
                             });
 
                             this.loading = false;

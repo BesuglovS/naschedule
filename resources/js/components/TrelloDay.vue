@@ -55,12 +55,12 @@
                     </tr>
                     <tr>
                         <td colspan="7" style="text-align: left !important;">
-                            <span v-html="lesson.desc" style="white-space: pre-wrap;">{{lesson.desc}}</span>
+                            <span v-html="lesson.desc" style="white-space: pre-wrap; word-wrap:break-word; ">{{lesson.desc}}</span>
                             <span v-if="lesson.desc == ''" style="font-size: 2em;">Описание отсутствует</span>
                         </td>
                     </tr>
                     <tr v-for="comment in lesson.comments">
-                        <td v-html="comment.data.text" colspan="7" style="text-align: left !important;">{{comment.data.text}}</td>
+                        <td v-html="comment.data.text" colspan="7" style="white-space: pre-wrap; word-wrap:break-word; text-align: left !important;">{{comment.data.text}}</td>
                     </tr>
                 </template>
             </table>
