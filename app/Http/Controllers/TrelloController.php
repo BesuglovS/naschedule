@@ -46,6 +46,19 @@ class TrelloController extends Controller
             '9 А' => '5e8f38112a9f9b2b3ff08720', '9 Б' => '5e8f38139a6738622ef8a257', '9 В' => '5e8f3815baa85825f3185ab0', '9 Г1' => '5e8f3819cd8ab25c2ada7c77', '9 Г2' => '5e8f381c4eddd8057a9cadb4',
             '10 А' => '5e8f382b3849ee6240085d75', '10 Б' => '5e8f382d3cc75349ce141535', '10 В' => '5e8f3830f5995619933e0ca7', '10 Г' => '5e8f3833fea104131d27c339',
             '11 А' => '5e8f38425aabb64ed2455c35', '11 В' => '5e8f38451a9a266aca652f97', '11 Г' => '5e8f38472810ef33d728301d',
+        ),
+        35 => array(
+            '1 А' => '5e9802e0436faf7e74fd6a95', '1 Б' => '5e9802e3625bd96aa58532ae', '1 В' => '5e9802e6c0c6b74fb711581d', '1 Г' => '5e9802e8bd11646352d9fb8e', '1 Д' => '5e9802eb3884b10beac816ae', '1 Е' => '5e9802edd3ff283e763fb9ba',
+            '2 А' => '5e98031ca2107f589b7e3276', '2 Б' => '5e9803206129ea107f572487', '2 В' => '5e98032701d2b17d8d71d6f2', '2 Г' => '5e98032a8a81b9590fea01a8',
+            '3 А' => '5e980343b850ef7eb955e08e', '3 Б' => '5e980347213dc776b0ed7c1a', '3 В' => '5e98034a57d65c6db5677b6d', '3 Г' => '5e98034d25767d2cd4a347e4',
+            '4 А' => '5e980364a578ef24f37d31fe', '4 Б' => '5e980366bdfa68813a64744c', '4 В' => '5e980369f3f3be211357645e', '4 Г' => '5e98036bbc1bd303f8f64f96', '4 Д' => '5e98036d315dbd2573dd67f0',
+            '5 А' => '5e980406a2d7217dbd7a952a', '5 Б' => '5e980409043ce1249c4f21aa', '5 В' => '5e98040b70f28010a9b7038e', '5 Г' => '5e98040ddf38fd8e24268d8f', '5 Д' => '5e98040fe411115b9f7ed10a',
+            '6 А' => '5e9804acdb80d63ed296b31c', '6 Б' => '5e9804ae49ae261f71819bfc', '6 В' => '5e9804b0ca5fc24a712ca627', '6 Г' => '5e9804b2126b2c1f99447583',
+            '7 А' => '5e9804d83dd9587de63ca426', '7 Б' => '5e9804daf5aa0e041995c27e', '7 В' => '5e9804de378a074cc3a31069', '7 Г' => '5e9804e054fad840ddf7fb34',
+            '8 А' => '5e9805372918573b6ff2223e', '8 Б' => '5e98053909c76b413eb2b406', '8 В' => '5e98053b005d862210f20d21', '8 Г' => '5e98053effe84125e0464b12',
+            '9 А' => '5e9805674e8467594cdee082', '9 Б' => '5e9805696573d1492d5383b9', '9 В' => '5e98056c0c7f210ba8193f7d', '9 Г1' => '5e98056e2fc76031229a793b', '9 Г2' => '5e9805707b438d2330b83dde',
+            '10 А' => '5e98059fe933da5246f605e8', '10 Б' => '5e9805a19828318ec0812942', '10 В' => '5e9805a30a44395aabe4ff07', '10 Г' => '5e9805a65e35180add006b63',
+            '11 А' => '5e98061adf956723e47bb45d', '11 В' => '5e98061cb2f97b6a44bf939c', '11 Г' => '5e98061fd540ce246f517299'
         )
     );
 
@@ -93,7 +106,7 @@ class TrelloController extends Controller
         $dows = explode('|', $input['dows']);
         sort($dows);
 
-        $trelloListIds = array(); // TODO: Fill Ids
+        $trelloListIds = TrelloController::$trelloListIds[$week];
 
         $calendarIds = Calendar::IdsFromDowsAndWeek($dows, $week);
 
@@ -224,15 +237,7 @@ class TrelloController extends Controller
         $faculties = Faculty::all()->sortBy('sorting_order');
         $weekCount = Calendar::WeekCount();
 
-        /*$weeks = array();
-        for($w = 1; $w <= $weekCount; $w++) {
-            $start = $css->clone();
-            $end = $start->clone()->addDays(6);
-            $weeks[$w] = $start->format("d.m") . " - " . $end->format('d.m');
-
-            $css = $css->addWeek();
-        }*/
-        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04");
+        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04", 35 => "20.04 - 26.04");
 
         $today = CarbonImmutable::now()->format('Y-m-d');
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
@@ -275,6 +280,19 @@ class TrelloController extends Controller
                 9 => array('5e8f38112a9f9b2b3ff08720', '5e8f38139a6738622ef8a257', '5e8f3815baa85825f3185ab0', '5e8f3819cd8ab25c2ada7c77', '5e8f381c4eddd8057a9cadb4'),
                 10 => array('5e8f382b3849ee6240085d75', '5e8f382d3cc75349ce141535', '5e8f3830f5995619933e0ca7', '5e8f3833fea104131d27c339'),
                 11 => array('5e8f38425aabb64ed2455c35', '5e8f38451a9a266aca652f97', '5e8f38472810ef33d728301d')
+            ),
+            35 => array(
+                1 => array('5e9802e0436faf7e74fd6a95', '5e9802e3625bd96aa58532ae', '5e9802e6c0c6b74fb711581d', '5e9802e8bd11646352d9fb8e', '5e9802eb3884b10beac816ae', '5e9802edd3ff283e763fb9ba'),
+                2 => array('5e98031ca2107f589b7e3276', '5e9803206129ea107f572487', '5e98032701d2b17d8d71d6f2', '5e98032a8a81b9590fea01a8'),
+                3 => array('5e980343b850ef7eb955e08e', '5e980347213dc776b0ed7c1a', '5e98034a57d65c6db5677b6d', '5e98034d25767d2cd4a347e4'),
+                4 => array('5e980364a578ef24f37d31fe', '5e980366bdfa68813a64744c', '5e980369f3f3be211357645e', '5e98036bbc1bd303f8f64f96', '5e98036d315dbd2573dd67f0'),
+                5 => array('5e980406a2d7217dbd7a952a', '5e980409043ce1249c4f21aa', '5e98040b70f28010a9b7038e', '5e98040ddf38fd8e24268d8f', '5e98040fe411115b9f7ed10a'),
+                6 => array('5e9804acdb80d63ed296b31c', '5e9804ae49ae261f71819bfc', '5e9804b0ca5fc24a712ca627', '5e9804b2126b2c1f99447583'),
+                7 => array('5e9804d83dd9587de63ca426', '5e9804daf5aa0e041995c27e', '5e9804de378a074cc3a31069', '5e9804e054fad840ddf7fb34'),
+                8 => array('5e9805372918573b6ff2223e', '5e98053909c76b413eb2b406', '5e98053b005d862210f20d21', '5e98053effe84125e0464b12'),
+                9 => array('5e9805674e8467594cdee082', '5e9805696573d1492d5383b9', '5e98056c0c7f210ba8193f7d', '5e98056e2fc76031229a793b', '5e9805707b438d2330b83dde'),
+                10 => array('5e98059fe933da5246f605e8', '5e9805a19828318ec0812942', '5e9805a30a44395aabe4ff07', '5e9805a65e35180add006b63'),
+                11 => array('5e98061adf956723e47bb45d', '5e98061cb2f97b6a44bf939c', '5e98061fd540ce246f517299')
             )
         );
         $stack = HandlerStack::create();
@@ -362,7 +380,13 @@ class TrelloController extends Controller
             array('date' => '15.04.2020', 'week' => 34),
             array('date' => '16.04.2020', 'week' => 34),
             array('date' => '17.04.2020', 'week' => 34),
-            array('date' => '18.04.2020', 'week' => 34)
+            array('date' => '18.04.2020', 'week' => 34),
+            array('date' => '20.04.2020', 'week' => 35),
+            array('date' => '21.04.2020', 'week' => 35),
+            array('date' => '22.04.2020', 'week' => 35),
+            array('date' => '23.04.2020', 'week' => 35),
+            array('date' => '24.04.2020', 'week' => 35),
+            array('date' => '25.04.2020', 'week' => 35),
         );
         $groups = StudentGroup::FacultiesGroups();
 
@@ -378,7 +402,8 @@ class TrelloController extends Controller
 
         $dateWeek = array(
             '06.04.2020' => 33, '07.04.2020' => 33, '08.04.2020' => 33, '09.04.2020' => 33, '10.04.2020' => 33, '11.04.2020' => 33,
-            '13.04.2020' => 34, '14.04.2020' => 34, '15.04.2020' => 34, '16.04.2020' => 34, '17.04.2020' => 34, '18.04.2020' => 34
+            '13.04.2020' => 34, '14.04.2020' => 34, '15.04.2020' => 34, '16.04.2020' => 34, '17.04.2020' => 34, '18.04.2020' => 34,
+            '20.04.2020' => 35, '21.04.2020' => 35, '22.04.2020' => 35, '23.04.2020' => 35, '24.04.2020' => 35, '25.04.2020' => 35
         );
         $week = $dateWeek[$date];
 
@@ -422,7 +447,8 @@ class TrelloController extends Controller
     public function trelloTeacherIndex() {
         $dates = array(
             '06.04.2020', '07.04.2020', '08.04.2020', '09.04.2020', '10.04.2020', '11.04.2020',
-            '13.04.2020', '14.04.2020', '15.04.2020', '16.04.2020', '17.04.2020', '18.04.2020'
+            '13.04.2020', '14.04.2020', '15.04.2020', '16.04.2020', '17.04.2020', '18.04.2020',
+            '20.04.2020', '21.04.2020', '22.04.2020', '23.04.2020', '24.04.2020', '25.04.2020',
         );
         $teachers = Teacher::all()->sortBy('fio');
 
@@ -441,7 +467,8 @@ class TrelloController extends Controller
 
         $dateWeek = array(
             '06.04.2020' => 33, '07.04.2020' => 33, '08.04.2020' => 33, '09.04.2020' => 33, '10.04.2020' => 33, '11.04.2020' => 33,
-            '13.04.2020' => 34, '14.04.2020' => 34, '15.04.2020' => 34, '16.04.2020' => 34, '17.04.2020' => 34, '18.04.2020' => 34
+            '13.04.2020' => 34, '14.04.2020' => 34, '15.04.2020' => 34, '16.04.2020' => 34, '17.04.2020' => 34, '18.04.2020' => 34,
+            '20.04.2020' => 35, '21.04.2020' => 35, '22.04.2020' => 35, '23.04.2020' => 35, '24.04.2020' => 35, '25.04.2020' => 35
         );
         $week = $dateWeek[$date];
 
