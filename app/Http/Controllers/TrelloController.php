@@ -611,7 +611,7 @@ class TrelloController extends Controller
         $result = array();
 
         $trelloBoardIds = array_values(TrelloController::$boardIds);
-        $trelloBoardIds = array($trelloBoardIds[9]);
+        //$trelloBoardIds = array($trelloBoardIds[9]);
         foreach ($trelloBoardIds as $boardId) {
             $res = $client->get('boards/' . $boardId .'/cards');
             $data = json_decode($res->getBody());
