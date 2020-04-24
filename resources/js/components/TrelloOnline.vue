@@ -41,11 +41,17 @@
                 <tr v-for="(item, key) in this.byGrade">
                     <td>{{key}}</td>
                     <td>{{item.online}}</td>
-                    <td>{{(item.online * 100 / (item.online + item.offline + item.empty)).toFixed(2)}}</td>
+                    <td :style="'background-image: linear-gradient(to right, rgba(0, 150, 0, 0.3) 0%, rgba(0, 175, 0, 0.3) 17%, rgba(0, 190, 0, 0.3) 33%, rgba(82, 210, 82, 0.3) 67%, rgba(131, 230, 131, 0.3) 83%, rgba(180, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.onlinePercent.toFixed(2) + '% 100%;'">
+                        {{(item.onlinePercent.toFixed(2))}}
+                    </td>
                     <td>{{item.offline}}</td>
-                    <td>{{(item.offline * 100 / (item.online + item.offline + item.empty)).toFixed(2)}}</td>
+                    <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.offlinePercent.toFixed(2) + '% 100%;'">
+                        {{(item.offlinePercent.toFixed(2))}}
+                    </td>
                     <td>{{item.empty}}</td>
-                    <td>{{(item.empty * 100 / (item.online + item.offline + item.empty)).toFixed(2)}}</td>
+                    <td :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">
+                        {{(item.emptyPercent.toFixed(2))}}
+                    </td>
                 </tr>
             </table>
 
@@ -130,6 +136,12 @@
                     .get('/trelloOnlineAction?week=' + this.week)
                     .then(response => {
                         this.byGrade = response.data.byGrade;
+
+                        Object.values(this.byGrade).forEach(item => {
+                            item.onlinePercent = item.online * 100 / (item.online + item.offline + item.empty);
+                            item.offlinePercent = item.offline * 100 / (item.online + item.offline + item.empty);
+                            item.emptyPercent = item.empty * 100 / (item.online + item.offline + item.empty);
+                        });
 
                         this.byTeacherFio = response.data.byTeacherFio;
 
