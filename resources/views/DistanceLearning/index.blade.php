@@ -54,21 +54,16 @@
                     Настройки безопасности Zoom
                 </a>
             </li>
+            <li>
+                <a href="https://e7n.s3.yandex.net/static/specpro/distant/distancionnoe-obuchenie-shkola-metodicheskie-rekomendacii.pdf">
+                    Методические материалы по работе в дистанционном формате от ЯНДЕКСА
+                </a>
+            </li>
+            <li>
+                <a href="https://distance.mosedu.ru/">
+                    Методические материалы по работе в дистанционном формате от Московской электронной школы
+                </a>
+            </li>
         </ol>
-    </div>
-
-    <div style="text-align: center; font-size: 2em; margin-top: 2em; margin-bottom: 2em;">
-        Здесь будут размещены дополнительные материалы по организации дистанционного обучения. <br />
-        Следите за обновлениями.
-    </div>
-
-    <div style="text-align: center; height: 650px;">
-        <iframe width="560"
-                height="315"
-                style="width: 100%; height: 100%;"
-                src="https://www.youtube.com/embed/mpDItmFpl_M"
-                frameborder="0"
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-        </iframe>
     </div>
 @endsection

@@ -59,6 +59,19 @@ class TrelloController extends Controller
             '9 А' => '5e9805674e8467594cdee082', '9 Б' => '5e9805696573d1492d5383b9', '9 В' => '5e98056c0c7f210ba8193f7d', '9 Г1' => '5e98056e2fc76031229a793b', '9 Г2' => '5e9805707b438d2330b83dde',
             '10 А' => '5e98059fe933da5246f605e8', '10 Б' => '5e9805a19828318ec0812942', '10 В' => '5e9805a30a44395aabe4ff07', '10 Г' => '5e9805a65e35180add006b63',
             '11 А' => '5e98061adf956723e47bb45d', '11 В' => '5e98061cb2f97b6a44bf939c', '11 Г' => '5e98061fd540ce246f517299'
+        ),
+        36 => array(
+            '1 А' => '5ea1a1f20022205a0b0d1ace', '1 Б' => '5ea1a1f6f62b3a5975485754', '1 В' => '5ea1a1f9e4a3507ab65b766d', '1 Г' => '5ea1a1fbc5e45b576dada0cc', '1 Д' => '5ea1a1fd38776432b1a3f794', '1 Е' => '5ea1a2004608ea3c4acc0d02',
+            '2 А' => '5ea1a249aa75f96716f72ea5', '2 Б' => '5ea1a24d551d11715053c85d', '2 В' => '5ea1a24fa2180881024d560f', '2 Г' => '5ea1a251452e6542ac411285',
+            '3 А' => '5ea1a3a9ea47830994092abf', '3 Б' => '5ea1a3ad24e6514b521dab2d', '3 В' => '5ea1a3b0fe5620811c31902e', '3 Г' => '5ea1a3b240c3cf1e509f3b90',
+            '4 А' => '5ea1a3e7b68ae65a24043e7a', '4 Б' => '5ea1a3e9780c032a402cdf63', '4 В' => '5ea1a3eb0b6de871ec66499b', '4 Г' => '5ea1a3ee50365a31e6a6cc36', '4 Д' => '5ea1a3f021a76c712bea8573',
+            '5 А' => '5ea1a42d2b5e1b49dad98446', '5 Б' => '5ea1a430375b683b8391e108', '5 В' => '5ea1a4334355d21d3a8eff4d', '5 Г' => '5ea1a435a67e392b1fac9007', '5 Д' => '5ea1a438cf665088aeb94a75',
+            '6 А' => '5ea1a4aca88f640c85662b35', '6 Б' => '5ea1a4ae1950086d08c72491', '6 В' => '5ea1a4b1f2356735e381ec2d', '6 Г' => '5ea1a4b34911d02524505565',
+            '7 А' => '5ea1a4e8b4925272e55b6d8d', '7 Б' => '5ea1a4ea854c535a810e864d', '7 В' => '5ea1a4ed4a23618625c1a67e', '7 Г' => '5ea1a4f0bfcbdc395ea0e19a',
+            '8 А' => '5ea1a51a62f7f9168d6a7d62', '8 Б' => '5ea1a51e6bec217b85780898', '8 В' => '5ea1a521eddbfa327f5cd3e1', '8 Г' => '5ea1a523868ac7342b8df2cf',
+            '9 А' => '5ea1a54dd131971e4f48c6ce', '9 Б' => '5ea1a54f5e00e121728faabb', '9 В' => '5ea1a551da33520c603aa470', '9 Г1' => '5ea1a553711669761fad0430', '9 Г2' => '5ea1a5565de5c0187480204e',
+            '10 А' => '5ea1a5e11e9a3971361fea61', '10 Б' => '5ea1a5e34f2a3d76940155ba', '10 В' => '5ea1a5e5d244d8606f2fec94', '10 Г' => '5ea1a5e8b39c614b7e62e213',
+            '11 А' => '5ea1a618213f765aff6c602e', '11 В' => '5ea1a61aedfda54f657d25f4', '11 Г' => '5ea1a61c6149fb76d0217b2b'
         )
     );
 
@@ -237,7 +250,7 @@ class TrelloController extends Controller
         $faculties = Faculty::all()->sortBy('sorting_order');
         $weekCount = Calendar::WeekCount();
 
-        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04", 35 => "20.04 - 26.04");
+        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04", 35 => "20.04 - 26.04", 36 => "27.04 - 30.04");
 
         $today = CarbonImmutable::now()->format('Y-m-d');
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
@@ -293,6 +306,19 @@ class TrelloController extends Controller
                 9 => array('5e9805674e8467594cdee082', '5e9805696573d1492d5383b9', '5e98056c0c7f210ba8193f7d', '5e98056e2fc76031229a793b', '5e9805707b438d2330b83dde'),
                 10 => array('5e98059fe933da5246f605e8', '5e9805a19828318ec0812942', '5e9805a30a44395aabe4ff07', '5e9805a65e35180add006b63'),
                 11 => array('5e98061adf956723e47bb45d', '5e98061cb2f97b6a44bf939c', '5e98061fd540ce246f517299')
+            ),
+            36 => array(
+                1 => array('5ea1a1f20022205a0b0d1ace', '5ea1a1f6f62b3a5975485754', '5ea1a1f9e4a3507ab65b766d', '5ea1a1fbc5e45b576dada0cc', '5ea1a1fd38776432b1a3f794', '5ea1a2004608ea3c4acc0d02'),
+                2 => array('5ea1a249aa75f96716f72ea5', '5ea1a24d551d11715053c85d', '5ea1a24fa2180881024d560f', '5ea1a251452e6542ac411285'),
+                3 => array('5ea1a3a9ea47830994092abf', '5ea1a3ad24e6514b521dab2d', '5ea1a3b0fe5620811c31902e', '5ea1a3b240c3cf1e509f3b90'),
+                4 => array('5ea1a3e7b68ae65a24043e7a', '5ea1a3e9780c032a402cdf63', '5ea1a3eb0b6de871ec66499b', '5ea1a3ee50365a31e6a6cc36', '5ea1a3f021a76c712bea8573'),
+                5 => array('5ea1a42d2b5e1b49dad98446', '5ea1a430375b683b8391e108', '5ea1a4334355d21d3a8eff4d', '5ea1a435a67e392b1fac9007', '5ea1a438cf665088aeb94a75'),
+                6 => array('5ea1a4aca88f640c85662b35', '5ea1a4ae1950086d08c72491', '5ea1a4b1f2356735e381ec2d', '5ea1a4b34911d02524505565'),
+                7 => array('5ea1a4e8b4925272e55b6d8d', '5ea1a4ea854c535a810e864d', '5ea1a4ed4a23618625c1a67e', '5ea1a4f0bfcbdc395ea0e19a'),
+                8 => array('5ea1a51a62f7f9168d6a7d62', '5ea1a51e6bec217b85780898', '5ea1a521eddbfa327f5cd3e1', '5ea1a523868ac7342b8df2cf'),
+                9 => array('5ea1a54dd131971e4f48c6ce', '5ea1a54f5e00e121728faabb', '5ea1a551da33520c603aa470', '5ea1a553711669761fad0430', '5ea1a5565de5c0187480204e'),
+                10 => array('5ea1a5e11e9a3971361fea61', '5ea1a5e34f2a3d76940155ba', '5ea1a5e5d244d8606f2fec94', '5ea1a5e8b39c614b7e62e213'),
+                11 => array('5ea1a618213f765aff6c602e', '5ea1a61aedfda54f657d25f4', '5ea1a61c6149fb76d0217b2b')
             )
         );
         $stack = HandlerStack::create();
@@ -387,6 +413,10 @@ class TrelloController extends Controller
             array('date' => '23.04.2020', 'week' => 35),
             array('date' => '24.04.2020', 'week' => 35),
             array('date' => '25.04.2020', 'week' => 35),
+            array('date' => '27.04.2020', 'week' => 36),
+            array('date' => '28.04.2020', 'week' => 36),
+            array('date' => '29.04.2020', 'week' => 36),
+            array('date' => '30.04.2020', 'week' => 36),
         );
         $groups = StudentGroup::FacultiesGroups();
 
@@ -403,7 +433,8 @@ class TrelloController extends Controller
         $dateWeek = array(
             '06.04.2020' => 33, '07.04.2020' => 33, '08.04.2020' => 33, '09.04.2020' => 33, '10.04.2020' => 33, '11.04.2020' => 33,
             '13.04.2020' => 34, '14.04.2020' => 34, '15.04.2020' => 34, '16.04.2020' => 34, '17.04.2020' => 34, '18.04.2020' => 34,
-            '20.04.2020' => 35, '21.04.2020' => 35, '22.04.2020' => 35, '23.04.2020' => 35, '24.04.2020' => 35, '25.04.2020' => 35
+            '20.04.2020' => 35, '21.04.2020' => 35, '22.04.2020' => 35, '23.04.2020' => 35, '24.04.2020' => 35, '25.04.2020' => 35,
+            '27.04.2020' => 36, '28.04.2020' => 36, '29.04.2020' => 36, '30.04.2020' => 36,
         );
         $week = $dateWeek[$date];
 
@@ -449,13 +480,14 @@ class TrelloController extends Controller
             '06.04.2020', '07.04.2020', '08.04.2020', '09.04.2020', '10.04.2020', '11.04.2020',
             '13.04.2020', '14.04.2020', '15.04.2020', '16.04.2020', '17.04.2020', '18.04.2020',
             '20.04.2020', '21.04.2020', '22.04.2020', '23.04.2020', '24.04.2020', '25.04.2020',
+            '27.04.2020', '28.04.2020', '29.04.2020', '30.04.2020'
         );
         $teachers = Teacher::all()->sortBy('fio');
 
         return view('trello.dayTeacherIndex', compact('dates', 'teachers'));
     }
 
-    public function  trelloLoadTeacher(Request $request) {
+    public function trelloLoadTeacher(Request $request) {
         $input = $request->all();
 
         $date = $input['date']; //13.04.2020
@@ -468,11 +500,10 @@ class TrelloController extends Controller
         $dateWeek = array(
             '06.04.2020' => 33, '07.04.2020' => 33, '08.04.2020' => 33, '09.04.2020' => 33, '10.04.2020' => 33, '11.04.2020' => 33,
             '13.04.2020' => 34, '14.04.2020' => 34, '15.04.2020' => 34, '16.04.2020' => 34, '17.04.2020' => 34, '18.04.2020' => 34,
-            '20.04.2020' => 35, '21.04.2020' => 35, '22.04.2020' => 35, '23.04.2020' => 35, '24.04.2020' => 35, '25.04.2020' => 35
+            '20.04.2020' => 35, '21.04.2020' => 35, '22.04.2020' => 35, '23.04.2020' => 35, '24.04.2020' => 35, '25.04.2020' => 35,
+            '27.04.2020' => 36, '28.04.2020' => 36, '29.04.2020' => 36, '30.04.2020' => 36
         );
         $week = $dateWeek[$date];
-
-        $listIds = TrelloController::$trelloListIds[$week];
 
         $stack = HandlerStack::create();
         $middleware = new Oauth1([
@@ -512,6 +543,121 @@ class TrelloController extends Controller
 
             $result = array_merge($result, $data);
         }
+
+        return $result;
+    }
+
+    public function trelloOnline() {
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+
+        $weekCount = Calendar::WeekCount();
+
+        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04", 35 => "20.04 - 26.04", 36 => "27.04 - 30.04");
+
+        $today = CarbonImmutable::now()->format('Y-m-d');
+        $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
+        $currentWeek = Calendar::WeekFromDate($today, $css);
+
+        return view('trello.online', compact('weekCount', 'weeks', 'currentWeek'));
+    }
+
+    public function trelloOnlineAction(Request $request) {
+        $input = $request->all();
+
+        $week = $input["week"];
+        $weekDates = Calendar::CalendarsFromWeek($week)->pluck('date')->toArray();
+
+        $stack = HandlerStack::create();
+        $middleware = new Oauth1([
+            'consumer_key'    => 'a8c89955d4d62ad9bd2f50c304d3dd9d',
+            'consumer_secret' => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf',
+            'token'           => 'f41efa8a36f62ce93bcd4b0aee9777ccc0e4dac326840cd6c2caf9df3f586153',
+            'token_secret'    => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf'
+        ]);
+        $stack->push($middleware);
+        $client = new Client([
+            'base_uri' => 'https://api.trello.com/1/',
+            'handler' => $stack,
+            'auth' => 'oauth'
+        ]);
+
+        $lessonList = array();
+        $result = array();
+
+        $trelloBoardIds = array_values(TrelloController::$boardIds);
+        //$trelloBoardIds = array($trelloBoardIds[9]);
+        foreach ($trelloBoardIds as $boardId) {
+            $res = $client->get('boards/' . $boardId .'/cards');
+            $data = json_decode($res->getBody());
+
+            $data = array_filter($data, function($lesson) use ($weekDates) {
+                return in_array(mb_substr($lesson->due, 0, 10), $weekDates);
+            });
+
+            $lessonList = array_merge($lessonList, $data);
+        }
+
+        $byGrade = array();
+        $byTeacherFio = array();
+
+        foreach ($lessonList as $lesson) {
+            $rightIndex = mb_strrpos($lesson->name, ')');
+            $leftIndex = mb_strrpos($lesson->name, '(');
+            $groupName = mb_substr($lesson->name, $leftIndex + 1, $rightIndex - $leftIndex - 1);
+            if (strpos($groupName, ')') !== false) {
+                $next_to_last = mb_strrpos($lesson->name, '(',  $leftIndex - mb_strlen($lesson->name) - 1);
+
+                $lesson->groupName = mb_substr($lesson->name, $next_to_last+1, $leftIndex - $next_to_last - 2);
+                $split = explode(' ', $lesson->groupName);
+                $lesson->grade = $split[0];
+                $lesson->letter = mb_substr($split[1], 0, 1);
+            } else {
+                $split = explode(' ', $groupName);
+                $lesson->groupName = $groupName;
+                $lesson->grade = $split[0];
+                $lesson->letter = mb_substr($split[1], 0, 1);
+            }
+            $nameSplit = explode(' - ', $lesson->name);
+            $dateSplit = explode(' ', $nameSplit[0]);
+            $lesson->date = $dateSplit[0];
+            $lesson->dow = $dateSplit[1];
+            $lesson->time = $dateSplit[2];
+            $leftIndex = mb_strrpos($nameSplit[1], '(');
+            $lesson->discName = mb_substr($nameSplit[1], 0, $leftIndex - 1);
+            $lesson->teacherFio = $nameSplit[2];
+            //dd($lesson);
+
+            if ((strpos(mb_strtolower($lesson->desc), 'онлайн') !== false) ||
+                (strpos(mb_strtolower($lesson->desc), 'online') !== false)) {
+                if (!array_key_exists($lesson->grade, $byGrade)) {
+                    $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byGrade[$lesson->grade]['online']++;
+                if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
+                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byTeacherFio[$lesson->teacherFio]['online']++;
+            } else {
+                $offlineOrEmpty = 'offline';
+                if ($lesson->desc === '') $offlineOrEmpty = 'empty';
+
+                if (!array_key_exists($lesson->grade, $byGrade)) {
+                    $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byGrade[$lesson->grade][$offlineOrEmpty]++;
+                if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
+                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byTeacherFio[$lesson->teacherFio][$offlineOrEmpty]++;
+            }
+        }
+
+        foreach ($byTeacherFio as $key => $value) {
+            $byTeacherFio[$key]['teacherFio'] = $key;
+        }
+
+        $result['byGrade'] = $byGrade;
+        $result['byTeacherFio'] = array_values($byTeacherFio);
 
         return $result;
     }

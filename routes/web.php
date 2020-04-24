@@ -198,3 +198,6 @@ Route::get('/trelloLoadGroup', 'TrelloController@trelloDayLoadGroup');
 
 Route::get('/tr', 'TrelloController@trelloTeacherIndex');
 Route::get('/trelloLoadTeacher', 'TrelloController@trelloLoadTeacher');
+
+Route::get('/trelloOnline', 'TrelloController@trelloOnline');
+Route::get('/trelloOnlineAction', 'TrelloController@trelloOnlineAction');

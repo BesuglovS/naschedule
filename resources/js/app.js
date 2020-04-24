@@ -39,6 +39,7 @@ Vue.component('trello-export', require('./components/TrelloExport').default);
 Vue.component('trello-check', require('./components/TrelloCheck').default);
 Vue.component('trello-day', require('./components/TrelloDay').default);
 Vue.component('trello-teacher-day', require('./components/TrelloTeacherDay').default);
+Vue.component('trello-online', require('./components/TrelloOnline').default);
 
 
 import Buefy from 'buefy'

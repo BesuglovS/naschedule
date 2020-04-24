@@ -35,6 +35,16 @@ class Calendar extends Model
             ->map(function($item) { return $item->id;});
     }
 
+    public static function CalendarsFromWeek($week)
+    {
+        $startOfWeek = Carbon::parse(ConfigOption::SemesterStarts())
+            ->startOfWeek()->addWeeks($week - 1);
+        $endOfWeek = $startOfWeek->copy()->endOfWeek();
+        return DB::table('calendars')
+            ->whereBetween('date', [$startOfWeek, $endOfWeek])
+            ->get();
+    }
+
     public static function GetWeekNumber($date = null)
     {
         if (is_null($date))
