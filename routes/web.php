@@ -178,7 +178,7 @@ Route::get('/lleTeacher', 'MainController@lleTeacher');
 Route::get('/lleByTeacher', 'LessonLogEventController@ByTeacher');
 
 //BIG RED BUTTON
-Route::get('/brb', 'BigRedButtonController@TMP');
+Route::get('/brb', 'TrelloController@brb');
 
 Route::get('/AudsTable1-4', 'BigRedButtonController@AudsTable1_4');
 Route::get('/AudsTable5-11', 'BigRedButtonController@AudsTable5_11');

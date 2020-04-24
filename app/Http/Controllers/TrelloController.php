@@ -241,7 +241,33 @@ class TrelloController extends Controller
 
     public function brb()
     {
+        $stack = HandlerStack::create();
+        $middleware = new Oauth1([
+            'consumer_key'    => 'a8c89955d4d62ad9bd2f50c304d3dd9d',
+            'consumer_secret' => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf',
+            'token'           => 'f41efa8a36f62ce93bcd4b0aee9777ccc0e4dac326840cd6c2caf9df3f586153',
+            'token_secret'    => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf'
+        ]);
+        $stack->push($middleware);
+        $client = new Client([
+            'base_uri' => 'https://api.trello.com/1/',
+            'handler' => $stack,
+            'auth' => 'oauth'
+        ]);
 
+        $lessonList = array();
+        $result = array();
+
+        $trelloBoardIds = array_values(TrelloController::$boardIds);
+        //$trelloBoardIds = array($trelloBoardIds[9]);
+        foreach ($trelloBoardIds as $boardId) {
+            $res = $client->get('boards/' . $boardId .'/cards');
+            $data = json_decode($res->getBody());
+
+            $lessonList = array_merge($lessonList, $data);
+        }
+
+        return collect($lessonList)->pluck('desc');
     }
 
     public function checkIndex() {
@@ -585,7 +611,7 @@ class TrelloController extends Controller
         $result = array();
 
         $trelloBoardIds = array_values(TrelloController::$boardIds);
-        //$trelloBoardIds = array($trelloBoardIds[9]);
+        $trelloBoardIds = array($trelloBoardIds[9]);
         foreach ($trelloBoardIds as $boardId) {
             $res = $client->get('boards/' . $boardId .'/cards');
             $data = json_decode($res->getBody());
@@ -628,6 +654,8 @@ class TrelloController extends Controller
             //dd($lesson);
 
             if ((strpos(mb_strtolower($lesson->desc), 'онлайн') !== false) ||
+                (strpos(mb_strtolower($lesson->desc), 'он лайн') !== false) ||
+                (strpos(mb_strtolower($lesson->desc), 'он-лайн') !== false) ||
                 (strpos(mb_strtolower($lesson->desc), 'online') !== false)) {
                 if (!array_key_exists($lesson->grade, $byGrade)) {
                     $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
