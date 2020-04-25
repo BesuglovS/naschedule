@@ -185,12 +185,25 @@
                         this.byGrade = response.data.byGrade;
                         this.byGradeNoEmpty = true;
 
+                        let total  = { empty: 0, emptyPercent:0, offline:0, offlinePercent:0, online:0, onlinePercent:0 };
+
                         Object.values(this.byGrade).forEach(item => {
+                            total.online += item.online;
+                            total.offline += item.offline;
+                            total.empty += item.empty;
+
                             item.onlinePercent = item.online * 100 / (item.online + item.offline + item.empty);
                             item.offlinePercent = item.offline * 100 / (item.online + item.offline + item.empty);
                             item.emptyPercent = item.empty * 100 / (item.online + item.offline + item.empty);
                             if (item.emptyPercent !== 0) this.byGradeNoEmpty = false;
                         });
+
+                        total.onlinePercent = total.online * 100 / (total.online + total.offline + total.empty);
+                        total.offlinePercent = total.offline * 100 / (total.online + total.offline + total.empty);
+                        total.emptyPercent = total.empty * 100 / (total.online + total.offline + total.empty);
+                        if (this.facultyId === 0) {
+                            this.byGrade['Итого'] = total;
+                        }
 
                         this.byGroup = response.data.byGroup;
                         this.byGroupNoEmpty = true;
@@ -252,8 +265,8 @@
                 dean_signing_schedule:" ",
                 dean_signing_session_schedule:" ",
                 id:0,
-                letter:"Всё",
-                name:"Всё",
+                letter:"Все",
+                name:"Все",
                 schedule_signing_title:" ",
                 session_signing_title:" ",
                 sorting_order:0
