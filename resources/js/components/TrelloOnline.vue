@@ -107,7 +107,7 @@
                     <td v-if="!byTeacherNoEmpty" style="text-align: center;">%</td>
                 </tr>
                 <tr v-for="item in this.byTeacherFio">
-                    <td>{{item.teacherFio}}</td>
+                    <td><a href="#" @click="ShowTeacherData(item.teacherFio);">{{item.teacherFio}}</a></td>
                     <td>{{item.online}}</td>
                     <td :style="'background-image: linear-gradient(to right, rgba(0, 150, 0, 0.3) 0%, rgba(0, 175, 0, 0.3) 17%, rgba(0, 190, 0, 0.3) 33%, rgba(82, 210, 82, 0.3) 67%, rgba(131, 230, 131, 0.3) 83%, rgba(180, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.onlinePercent.toFixed(2) + '% 100%;'">
                         {{(item.onlinePercent.toFixed(2))}}
@@ -124,25 +124,61 @@
             </table>
         </div>
 
+        <transition v-if="this.showTeacherWindow" name="modal">
+            <div class="modal-mask">
+                <div class="modal-wrapper">
+                    <div class="modal-container">
+                        <div class="modal-header">
+                            <div style="text-align: center; font-size: 1.5em;">
+                                {{this.teacherData.teacherFio}} - {{this.facultyName}}
+                            </div>
+                        </div>
 
+                        <div class="modal-body">
+                            <div style="width: 100%; text-align: center;">
+                                <table id="modalTable" class="is-bordered modalTable">
+                                    <tr>
+                                        <td style="text-align: center;">Группа</td>
+                                        <td style="text-align: center;">Онлайн</td>
+                                        <td style="text-align: center;">%</td>
+                                        <td style="text-align: center;">Не онлайн</td>
+                                        <td style="text-align: center;">%</td>
+                                        <td v-if="!byTeacherNoEmpty" style="text-align: center;">Пустое описание</td>
+                                        <td v-if="!byTeacherNoEmpty" style="text-align: center;">%</td>
+                                    </tr>
+                                    <tr v-for="(item, key) in this.teacherData.byGroup">
+                                        <td>{{key}}</td>
+                                        <td>{{item.online}}</td>
+                                        <td :style="'background-image: linear-gradient(to right, rgba(0, 150, 0, 0.3) 0%, rgba(0, 175, 0, 0.3) 17%, rgba(0, 190, 0, 0.3) 33%, rgba(82, 210, 82, 0.3) 67%, rgba(131, 230, 131, 0.3) 83%, rgba(180, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.onlinePercent.toFixed(2) + '% 100%;'">
+                                            {{(item.onlinePercent.toFixed(2))}}
+                                        </td>
+                                        <td>{{item.offline}}</td>
+                                        <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.offlinePercent.toFixed(2) + '% 100%;'">
+                                            {{(item.offlinePercent.toFixed(2))}}
+                                        </td>
+                                        <td v-if="!byTeacherNoEmpty">{{item.empty}}</td>
+                                        <td v-if="!byTeacherNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">
+                                            {{(item.emptyPercent.toFixed(2))}}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
 
-
-        <modal v-if="showOKWindow">
-            <template v-slot:body>
-                <div style="width: 100%; text-align: center;">
-                    <button style="width: 400px; font-size: 2em;" @click="showOKWindow = false;" class="button is-primary">
-                        Операция завершена
-                    </button>
+                        <div class="modal-footer" style="text-align: center;">
+                            <button style="width: 200px; font-size: 1em; margin-top: 1em;" @click="showTeacherWindow = false;" class="button is-primary">
+                                Закрыть
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </template>
-        </modal>
+            </div>
+        </transition>
 
     </div>
 </template>
 
 <script>
-    import modal from "./Modal";
-
     export default {
         name: "TrelloOnline",
         props: [
@@ -152,20 +188,22 @@
             'currentWeek'
         ],
         components: {
-            'modal' : modal
         },
         data() {
             return {
                 facultyId: -1,
                 week: this.currentWeek,
-                showOKWindow: false,
+                showTeacherWindow: false,
                 loading: false,
                 byGrade: [],
                 byGroup: [],
                 byTeacherFio: [],
                 byGradeNoEmpty: false,
                 byGroupNoEmpty: false,
-                byTeacherNoEmpty: false
+                byTeacherNoEmpty: false,
+                teacherData: { online: 0, offline: 4, empty: 0, byGroup: {} },
+                teacherByGradeNoEmpty: true,
+                facultyName: ''
             }
         },
         methods: {
@@ -182,6 +220,8 @@
                 axios
                     .get('/trelloOnlineAction?week=' + this.week + '&facultyId=' + this.facultyId)
                     .then(response => {
+                        this.facultyName = this.faculties.filter(f => f.id === this.facultyId)[0].name;
+
                         this.byGrade = response.data.byGrade;
                         this.byGradeNoEmpty = true;
 
@@ -259,6 +299,27 @@
                         this.loading = false;
                     });
             },
+            ShowTeacherData(teacherFio) {
+                let teacherDataArray = this.byTeacherFio.filter(item => item.teacherFio === teacherFio);
+                if (teacherDataArray.length > 0) {
+                    let data = teacherDataArray[0];
+
+                    this.teacherByGradeNoEmpty = true;
+                    for (let [key, item] of Object.entries(data.byGroup)) {
+                        item.onlinePercent = item.online * 100 / (item.online + item.offline + item.empty);
+                        item.offlinePercent = item.offline * 100 / (item.online + item.offline + item.empty);
+                        item.emptyPercent = item.empty * 100 / (item.online + item.offline + item.empty);
+                        if (item.emptyPercent !== 0) this.teacherByGradeNoEmpty = false;
+                    }
+
+                    this.teacherData = data;
+
+                    console.log('this.teacherData');
+                    console.log(this.teacherData);
+
+                    this.showTeacherWindow = true;
+                }
+            }
         },
         mounted() {
             this.faculties.unshift({
@@ -287,5 +348,56 @@
 </script>
 
 <style scoped>
+    .modal-mask {
+        position: fixed;
+        z-index: 9998;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .5);
+        display: table;
+        transition: opacity .3s ease;
+    }
 
+    .modal-wrapper {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .modal-container {
+        width: 90%;
+        margin: 0px auto;
+        padding: 20px 30px;
+        background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+        transition: all .3s ease;
+        font-family: Helvetica, Arial, sans-serif;
+    }
+
+    .modal-header h3 {
+        margin-top: 0;
+        color: #42b983;
+    }
+
+    .modal-body {
+        margin: 20px 0;
+    }
+
+    .modal-enter .modal-container,
+    .modal-leave-active .modal-container {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+
+    table.modalTable {
+        width: 100%;
+    }
+
+    table.modalTable td, table.modalTable th {
+        font-size: 1em;
+        padding: 1em;
+        text-align: center !important;
+    }
 </style>

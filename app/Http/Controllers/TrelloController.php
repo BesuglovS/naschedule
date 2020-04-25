@@ -647,6 +647,10 @@ class TrelloController extends Controller
 
             $groups = StudentGroup::FacultyGroupsFromGroupName($lesson->groupName);
 
+            if (count($groups) == 0) {
+                continue;
+            }
+
             if (count($groups) > 1) {
                 $res = $client->get('cards/' . $lesson->id . '/list');
                 $data = json_decode($res->getBody());
@@ -673,19 +677,27 @@ class TrelloController extends Controller
             if ((strpos(mb_strtolower($lesson->desc), 'онлайн') !== false) ||
                 (strpos(mb_strtolower($lesson->desc), 'он лайн') !== false) ||
                 (strpos(mb_strtolower($lesson->desc), 'он-лайн') !== false) ||
+                (strpos(mb_strtolower($lesson->desc), 'zoom.us') !== false) ||
                 (strpos(mb_strtolower($lesson->desc), 'online') !== false)) {
                 if (!array_key_exists($lesson->grade, $byGrade)) {
                     $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
                 $byGrade[$lesson->grade]['online']++;
+
                 if (!array_key_exists($lesson->groupName, $byGroup)) {
                     $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
                 $byGroup[$lesson->groupName]['online']++;
+
                 if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
-                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'byGroup' => array());
                 }
                 $byTeacherFio[$lesson->teacherFio]['online']++;
+
+                if (!array_key_exists($lesson->groupName, $byTeacherFio[$lesson->teacherFio]['byGroup'])) {
+                    $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName]['online']++;
             } else {
                 $offlineOrEmpty = 'offline';
                 if ($lesson->desc === '') $offlineOrEmpty = 'empty';
@@ -694,14 +706,21 @@ class TrelloController extends Controller
                     $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
                 $byGrade[$lesson->grade][$offlineOrEmpty]++;
+
                 if (!array_key_exists($lesson->groupName, $byGroup)) {
                     $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
                 $byGroup[$lesson->groupName][$offlineOrEmpty]++;
+
                 if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
-                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'byGroup' => array());
                 }
                 $byTeacherFio[$lesson->teacherFio][$offlineOrEmpty]++;
+
+                if (!array_key_exists($lesson->groupName, $byTeacherFio[$lesson->teacherFio]['byGroup'])) {
+                    $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName][$offlineOrEmpty]++;
             }
         }
 

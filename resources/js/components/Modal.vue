@@ -25,8 +25,7 @@
 
 <script>
     export default {
-        name: "modal",
-
+        name: "modal"
     }
 </script>
 
