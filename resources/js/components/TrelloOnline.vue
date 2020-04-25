@@ -143,8 +143,8 @@
                                         <td style="text-align: center;">%</td>
                                         <td style="text-align: center;">Не онлайн</td>
                                         <td style="text-align: center;">%</td>
-                                        <td v-if="!byTeacherNoEmpty" style="text-align: center;">Пустое описание</td>
-                                        <td v-if="!byTeacherNoEmpty" style="text-align: center;">%</td>
+                                        <td v-if="!teacherByGradeNoEmpty" style="text-align: center;">Пустое описание</td>
+                                        <td v-if="!teacherByGradeNoEmpty" style="text-align: center;">%</td>
                                     </tr>
                                     <tr v-for="(item, key) in this.teacherData.byGroup">
                                         <td>{{key}}</td>
@@ -156,8 +156,8 @@
                                         <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.offlinePercent.toFixed(2) + '% 100%;'">
                                             {{(item.offlinePercent.toFixed(2))}}
                                         </td>
-                                        <td v-if="!byTeacherNoEmpty">{{item.empty}}</td>
-                                        <td v-if="!byTeacherNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">
+                                        <td v-if="!teacherByGradeNoEmpty">{{item.empty}}</td>
+                                        <td v-if="!teacherByGradeNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">
                                             {{(item.emptyPercent.toFixed(2))}}
                                         </td>
                                     </tr>
@@ -172,8 +172,8 @@
                                         <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + this.teacherData.offlinePercent.toFixed(2) + '% 100%;'">
                                             {{(this.teacherData.offlinePercent.toFixed(2))}}
                                         </td>
-                                        <td v-if="!byTeacherNoEmpty">{{this.teacherData.empty}}</td>
-                                        <td v-if="!byTeacherNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + this.teacherData.emptyPercent.toFixed(2) + '% 100%;'">
+                                        <td v-if="!teacherByGradeNoEmpty">{{this.teacherData.empty}}</td>
+                                        <td v-if="!teacherByGradeNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + this.teacherData.emptyPercent.toFixed(2) + '% 100%;'">
                                             {{(this.teacherData.emptyPercent.toFixed(2))}}
                                         </td>
                                     </tr>
@@ -383,6 +383,7 @@
 
     .modal-container {
         width: 90%;
+        max-width: 920px;
         margin: 0px auto;
         padding: 20px 30px;
         background-color: #fff;
@@ -409,6 +410,7 @@
 
     table.modalTable {
         width: 100%;
+        max-width: 900px;
     }
 
     table.modalTable td, table.modalTable th {
