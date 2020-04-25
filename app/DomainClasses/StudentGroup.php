@@ -74,6 +74,36 @@ class StudentGroup extends Model
             ->get();
     }
 
+    public static function FacultyGroupsFromGroupName($groupName)
+    {
+        $studentIds = DB::table('student_student_group')
+            ->join('student_groups', 'student_student_group.student_group_id', '=', 'student_groups.id')
+            ->where('student_groups.name', '=', $groupName)
+            ->select('student_id')
+            ->get()
+            ->map(function($item) { return $item->student_id;});
+        $groupIds = DB::table('student_student_group')
+            ->whereIn('student_id', $studentIds)
+            ->select('student_group_id')
+            ->get()
+            ->map(function($item) { return $item->student_group_id;})
+            ->unique();
+
+        return DB::table('student_groups')
+            ->join('faculty_student_group', 'faculty_student_group.student_group_id', '=', 'student_groups.id')
+            ->join('faculties', 'faculties.id', '=', 'faculty_student_group.faculty_id')
+            ->select(
+                'student_groups.id as groupId',
+                'student_groups.name as name',
+                'faculty_student_group.faculty_id as facultyId',
+                'faculties.sorting_order as facultiesSortingOrder'
+            )
+            ->whereIn('student_groups.id', $groupIds)
+            ->orderBy('faculties.sorting_order')
+            ->orderBy('student_groups.name')
+            ->get();
+    }
+
     public function disciplines()
     {
         return $this->hasMany(Discipline::class);

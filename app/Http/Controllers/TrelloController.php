@@ -583,14 +583,16 @@ class TrelloController extends Controller
         $today = CarbonImmutable::now()->format('Y-m-d');
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
         $currentWeek = Calendar::WeekFromDate($today, $css);
+        $faculties = Faculty::all()->sortBy('sorting_order');
 
-        return view('trello.online', compact('weekCount', 'weeks', 'currentWeek'));
+        return view('trello.online', compact('weekCount', 'weeks', 'currentWeek', 'faculties'));
     }
 
     public function trelloOnlineAction(Request $request) {
         $input = $request->all();
 
         $week = $input["week"];
+        $facultyId = $input["facultyId"];
         $weekDates = Calendar::CalendarsFromWeek($week)->pluck('date')->toArray();
 
         $stack = HandlerStack::create();
@@ -610,8 +612,12 @@ class TrelloController extends Controller
         $lessonList = array();
         $result = array();
 
-        $trelloBoardIds = array_values(TrelloController::$boardIds);
-        //$trelloBoardIds = array($trelloBoardIds[9]);
+        if ($facultyId == 0 || !array_key_exists($facultyId, TrelloController::$boardIds)) {
+            $trelloBoardIds = array_values(TrelloController::$boardIds);
+        } else {
+            $trelloBoardIds = array(TrelloController::$boardIds[$facultyId]);
+        }
+
         foreach ($trelloBoardIds as $boardId) {
             $res = $client->get('boards/' . $boardId .'/cards');
             $data = json_decode($res->getBody());
@@ -624,6 +630,7 @@ class TrelloController extends Controller
         }
 
         $byGrade = array();
+        $byGroup = array();
         $byTeacherFio = array();
 
         foreach ($lessonList as $lesson) {
@@ -634,15 +641,25 @@ class TrelloController extends Controller
                 $next_to_last = mb_strrpos($lesson->name, '(',  $leftIndex - mb_strlen($lesson->name) - 1);
 
                 $lesson->groupName = mb_substr($lesson->name, $next_to_last+1, $leftIndex - $next_to_last - 2);
-                $split = explode(' ', $lesson->groupName);
-                $lesson->grade = $split[0];
-                $lesson->letter = mb_substr($split[1], 0, 1);
             } else {
-                $split = explode(' ', $groupName);
                 $lesson->groupName = $groupName;
-                $lesson->grade = $split[0];
-                $lesson->letter = mb_substr($split[1], 0, 1);
             }
+
+            $groups = StudentGroup::FacultyGroupsFromGroupName($lesson->groupName);
+
+            if (count($groups) > 1) {
+                $res = $client->get('cards/' . $lesson->id . '/list');
+                $data = json_decode($res->getBody());
+                $listName = $data->name;
+                $leftIndex = mb_strpos($listName, '(');
+                $lesson->groupName = mb_substr($listName, 0, $leftIndex - 1);
+            } else {
+                $lesson->groupName = $groups[0]->name;
+            }
+            $split = explode(' ', $lesson->groupName);
+            $lesson->grade = $split[0];
+            $lesson->letter = mb_substr($split[1], 0, 1);
+
             $nameSplit = explode(' - ', $lesson->name);
             $dateSplit = explode(' ', $nameSplit[0]);
             $lesson->date = $dateSplit[0];
@@ -661,6 +678,10 @@ class TrelloController extends Controller
                     $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
                 $byGrade[$lesson->grade]['online']++;
+                if (!array_key_exists($lesson->groupName, $byGroup)) {
+                    $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byGroup[$lesson->groupName]['online']++;
                 if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
                     $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
@@ -673,6 +694,10 @@ class TrelloController extends Controller
                     $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
                 $byGrade[$lesson->grade][$offlineOrEmpty]++;
+                if (!array_key_exists($lesson->groupName, $byGroup)) {
+                    $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                }
+                $byGroup[$lesson->groupName][$offlineOrEmpty]++;
                 if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
                     $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0);
                 }
@@ -683,8 +708,12 @@ class TrelloController extends Controller
         foreach ($byTeacherFio as $key => $value) {
             $byTeacherFio[$key]['teacherFio'] = $key;
         }
+        foreach ($byGroup as $key => $value) {
+            $byGroup[$key]['groupName'] = $key;
+        }
 
         $result['byGrade'] = $byGrade;
+        $result['byGroup'] = array_values($byGroup);
         $result['byTeacherFio'] = array_values($byTeacherFio);
 
         return $result;

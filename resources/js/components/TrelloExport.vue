@@ -19,6 +19,7 @@
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
+                    </tr>
                     <tr>
                         <td>Неделя</td>
                         <td>&nbsp;</td>
