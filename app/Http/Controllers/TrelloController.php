@@ -680,19 +680,28 @@ class TrelloController extends Controller
                 (strpos(mb_strtolower($lesson->desc), 'zoom.us') !== false) ||
                 (strpos(mb_strtolower($lesson->desc), 'online') !== false)) {
                 if (!array_key_exists($lesson->grade, $byGrade)) {
-                    $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'lessons' => array(),
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byGrade[$lesson->grade]['online']++;
+                $byGrade[$lesson->grade]['lessons'][] = $lesson;
+                $byGrade[$lesson->grade]['onlineLessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->groupName, $byGroup)) {
-                    $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'lessons' => array(),
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byGroup[$lesson->groupName]['online']++;
+                $byGroup[$lesson->groupName]['lessons'][] = $lesson;
+                $byGroup[$lesson->groupName]['onlineLessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
-                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'byGroup' => array());
+                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'byGroup' => array(), 'lessons' => array(),
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byTeacherFio[$lesson->teacherFio]['online']++;
+                $byTeacherFio[$lesson->teacherFio]['lessons'][] = $lesson;
+                $byTeacherFio[$lesson->teacherFio]['onlineLessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->groupName, $byTeacherFio[$lesson->teacherFio]['byGroup'])) {
                     $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
@@ -700,22 +709,31 @@ class TrelloController extends Controller
                 $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName]['online']++;
             } else {
                 $offlineOrEmpty = 'offline';
-                if ($lesson->desc === '') $offlineOrEmpty = 'empty';
+                if ($lesson->desc === '') { $offlineOrEmpty = 'empty'; }
 
                 if (!array_key_exists($lesson->grade, $byGrade)) {
-                    $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byGrade[$lesson->grade] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'lessons' => array(),
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byGrade[$lesson->grade][$offlineOrEmpty]++;
+                $byGrade[$lesson->grade]['lessons'][] = $lesson;
+                $byGrade[$lesson->grade][$offlineOrEmpty . 'Lessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->groupName, $byGroup)) {
-                    $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byGroup[$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'lessons' => array(),
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byGroup[$lesson->groupName][$offlineOrEmpty]++;
+                $byGroup[$lesson->groupName]['lessons'][] = $lesson;
+                $byGroup[$lesson->groupName][$offlineOrEmpty . 'Lessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->teacherFio, $byTeacherFio)) {
-                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'byGroup' => array());
+                    $byTeacherFio[$lesson->teacherFio] = array('online' => 0, 'offline' => 0, 'empty' => 0, 'byGroup' => array(), 'lessons' => array(),
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byTeacherFio[$lesson->teacherFio][$offlineOrEmpty]++;
+                $byTeacherFio[$lesson->teacherFio]['lessons'][] = $lesson;
+                $byTeacherFio[$lesson->teacherFio][$offlineOrEmpty . 'Lessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->groupName, $byTeacherFio[$lesson->teacherFio]['byGroup'])) {
                     $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);

@@ -33,7 +33,7 @@
             </div>
 
             <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 1em;">
-                <button type="submit" @click="trelloAnalyse();" style="font-size: 2em;" class="button is-primary">Анализ</button>
+                <button type="submit" @click.prevent="trelloAnalyse()" style="font-size: 2em;" class="button is-primary">Анализ</button>
 
                 <div v-if="loading === true" style="font-size: 2em; text-align: center; margin-left: 2em;">
                     Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
@@ -53,16 +53,18 @@
                     <td v-if="!byGradeNoEmpty" style="text-align: center;">%</td>
                 </tr>
                 <tr v-for="(item, key) in this.byGrade">
-                    <td>{{key}}</td>
-                    <td>{{item.online}}</td>
+                    <td>{{key}} <a href="#" @click.prevent="showGradeList(key)">(список)</a></td>
+                    <td><a href="#" @click.prevent="showGradeOnline(key, item)">{{item.online}}</a></td>
                     <td :style="'background-image: linear-gradient(to right, rgba(0, 150, 0, 0.3) 0%, rgba(0, 175, 0, 0.3) 17%, rgba(0, 190, 0, 0.3) 33%, rgba(82, 210, 82, 0.3) 67%, rgba(131, 230, 131, 0.3) 83%, rgba(180, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.onlinePercent.toFixed(2) + '% 100%;'">
                         {{(item.onlinePercent.toFixed(2))}}
                     </td>
-                    <td>{{item.offline}}</td>
+                    <td><a href="#" @click.prevent="showGradeOffline(key, item)">{{item.offline}}</a></td>
                     <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.offlinePercent.toFixed(2) + '% 100%;'">
                         {{(item.offlinePercent.toFixed(2))}}
                     </td>
-                    <td v-if="!byGradeNoEmpty ">{{item.empty}}</td>
+                    <td v-if="!byGradeNoEmpty ">
+                        <a href="#" @click.prevent="showGradeEmpty(key, item)">{{item.empty}}</a>
+                    </td>
                     <td v-if="!byGradeNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">
                         {{(item.emptyPercent.toFixed(2))}}
                     </td>
@@ -80,16 +82,16 @@
                     <td v-if="!byGroupNoEmpty" style="text-align: center;">%</td>
                 </tr>
                 <tr v-for="item in this.byGroup">
-                    <td>{{item.groupName}}</td>
-                    <td>{{item.online}}</td>
+                    <td>{{item.groupName}} <a href="#" @click.prevent="showGroupList(item)">(список)</a></td>
+                    <td><a href="#" @click.prevent="showGroupOnline(item)">{{item.online}}</a></td>
                     <td :style="'background-image: linear-gradient(to right, rgba(0, 150, 0, 0.3) 0%, rgba(0, 175, 0, 0.3) 17%, rgba(0, 190, 0, 0.3) 33%, rgba(82, 210, 82, 0.3) 67%, rgba(131, 230, 131, 0.3) 83%, rgba(180, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.onlinePercent.toFixed(2) + '% 100%;'">
                         {{(item.onlinePercent.toFixed(2))}}
                     </td>
-                    <td>{{item.offline}}</td>
+                    <td><a href="#" @click.prevent="showGroupOffline(item)">{{item.offline}}</a></td>
                     <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.offlinePercent.toFixed(2) + '% 100%;'">
                         {{(item.offlinePercent.toFixed(2))}}
                     </td>
-                    <td v-if="!byGroupNoEmpty ">{{item.empty}}</td>
+                    <td v-if="!byGroupNoEmpty "><a href="#" @click.prevent="showGroupEmpty(item)">{{item.empty}}</a></td>
                     <td v-if="!byGroupNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">
                         {{(item.emptyPercent.toFixed(2))}}
                     </td>
@@ -107,16 +109,19 @@
                     <td v-if="!byTeacherNoEmpty" style="text-align: center;">%</td>
                 </tr>
                 <tr v-for="item in this.byTeacherFio">
-                    <td><a href="#" @click="ShowTeacherData(item.teacherFio);">{{item.teacherFio}}</a></td>
-                    <td>{{item.online}}</td>
+                    <td>
+                        <a href="#" @click.prevent="ShowTeacherData(item.teacherFio)">{{item.teacherFio}}</a>
+                        <a href="#" @click.prevent="showTeacherList(item)">(список)</a>
+                    </td>
+                    <td><a href="#" @click.prevent="showTeacherOnline(item)">{{item.online}}</a></td>
                     <td :style="'background-image: linear-gradient(to right, rgba(0, 150, 0, 0.3) 0%, rgba(0, 175, 0, 0.3) 17%, rgba(0, 190, 0, 0.3) 33%, rgba(82, 210, 82, 0.3) 67%, rgba(131, 230, 131, 0.3) 83%, rgba(180, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.onlinePercent.toFixed(2) + '% 100%;'">
                         {{(item.onlinePercent.toFixed(2))}}
                     </td>
-                    <td>{{item.offline}}</td>
+                    <td><a href="#" @click.prevent="showTeacherOffline(item)">{{item.offline}}</a></td>
                     <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.offlinePercent.toFixed(2) + '% 100%;'">
                         {{(item.offlinePercent.toFixed(2))}}
                     </td>
-                    <td v-if="!byTeacherNoEmpty">{{item.empty}}</td>
+                    <td v-if="!byTeacherNoEmpty"><a href="#" @click.prevent="showTeacherEmpty(item)">{{item.empty}}</a></td>
                     <td v-if="!byTeacherNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">
                         {{(item.emptyPercent.toFixed(2))}}
                     </td>
@@ -130,7 +135,7 @@
                     <div class="modal-container">
                         <div class="modal-header">
                             <div style="text-align: center; font-size: 1.5em;">
-                                {{this.teacherData.teacherFio}} - {{this.facultyName}}
+                                {{this.teacherData.teacherFio}} - {{this.facultyNameLoaded}}
                             </div>
                         </div>
 
@@ -162,7 +167,7 @@
                                         </td>
                                     </tr>
 
-                                    <tr style="font-weight: 700;">
+                                    <tr style="font-weight: 700;" v-if="Object.keys(this.teacherData.byGroup).length > 1">
                                         <td>Итого</td>
                                         <td>{{this.teacherData.online}}</td>
                                         <td :style="'background-image: linear-gradient(to right, rgba(0, 150, 0, 0.3) 0%, rgba(0, 175, 0, 0.3) 17%, rgba(0, 190, 0, 0.3) 33%, rgba(82, 210, 82, 0.3) 67%, rgba(131, 230, 131, 0.3) 83%, rgba(180, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + this.teacherData.onlinePercent.toFixed(2) + '% 100%;'">
@@ -182,7 +187,50 @@
                         </div>
 
                         <div class="modal-footer" style="text-align: center;">
-                            <button style="width: 200px; font-size: 1em; margin-top: 1em;" @click="showTeacherWindow = false;" class="button is-primary">
+                            <button style="width: 200px; font-size: 1em; margin-top: 1em;" @click.prevent="showTeacherWindow = false" class="button is-primary">
+                                Закрыть
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <transition v-if="this.showModalList" name="modal2">
+            <div class="modal-mask">
+                <div class="modal-wrapper">
+                    <div class="modal-container">
+                        <div class="modal-header">
+                            <div style="text-align: center; font-size: 1.5em;">
+                                {{this.modalTitle}}
+                            </div>
+                        </div>
+
+                        <div class="modal-body">
+                            <div style="width: 100%; text-align: center;">
+                                <table class="is-bordered modalTable">
+                                    <tr>
+                                        <td v-if="modalDateVisible">Дата</td>
+                                        <td v-if="modalDowVisible">День недели</td>
+                                        <td v-if="modalTimeVisible">Время</td>
+                                        <td v-if="modalDiscVisible">Предмет</td>
+                                        <td v-if="modalGroupVisible">Класс</td>
+                                        <td v-if="modalTeacherFioVisible">ФИО учителя</td>
+                                    </tr>
+                                    <tr v-for="item in this.modalLessonList">
+                                        <td v-if="modalDateVisible">{{item.date}}</td>
+                                        <td v-if="modalDowVisible">{{item.dow}}</td>
+                                        <td v-if="modalTimeVisible">{{item.time}}</td>
+                                        <td v-if="modalDiscVisible">{{item.discName}}</td>
+                                        <td v-if="modalGroupVisible">{{item.groupName}}</td>
+                                        <td v-if="modalTeacherFioVisible">{{item.teacherFio}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer" style="text-align: center;">
+                            <button style="width: 200px; font-size: 1em; margin-top: 1em;" @click.prevent="showModalList = false" class="button is-primary">
                                 Закрыть
                             </button>
                         </div>
@@ -219,7 +267,17 @@
                 byTeacherNoEmpty: false,
                 teacherData: { online: 0, offline: 4, empty: 0, byGroup: {} },
                 teacherByGradeNoEmpty: true,
-                facultyName: ''
+                facultyNameLoaded: '',
+                weekLoaded: -1,
+                showModalList: false,
+                modalTitle: '',
+                modalLessonList: [],
+                modalDateVisible: true,
+                modalDowVisible: true,
+                modalTimeVisible: true,
+                modalDiscVisible: true,
+                modalGroupVisible: true,
+                modalTeacherFioVisible: true
             }
         },
         methods: {
@@ -233,11 +291,12 @@
             },
             trelloAnalyse() {
                 this.loading = true;
+                this.facultyNameLoaded = this.faculties.filter(f => f.id === this.facultyId)[0].name;
+                this.weekLoaded = this.week;
+
                 axios
                     .get('/trelloOnlineAction?week=' + this.week + '&facultyId=' + this.facultyId)
                     .then(response => {
-                        this.facultyName = this.faculties.filter(f => f.id === this.facultyId)[0].name;
-
                         this.byGrade = response.data.byGrade;
                         this.byGradeNoEmpty = true;
 
@@ -329,13 +388,153 @@
                     }
 
                     this.teacherData = data;
-
-                    console.log('this.teacherData');
-                    console.log(this.teacherData);
-
                     this.showTeacherWindow = true;
                 }
-            }
+            },
+            showGradeList(grade) {
+                this.modalTitle = 'Список уроков / ' + grade + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = this.byGrade[grade].lessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = true;
+            },
+            showGroupList(group) {
+                this.modalTitle = 'Список уроков / ' + group.groupName + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = group.lessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = false;
+                this.modalTeacherFioVisible = true;
+            },
+            showTeacherList(teacher) {
+                this.modalTitle = 'Список уроков / ' + teacher.teacherFio + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = teacher.lessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = false;
+            },
+            showGradeOnline(key, item) {
+                this.modalTitle = 'Список онлайн уроков / ' + key + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.onlineLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = true;
+            },
+            showGradeOffline(key, item) {
+                this.modalTitle = 'Список оффлайн уроков / ' + key + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.offlineLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = true;
+            },
+            showGradeEmpty(key, item) {
+                this.modalTitle = 'Список уроков с пустым описанием / ' + key + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.emptyLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = true;
+            },
+            showGroupOnline(item) {
+                this.modalTitle = 'Список онлайн уроков / ' + item.groupName + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.onlineLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = false;
+                this.modalTeacherFioVisible = true;
+            },
+            showGroupOffline(item) {
+                this.modalTitle = 'Список оффлайн уроков / ' + item.groupName + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.offlineLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = false;
+                this.modalTeacherFioVisible = true;
+            },
+            showGroupEmpty(item) {
+                this.modalTitle = 'Список уроков с пустым описанием / ' + item.groupName + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.emptyLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = false;
+                this.modalTeacherFioVisible = true;
+            },
+            showTeacherOnline(item) {
+                this.modalTitle = 'Список онлайн уроков / ' + item.teacherFio + ' / ' + this.facultyNameLoaded + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.onlineLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = false;
+            },
+            showTeacherOffline(item) {
+                this.modalTitle = 'Список оффлайн уроков / ' + item.teacherFio + ' / ' + this.facultyNameLoaded + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.offlineLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = false;
+            },
+            showTeacherEmpty(item) {
+                this.modalTitle = 'Список уроков с пустым описанием / ' + item.teacherFio + ' / ' + this.facultyNameLoaded + ' / ' + this.weeks[this.weekLoaded] + ' (' + this.weekLoaded + ')';
+                this.modalLessonList = item.emptyLessons;
+                this.showModalList = true;
+
+                this.modalDateVisible = true;
+                this.modalDowVisible = true;
+                this.modalTimeVisible = true;
+                this.modalDiscVisible = true;
+                this.modalGroupVisible = true;
+                this.modalTeacherFioVisible = false;
+            },
         },
         mounted() {
             this.faculties.unshift({
@@ -400,6 +599,8 @@
 
     .modal-body {
         margin: 20px 0;
+        max-height: calc(100vh - 210px);
+        overflow-y: auto;
     }
 
     .modal-enter .modal-container,
