@@ -704,9 +704,12 @@ class TrelloController extends Controller
                 $byTeacherFio[$lesson->teacherFio]['onlineLessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->groupName, $byTeacherFio[$lesson->teacherFio]['byGroup'])) {
-                    $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0,
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName]['online']++;
+                $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName]['lessons'][] = $lesson;
+                $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName]['onlineLessons'][] = $lesson;
             } else {
                 $offlineOrEmpty = 'offline';
                 if ($lesson->desc === '') { $offlineOrEmpty = 'empty'; }
@@ -736,9 +739,12 @@ class TrelloController extends Controller
                 $byTeacherFio[$lesson->teacherFio][$offlineOrEmpty . 'Lessons'][] = $lesson;
 
                 if (!array_key_exists($lesson->groupName, $byTeacherFio[$lesson->teacherFio]['byGroup'])) {
-                    $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0);
+                    $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName] = array('online' => 0, 'offline' => 0, 'empty' => 0,
+                        'onlineLessons' => array(), 'offlineLessons' => array(), 'emptyLessons' => array());
                 }
                 $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName][$offlineOrEmpty]++;
+                $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName]['lessons'][] = $lesson;
+                $byTeacherFio[$lesson->teacherFio]['byGroup'][$lesson->groupName][$offlineOrEmpty . 'Lessons'][] = $lesson;
             }
         }
 
