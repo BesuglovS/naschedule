@@ -64,7 +64,7 @@
                     </td>
                     <td>
                         <a href="#" v-if="item.offline !== 0  && key !== 'Итого'" @click.prevent="showGradeOffline(key, item)">{{item.offline}}</a>
-                        <span v-if="item.online !== 0 && key === 'Итого'">{{item.offline}}</span>
+                        <span v-if="item.offline !== 0 && key === 'Итого'">{{item.offline}}</span>
                         <span v-if="item.offline === 0">0</span>
                     </td>
                     <td :style="'background-image: linear-gradient(to right, rgba(150, 150, 0, 0.3) 0%, rgba(175, 175, 0, 0.3) 17%, rgba(190, 190, 0, 0.3) 33%, rgba(210, 210, 82, 0.3) 67%, rgba(230, 230, 131, 0.3) 83%, rgba(221, 221, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.offlinePercent.toFixed(2) + '% 100%;'">
@@ -72,7 +72,7 @@
                     </td>
                     <td v-if="!byGradeNoEmpty">
                         <a href="#" v-if="item.empty !== 0  && key !== 'Итого'"  @click.prevent="showGradeEmpty(key, item)">{{item.empty}}</a>
-                        <span v-if="item.online !== 0 && key === 'Итого'">{{item.empty}}</span>
+                        <span v-if="item.empty !== 0 && key === 'Итого'">{{item.empty}}</span>
                         <span v-if="item.empty === 0">0</span>
                     </td>
                     <td v-if="!byGradeNoEmpty" :style="'background-image: linear-gradient(to right, rgba(150, 0, 0, 0.3) 0%, rgba(175, 0, 0, 0.3) 17%, rgba(190, 0, 0, 0.3) 33%, rgba(210, 0, 82, 0.3) 67%, rgba(230, 0, 131, 0.3) 83%, rgba(221, 0, 180, 0.3) 100%); background-repeat: no-repeat; background-size: ' + item.emptyPercent.toFixed(2) + '% 100%;'">

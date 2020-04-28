@@ -28,24 +28,24 @@
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                    <tr>
-                    <tr>
-                        <td>День недели</td>
-                        <td>&nbsp;</td>
-                        <td>
-                            <button v-for="dow in 6" style="margin-right:0.5em; margin-bottom: 0.5em;"
-                                    @click="dowToggled(dow);"
-                                    :class="{'button': true,
-                                                'is-primary': !selectedDows.includes(dow),
-                                                'is-danger': selectedDows.includes(dow) }">
-                                {{dowRu[dow-1]}}
-                            </button>
-                        </td>
-                    </tr>
+<!--                    <tr>-->
+<!--                        <td>&nbsp;</td>-->
+<!--                        <td>&nbsp;</td>-->
+<!--                        <td>&nbsp;</td>-->
+<!--                    <tr>-->
+<!--                    <tr>-->
+<!--                        <td>День недели</td>-->
+<!--                        <td>&nbsp;</td>-->
+<!--                        <td>-->
+<!--                            <button v-for="dow in 6" style="margin-right:0.5em; margin-bottom: 0.5em;"-->
+<!--                                    @click="dowToggled(dow);"-->
+<!--                                    :class="{'button': true,-->
+<!--                                                'is-primary': !selectedDows.includes(dow),-->
+<!--                                                'is-danger': selectedDows.includes(dow) }">-->
+<!--                                {{dowRu[dow-1]}}-->
+<!--                            </button>-->
+<!--                        </td>-->
+<!--                    </tr>-->
                 </table>
             </div>
 
@@ -76,7 +76,7 @@
                     <td style="text-align: left !important;">{{item.discName}}</td>
                     <td>{{item.groupName}}</td>
                     <td>{{item.teacherFio}}</td>
-                    <td>{{item.description}} <a  target=”_blank” :href="item.url"> (Trello)</a></td>
+                    <td>{{item.description}} <a v-if="item.url !== ''" target=”_blank” :href="item.url"> (Trello)</a></td>
                 </tr>
             </table>
         </div>

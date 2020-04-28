@@ -37,7 +37,17 @@ class StudentGroup extends Model
             ->select('name')
             ->get()
             ->map(function($item) { return $item->name;});
-        return (count($name) > 0) ? $name[0] : "";
+        return (count($name) > 0) ? $name[0] : null;
+    }
+
+    public static function IdFromName($name)
+    {
+        $id = $studentIds = DB::table('student_groups')
+            ->where('name', '=', $name)
+            ->select('id')
+            ->get()
+            ->map(function($item) { return $item->id;});
+        return (count($id) > 0) ? $id[0] : null;
     }
 
     public static function StudentIdsFromGroupIds($groupIds)
