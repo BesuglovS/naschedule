@@ -1075,6 +1075,35 @@ class OldApiController extends Controller
 
             $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
 
+            if (count($weeks) === 1) {
+                $trelloCards = array_reduce(TrelloController::GroupTrelloWeekCards($groupId, $weeks[0]), function ($result, $item) {
+                    $result[$item->name] = $item->url;
+                    return $result;
+                }, array());
+
+                $rawLessons->map(function ($lesson) use ($trelloCards) {
+                    $fioSplit = explode(' ', $lesson->teacherFIO);
+                    $teacherFio = $fioSplit[0] . " " . mb_substr($fioSplit[1], 0, 1) . "." . mb_substr($fioSplit[2], 0, 1) . ".";
+
+                    $carbonDate = Carbon::createFromFormat('Y-m-d', $lesson->date);
+                    $dowRu = array(1 => "Пн", 2 => "Вт", 3 => "Ср", 4 => "Чт", 5 => "Пт", 6 => "Сб", 7 => "Вс");
+                    $dow = $carbonDate->dayOfWeekIso;
+                    $carbonDateDM = $carbonDate->format("d.m");
+
+
+                    $lessonTrelloName = $carbonDateDM . " " . $dowRu[$dow] . " " .
+                        mb_substr($lesson->startTime, 0, 5) . " - " . $lesson->discName .
+                        " (" . $lesson->groupName . ") - " . $teacherFio;
+                    if (array_key_exists($lessonTrelloName, $trelloCards)) {
+                        $lesson->trelloUrl = $trelloCards[$lessonTrelloName];
+                    } else {
+                        $lesson->trelloUrl = null;
+                    }
+                });
+            }
+
+
+
             foreach ($rawLessons as $lesson)
             {
                 $lessonWeek = Calendar::WeekFromDate($lesson->date, $semesterStarts);

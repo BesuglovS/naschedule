@@ -962,6 +962,10 @@ class TrelloController extends Controller
     }
 
     public static function GroupTrelloWeekCards($groupId, $week) {
+        if (!array_key_exists($week, TrelloController::$trelloListIds)) {
+            return array();
+        }
+
         $group = StudentGroup::find($groupId);
 
         $listId = TrelloController::$trelloListIds[$week][$group->name];
