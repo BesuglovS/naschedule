@@ -132,21 +132,13 @@ class StudentGroup extends Model
 
     public static function mainStudentGroups()
     {
-        $groups = StudentGroup::orderBy('name')->get();
-//        $result = array();
-//        for ($i = 1; $i < count($groups); $i++) {
-//            if ((strpos($groups[$i],'+Н') == false) &&
-//                (strpos($groups[$i],' + ') == false) &&
-//                (strpos($groups[$i],'-А-') == false) &&
-//                (strpos($groups[$i],'-Н-') == false) &&
-//                (strpos($groups[$i],'-Ф-') == false) &&
-//                (strpos($groups[$i],'I') == false))
-//            {
-//                $result[] = $groups[$i];
-//            }
-//        }
-
-        //dd($groups);
+        $groups = DB::table('student_groups')
+            ->join('faculty_student_group', 'faculty_student_group.student_group_id', '=', 'student_groups.id')
+            ->join('faculties', 'faculties.id', '=', 'faculty_student_group.faculty_id')
+            ->select('student_groups.*')
+            ->orderBy('faculties.sorting_order')
+            ->orderBy('student_groups.name')
+            ->get();
 
         return $groups;
     }

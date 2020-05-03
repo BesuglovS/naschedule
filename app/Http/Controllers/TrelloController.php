@@ -960,4 +960,30 @@ class TrelloController extends Controller
 
         return $result;
     }
+
+    public static function GroupTrelloWeekCards($groupId, $week) {
+        $group = StudentGroup::find($groupId);
+
+        $listId = TrelloController::$trelloListIds[$week][$group->name];
+
+        $stack = HandlerStack::create();
+        $middleware = new Oauth1([
+            'consumer_key'    => 'a8c89955d4d62ad9bd2f50c304d3dd9d',
+            'consumer_secret' => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf',
+            'token'           => 'f41efa8a36f62ce93bcd4b0aee9777ccc0e4dac326840cd6c2caf9df3f586153',
+            'token_secret'    => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf'
+        ]);
+        $stack->push($middleware);
+        $client = new Client([
+            'base_uri' => 'https://api.trello.com/1/',
+            'handler' => $stack,
+            'auth' => 'oauth'
+        ]);
+
+        $res = $client->get('lists/' . $listId .'/cards');
+        $data = json_decode($res->getBody());
+
+        return $data;
+
+    }
 }
