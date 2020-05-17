@@ -550,6 +550,7 @@ class MainController extends Controller
                         $new_lesson->calendar_id = $old_lesson->calendar_id;
                         $new_lesson->ring_id = $old_lesson->ring_id;
                         $new_lesson->auditorium_id = $audId;
+                        $new_lesson->description = '';
                         $new_lesson->save();
 
                         $lle = new LessonLogEvent();
@@ -636,6 +637,7 @@ class MainController extends Controller
             $new_lesson->calendar_id = $old_lesson->calendar_id;
             $new_lesson->ring_id = $old_lesson->ring_id;
             $new_lesson->auditorium_id = $emptyAudId;
+            $new_lesson->description = '';
             $new_lesson->save();
 
             $lle = new LessonLogEvent();

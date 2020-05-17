@@ -12,6 +12,7 @@ use App\DomainClasses\Teacher;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use DateTime;
+use Dompdf\Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
@@ -388,6 +389,11 @@ class TrelloController extends Controller
                 ->map(function($item) { return $item->student_group_id;})
                 ->unique();
 
+            $groupNames = DB::table('student_groups')
+                ->whereIn('id', $groupExtendedIds)
+                ->get()
+                ->pluck('name');
+
             $weekGroupLessons = DB::table('lessons')
                 ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
                 ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
@@ -576,6 +582,19 @@ class TrelloController extends Controller
                             $item["url"] = $cardData->url;
                             $result[] = $item;
                         }
+                    }
+
+                    $rightIndex = mb_strrpos($cardData->name, ')');
+                    $leftIndex = mb_strrpos($cardData->name, '(');
+                    $groupName = mb_substr($cardData->name, $leftIndex + 1, $rightIndex - $leftIndex - 1);
+
+                    if (!$groupNames->contains($groupName)) {
+                        $item = array();
+                        $item["name"] = $cardData->name;
+                        $item["description"] = "Группа в карточке (" . $groupName . ") не соответствует группе списка "
+                            . " (" . implode(", ", $groupNames->toArray()) . ").";
+                        $item["url"] = $cardData->url;
+                        $result[] = $item;
                     }
                 }
             }
@@ -871,6 +890,7 @@ class TrelloController extends Controller
             $leftIndex = mb_strrpos($nameSplit[1], '(');
             $lesson->discName = mb_substr($nameSplit[1], 0, $leftIndex - 1);
             $lesson->teacherFio = $nameSplit[2];
+
             //dd($lesson);
 
             if ((strpos(mb_strtolower($lesson->desc), 'онлайн') !== false) ||
@@ -989,5 +1009,49 @@ class TrelloController extends Controller
 
         return $data;
 
+    }
+
+    public static function GroupTrelloDateCards($groupId, $date) {
+        $calendar = DB::table('calendars')
+            ->where('date', '=', $date)
+            ->first();
+        if ($calendar == null) return array();
+
+        $ss = ConfigOption::SemesterStarts();
+
+        $css = Carbon::createFromFormat('Y-m-d', $ss);
+
+        $week = Calendar::WeekFromDate($calendar->date, $css);
+
+        if (!array_key_exists($week, TrelloController::$trelloListIds)) {
+            return array();
+        }
+
+        $group = StudentGroup::find($groupId);
+
+        $listId = TrelloController::$trelloListIds[$week][$group->name];
+
+        $stack = HandlerStack::create();
+        $middleware = new Oauth1([
+            'consumer_key'    => 'a8c89955d4d62ad9bd2f50c304d3dd9d',
+            'consumer_secret' => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf',
+            'token'           => 'f41efa8a36f62ce93bcd4b0aee9777ccc0e4dac326840cd6c2caf9df3f586153',
+            'token_secret'    => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf'
+        ]);
+        $stack->push($middleware);
+        $client = new Client([
+            'base_uri' => 'https://api.trello.com/1/',
+            'handler' => $stack,
+            'auth' => 'oauth'
+        ]);
+
+        $res = $client->get('lists/' . $listId .'/cards');
+        $data = json_decode($res->getBody());
+
+        $data = array_filter($data, function($card) use ($date) {
+            return mb_substr($card->due, 0 , 10) === $date;
+        });
+
+        return $data;
     }
 }

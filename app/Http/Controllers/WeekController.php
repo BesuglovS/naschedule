@@ -83,6 +83,7 @@ class WeekController extends Controller
                 $newLesson->discipline_teacher_id = $lesson->discipline_teacher_id;
                 $newLesson->ring_id = $lesson->ring_id;
                 $newLesson->auditorium_id = $lesson->auditorium_id;
+                $newLesson->description = '';
 
                 $newCalendarId = Calendar::IdFromDowAndWeek($lessonDow, $toWeek);
 

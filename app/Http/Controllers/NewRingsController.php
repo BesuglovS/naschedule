@@ -111,6 +111,7 @@ class NewRingsController extends Controller
                 $new_lesson->calendar_id = $old_lesson->calendar_id;
                 $new_lesson->ring_id = $ringIdPairs[$old_lesson->ring_id];
                 $new_lesson->auditorium_id = $old_lesson->auditorium_id;
+                $new_lesson->description = $old_lesson->description;
                 $new_lesson->save();
 
                 $lle = new LessonLogEvent();

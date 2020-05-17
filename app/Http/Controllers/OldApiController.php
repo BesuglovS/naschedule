@@ -154,7 +154,14 @@ class OldApiController extends Controller
 //            $lessonsList = collect(array());
 //        }
 
-        $lessonsList->map(function ($lesson) use ($date) {
+        $trelloCards = TrelloController::GroupTrelloDateCards($groupId, $date);
+        $trelloCards = array_reduce($trelloCards, function ($result, $item) {
+            $result[$item->name] = $item->url;
+            return $result;
+        }, array());
+        //dd($trelloCards);
+
+        $lessonsList->map(function ($lesson) use ($trelloCards, $date) {
             $dt = $date . " " . $lesson->time;
             $now = Carbon::now();
             $lessonStart = Carbon::createFromFormat('Y-m-d H:i', $dt);
@@ -179,6 +186,24 @@ class OldApiController extends Controller
             unset($lesson->group_name);
 
             unset($lesson->id);
+
+            $fioSplit = explode(' ', $lesson->FIO);
+            $teacherFio = $fioSplit[0] . " " . mb_substr($fioSplit[1], 0, 1) . "." . mb_substr($fioSplit[2], 0, 1) . ".";
+
+            $carbonDate = Carbon::createFromFormat('Y-m-d', $date);
+            $dowRu = array(1 => "Пн", 2 => "Вт", 3 => "Ср", 4 => "Чт", 5 => "Пт", 6 => "Сб", 7 => "Вс");
+            $dow = $carbonDate->dayOfWeekIso;
+            $carbonDateDM = $carbonDate->format("d.m");
+
+
+            $lessonTrelloName = $carbonDateDM . " " . $dowRu[$dow] . " " .
+                mb_substr($lesson->Time, 0, 5) . " - " . $lesson->discName .
+                " (" . $lesson->groupName . ") - " . $teacherFio;
+            if (array_key_exists($lessonTrelloName, $trelloCards)) {
+                $lesson->trelloUrl = $trelloCards[$lessonTrelloName];
+            } else {
+                $lesson->trelloUrl = null;
+            }
         });
 
         $resultItem = array();

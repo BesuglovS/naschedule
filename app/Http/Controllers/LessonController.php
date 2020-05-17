@@ -165,6 +165,7 @@ class LessonController extends Controller
             $lesson->calendar_id = $addCalendarIdsByWeek[$addWeek];
             $lesson->ring_id = $ringId;
             $lesson->auditorium_id = $add[$addWeek];
+            $lesson->description = '';
             $lesson->save();
 
             $lle = new LessonLogEvent();
@@ -224,6 +225,7 @@ class LessonController extends Controller
                 $new_lesson->calendar_id = $lessonCalendarId;
                 $new_lesson->ring_id = $ringId;
                 $new_lesson->auditorium_id = $changeAuditoriumAuditoriumId;
+                $new_lesson->description = $lesson->description;
                 $new_lesson->save();
 
                 $lle = new LessonLogEvent();
@@ -284,6 +286,7 @@ class LessonController extends Controller
                     $lesson->calendar_id = $calendarByWeekAndDowIds[$week][$dow];
                     $lesson->ring_id = $ringId;
                     $lesson->auditorium_id = $weeksAuds[$week];
+                    $lesson->description = '';
                     $lesson->save();
 
                     $lle = new LessonLogEvent();
@@ -321,6 +324,7 @@ class LessonController extends Controller
             $new_lesson->calendar_id = $old_lesson->calendar_id;
             $new_lesson->ring_id = $old_lesson->ring_id;
             $new_lesson->auditorium_id = $auditoriumId;
+            $new_lesson->description = $old_lesson->description;
             $new_lesson->save();
 
             $lle = new LessonLogEvent();
@@ -357,6 +361,7 @@ class LessonController extends Controller
                 $new_lesson->calendar_id = $old_lesson->calendar_id;
                 $new_lesson->ring_id = $old_lesson->ring_id;
                 $new_lesson->auditorium_id = $auditoriumId;
+                $new_lesson->description = $old_lesson->description;
                 $new_lesson->save();
 
                 $lle = new LessonLogEvent();
@@ -418,6 +423,7 @@ class LessonController extends Controller
         $new_lesson2->calendar_id = $lesson1->calendar_id;
         $new_lesson2->ring_id = $lesson1->ring_id;
         $new_lesson2->auditorium_id = $lesson1->auditorium_id;
+        $new_lesson2->description = '';
         $new_lesson2->save();
         $lle4 = new LessonLogEvent();
         $lle4->old_lesson_id = 0;
@@ -504,6 +510,7 @@ class LessonController extends Controller
         $new_lesson1->calendar_id = $lesson1->calendar_id;
         $new_lesson1->ring_id = $lesson1->ring_id;
         $new_lesson1->auditorium_id = $lesson1->auditorium_id;
+        $new_lesson1->description = '';
         $new_lesson1->save();
         $lle2 = new LessonLogEvent();
         $lle2->old_lesson_id = 0;
@@ -550,6 +557,7 @@ class LessonController extends Controller
         $new_lesson1->calendar_id = $lesson2->calendar_id;
         $new_lesson1->ring_id = $lesson2->ring_id;
         $new_lesson1->auditorium_id = $lesson2->auditorium_id;
+        $new_lesson1->description = '';
         $new_lesson1->save();
         $lle3 = new LessonLogEvent();
         $lle3->old_lesson_id = 0;
@@ -565,6 +573,7 @@ class LessonController extends Controller
         $new_lesson2->calendar_id = $lesson1->calendar_id;
         $new_lesson2->ring_id = $lesson1->ring_id;
         $new_lesson2->auditorium_id = $lesson1->auditorium_id;
+        $new_lesson2->description = '';
         $new_lesson2->save();
         $lle4 = new LessonLogEvent();
         $lle4->old_lesson_id = 0;
