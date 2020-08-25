@@ -9,6 +9,7 @@ use App\DomainClasses\ConfigOption;
 use App\DomainClasses\Faculty;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
+use App\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use DateTime;
@@ -18,6 +19,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class TrelloController extends Controller
 {
@@ -294,33 +296,12 @@ class TrelloController extends Controller
 
     public function brb()
     {
-        $stack = HandlerStack::create();
-        $middleware = new Oauth1([
-            'consumer_key'    => 'a8c89955d4d62ad9bd2f50c304d3dd9d',
-            'consumer_secret' => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf',
-            'token'           => 'f41efa8a36f62ce93bcd4b0aee9777ccc0e4dac326840cd6c2caf9df3f586153',
-            'token_secret'    => 'bd7e2095b3013b1a70f435f5ff936c6ded7503d9bfec351b89f480eddc6702cf'
-        ]);
-        $stack->push($middleware);
-        $client = new Client([
-            'base_uri' => 'https://api.trello.com/1/',
-            'handler' => $stack,
-            'auth' => 'oauth'
-        ]);
-
-        $lessonList = array();
-        $result = array();
-
-        $trelloBoardIds = array_values(TrelloController::$boardIds);
-        //$trelloBoardIds = array($trelloBoardIds[9]);
-        foreach ($trelloBoardIds as $boardId) {
-            $res = $client->get('boards/' . $boardId .'/cards');
-            $data = json_decode($res->getBody());
-
-            $lessonList = array_merge($lessonList, $data);
-        }
-
-        return collect($lessonList)->pluck('desc');
+//        $user = new User();
+//        $user->password = Hash::make('thebest');
+//        $user->email = 'Lyudmilaalex.ki@gmail.com';
+//        $user->name = 'Кузнецова Людмила';
+//        $user->save();
+//        return "OK";
     }
 
     public function checkIndex() {

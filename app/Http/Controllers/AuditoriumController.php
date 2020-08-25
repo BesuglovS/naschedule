@@ -49,6 +49,7 @@ class AuditoriumController extends Controller
         $newAuditorium = new Auditorium();
         $newAuditorium->name = $request->name;
         $newAuditorium->building_id = $request->building_id;
+        $newAuditorium->capacity = $request->capacity;
         $newAuditorium->save();
 
         return redirect('/auditoriums');
@@ -101,6 +102,7 @@ class AuditoriumController extends Controller
     {
         $auditorium->name = $request->name;
         $auditorium->building_id = $request->building_id;
+        $auditorium->capacity = $request->capacity;
         $auditorium->save();
 
         return redirect('auditoriums');

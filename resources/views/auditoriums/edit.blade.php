@@ -14,6 +14,8 @@
 
             <input style="margin-top: 5px; width: 300px" name="name" type="text" value="{{$auditorium->name}}">
 
+            <input style="margin-top: 5px; width: 300px" name="capacity" type="text" value="{{$auditorium->capacity}}">
+
             <select name="building_id" id="b">
                 @foreach($buildings as $building)
                     <option value="{{$building->id}}" @if($building->id == $auditorium->building_id) selected @endif >{{$building->name}}</option>

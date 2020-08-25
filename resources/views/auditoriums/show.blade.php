@@ -14,6 +14,8 @@
 
                 <td>{{$auditorium->buildingName}}</td>
 
+                <td>{{$auditorium->capacity}}</td>
+
                 <td><a href="/auditoriums/{{$auditorium->id}}/edit" class="button is-primary">Редактировать</a></td>
 
                 <td>

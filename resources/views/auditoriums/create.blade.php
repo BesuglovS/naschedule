@@ -14,6 +14,8 @@
 
             <input style="margin-top: 5px; width: 300px" name="name" placeholder="Название аудитории" type="text" >
 
+            <input style="margin-top: 5px; width: 300px" name="capacity" placeholder="Кол-во мест" type="number" >
+
             <select name="building_id" id="b">
                 @foreach($buildings as $building)
                     <option value="{{$building->id}}">{{$building->name}}</option>
