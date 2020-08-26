@@ -12,6 +12,8 @@
             <tr>
                 <td>{{$studentGroup->name}}</td>
 
+                <td>{{$studentGroup->group_size}}</td>
+
                 <td><a href="/studentGroups/{{$studentGroup->id}}/edit" class="button is-primary">Редактировать</a></td>
 
                 <td>

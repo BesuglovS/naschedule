@@ -14,6 +14,8 @@
 
             <input style="margin-top: 5px; width: 300px" name="name" type="text" value="{{$studentGroup->name}}">
 
+            <input style="margin-top: 5px; width: 300px" name="group_size" type="text" value="{{$studentGroup->group_size}}">
+
             <button type="submit" class="button is-primary">OK</button>
         </form>
     </div>

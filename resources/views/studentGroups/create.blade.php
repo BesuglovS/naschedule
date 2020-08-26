@@ -14,6 +14,8 @@
 
             <input style="margin-top: 5px; width: 300px" name="name" placeholder="Имя класса" type="text" >
 
+            <input style="margin-top: 5px; width: 300px" name="group_size" placeholder="Размер группы" type="text" >
+
             <button type="submit" class="button is-primary">Создать</button>
         </form>
 

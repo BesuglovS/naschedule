@@ -40,6 +40,7 @@ class StudentGroupController extends Controller
     {
         $newStudentGroup = new StudentGroup();
         $newStudentGroup->name = $request->name;
+        $newStudentGroup->group_size = $request->group_size;
         $newStudentGroup->save();
 
         return redirect('/studentGroups');
@@ -103,6 +104,7 @@ class StudentGroupController extends Controller
     public function update(Request $request, StudentGroup $studentGroup)
     {
         $studentGroup->name = $request->name;
+        $studentGroup->group_size = $request->group_size;
 
         $studentGroup->save();
 
