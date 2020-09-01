@@ -65,11 +65,11 @@
                                                         <td style="vertical-align: middle;">
                                                             {{reformatDate(teacherDayCollision[0].calendarDate)}}
                                                             ({{dow(teacherDayCollision[0].calendarDate)}})
-                                                            <br />
-                                                            {{teacherDayCollision[0].ringsTime.substr(0,5)}}
+
                                                         </td>
                                                         <template v-for="teacherDayCollisionLesson in teacherDayCollision">
                                                         <td>
+                                                            {{teacherDayCollisionLesson.ringsTime.substr(0,5)}} -
                                                             {{teacherDayCollisionLesson.studentGroupName}} <br />
                                                             {{teacherDayCollisionLesson.disciplineName}} <br />
                                                             {{teacherDayCollisionLesson.auditoriumName}}

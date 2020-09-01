@@ -293,6 +293,14 @@ class MainController extends Controller
         $calendars = Calendar::all()->pluck('id');
         $weeks = array();
 
+        $ringsMinutes = array();
+        foreach (Ring::all()->toArray() as $r) {
+            $h = substr($r['time'], 0, 2);
+            $m = substr($r['time'], 3, 2);
+            $mins = $h*60 + $m;
+            $ringsMinutes[$r['id']] = $mins;
+        }
+
         if (isset($input['weeks'])) {
             $weeks = explode('|', $input['weeks']);
             sort($weeks);
@@ -350,7 +358,9 @@ class MainController extends Controller
 
                 $collisionLessons = array();
                 foreach ($lessons[$teacherLesson->calendar_id] as $dayLesson) {
-                    if ($teacherLesson->ring_id === $dayLesson->ring_id) {
+                    $tlMins = $ringsMinutes[$teacherLesson->ring_id];
+                    $dlMins = $ringsMinutes[$dayLesson->ring_id];
+                    if (abs($tlMins - $dlMins) < 40) {
                         $collisionLessons[] = $dayLesson;
                     }
                 }

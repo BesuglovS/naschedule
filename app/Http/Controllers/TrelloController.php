@@ -19,6 +19,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 
 class TrelloController extends Controller
@@ -301,6 +302,21 @@ class TrelloController extends Controller
 //        $user->email = 'Lyudmilaalex.ki@gmail.com';
 //        $user->name = 'Кузнецова Людмила';
 //        $user->save();
+//        return "OK";
+
+//        $file = fopen(storage_path("data.txt"), "r");
+//        while(!feof($file)) {
+//            $line = fgets($file);
+//            $explode = explode('@', $line);
+//            if (count($explode)== 2) {
+//                $newTeacher = new Teacher();
+//                $newTeacher->fio = $explode[0];
+//                $newTeacher->phone = $explode[1];
+//                $newTeacher->save();
+//            }
+//        }
+//        fclose($file);
+//
 //        return "OK";
     }
 
