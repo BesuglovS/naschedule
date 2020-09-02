@@ -477,7 +477,7 @@
             }
         },
         methods: {
-            loadGroupSchedule() {
+            loadGroupSchedule(tfdSelected) {
                 this.exams = [];
                 this.loading = true;
                 this.firstLoad = false;
@@ -542,6 +542,15 @@
 
                         if (this.groupDisciplinesWithTeacher.length > 0) {
                             this.disciplineClicked(this.groupDisciplinesWithTeacher[0]);
+                        }
+
+                        if (tfdSelected !== undefined) {
+
+                            let saved = this.groupDisciplinesWithTeacher.filter(d => d.tfdId === tfdSelected);
+
+                            if (saved.length !== 0) {
+                                this.disciplineClicked(saved[0]);
+                            }
                         }
                     });
             },
@@ -728,7 +737,7 @@
                             '&weeksAuds=' + weeksAuds
                         )
                         .then(response => {
-                            this.loadGroupSchedule();
+                            this.loadGroupSchedule(tfdId);
                         });
 
                     return;
