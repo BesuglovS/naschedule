@@ -661,6 +661,11 @@
                   });
             },
             askForNew() {
+                let audByName = Object.assign({}, ...this.auditoriums.map((a) => ({[a.name]: a})));
+
+                console.log('audByName');
+                console.log(audByName);
+
                 if (this.fastInputMode) {
                     let tfdId = this.groupDisciplineSelected.tfdId;
                     let dows = this.newDows.join('|');
@@ -673,23 +678,12 @@
                         blankAudId1 = aud1[0].id;
                     }
 
-                    let blankAudId2 = this.auditoriums[0].id;
-                    let aud2 = this.auditoriums.filter(a => a.name === '--');
-                    if (aud2.length !== 0) {
-                        blankAudId2 = aud2[0].id;
-                    }
 
-                    let blankAudId3 = this.auditoriums[0].id;
-                    let aud3 = this.auditoriums.filter(a => a.name === '---');
-                    if (aud3.length !== 0) {
-                        blankAudId3 = aud3[0].id;
-                    }
-
-                    let groupNameStart = Object.values(this.studentGroups).filter(g => g.id === this.studentGroupId)[0].name.split(' ')[0];
+                    let groupName = Object.values(this.studentGroups).filter(g => g.id === this.studentGroupId)[0].name;
+                    let groupNameStart = groupName.split(' ')[0];
                     const start = ['1', '2', '3', '4'];
                     const five = ['5'];
                     const six = ['6'];
-                    const finish = ['7', '8', '9', '10', '11'];
 
                     let blankAudId = this.auditoriums[0].id;
 
@@ -697,35 +691,165 @@
                         blankAudId = blankAudId1;
                     }
 
-                    if (finish.includes(groupNameStart)) {
-                        blankAudId = blankAudId2;
+                    let audId = -1;
+
+                    switch (groupName) {
+                        case "7 А":
+                            audId = audByName['Ауд. 305'].id;
+                            break;
+                        case "7 Б":
+                            audId = audByName['Ауд. 306'].id;
+                            break;
+                        case "7 В":
+                            audId = audByName['Ауд. 307'].id;
+                            break;
+                        case "7 Г":
+                            audId = audByName['Ауд. 308'].id;
+                            break;
+                        case "8 А":
+                            audId = audByName['Ауд. 219'].id;
+                            break;
+                        case "8 Б":
+                            audId = audByName['Ауд. 107'].id;
+                            break;
+                        case "8 В":
+                            audId = audByName['Ауд. 205'].id;
+                            break;
+                        case "8 Г":
+                            audId = audByName['Ауд. 222'].id;
+                            break;
+                        case "9 А":
+                            audId = audByName['Ауд. 204'].id;
+                            break;
+                        case "9 Б":
+                            audId = audByName['Ауд. 114'].id;
+                            break;
+                        case "9 В":
+                            audId = audByName['Ауд. 214'].id;
+                            break;
+                        case "9 Г":
+                            audId = audByName['Ауд. 115'].id;
+                            break;
+                        case "10 А":
+                            audId = audByName['Ауд. 206'].id;
+                            break;
+                        case "10 Б":
+                            audId = audByName['Ауд. 109'].id;
+                            break;
+                        case "10 В":
+                            audId = audByName['Ауд. 208'].id;
+                            break;
+                        case "10 Г":
+                            audId = audByName['Ауд. 203'].id;
+                            break;
+                        case "11 А":
+                            audId = audByName['Ауд. 211'].id;
+                            break;
+                        case "11 Б":
+                            audId = audByName['Ауд. 209'].id;
+                            break;
+                        case "11 В":
+                            audId = audByName['Ауд. 117'].id;
+                            break;
+                        case "11 Г":
+                            audId = audByName['Ауд. 207'].id;
+                            break;
                     }
 
+
                     if ((five.includes(groupNameStart)) && ([1,3,5].includes(Math.min(...this.newDows)))) {
-                        blankAudId = blankAudId2;
+                        switch (groupName) {
+                            case "5 А":
+                                audId = audByName['Корп № 3 Ауд. 1'].id;
+                                break;
+                            case "5 Б":
+                                audId = audByName['Корп № 3 Ауд. 4'].id;
+                                break;
+                            case "5 В":
+                                audId = audByName['Корп № 3 Ауд. 3'].id;
+                                break;
+                            case "5 Г":
+                                audId = audByName['Корп № 3 Ауд. 2'].id;
+                                break;
+                            case "5 Д":
+                                audId = audByName['Корп № 3 Ауд. 5'].id;
+                                break;
+                        }
                     }
                     if ((five.includes(groupNameStart)) && ([2,4,6].includes(Math.min(...this.newDows)))) {
-                        blankAudId = blankAudId3;
+                        switch (groupName) {
+                            case "5 А":
+                                audId = audByName['Ауд. 220'].id;
+                                break;
+                            case "5 Б":
+                                audId = audByName['Ауд. 303'].id;
+                                break;
+                            case "5 В":
+                                audId = audByName['Ауд. 304'].id;
+                                break;
+                            case "5 Г":
+                                audId = audByName['Ауд. 110'].id;
+                                break;
+                            case "5 Д":
+                                audId = audByName['Ауд. 311'].id;
+                                break;
+                        }
                     }
 
                     if ((six.includes(groupNameStart)) && ([1,3,5].includes(Math.min(...this.newDows)))) {
-                        blankAudId = blankAudId3;
+                        switch (groupName) {
+                            case "6 А":
+                                audId = audByName['Ауд. 220'].id;
+                                break;
+                            case "6 Б":
+                                audId = audByName['Ауд. 304'].id;
+                                break;
+                            case "6 В":
+                                audId = audByName['Ауд. 303'].id;
+                                break;
+                            case "6 Г":
+                                audId = audByName['Ауд. 110'].id;
+                                break;
+                            case "6 Д":
+                                audId = audByName['Ауд. 311'].id;
+                                break;
+                        }
                     }
                     if ((six.includes(groupNameStart)) && ([2,4,6].includes(Math.min(...this.newDows)))) {
-                        blankAudId = blankAudId2;
+                        switch (groupName) {
+                            case "6 А":
+                                audId = audByName['Корп № 3 Ауд. 1'].id;
+                                break;
+                            case "6 Б":
+                                audId = audByName['Корп № 3 Ауд. 3'].id;
+                                break;
+                            case "6 В":
+                                audId = audByName['Корп № 3 Ауд. 5'].id;
+                                break;
+                            case "6 Г":
+                                audId = audByName['Корп № 3 Ауд. 4'].id;
+                                break;
+                            case "6 Д":
+                                audId = audByName['Корп № 3 Ауд. 6'].id;
+                                break;
+                        }
                     }
 
-                    let blankAudIdIl = blankAudId3;
+                    if (audId === -1 || audId === undefined) {
+                        audId = blankAudId1;
+                    }
+
+                    let blankAudIdIl = blankAudId1;
                     let audIl = this.auditoriums.filter(a => a.name === 'Корп № 3 Спортивный зал');
                     if (audIl.length !== 0) {
                         blankAudIdIl = audIl[0].id;
                     }
 
                     if (this.groupDisciplineSelected.teacherFio === "Ильичев Евгений Борисович") {
-                        blankAudId = blankAudIdIl;
+                        audId = blankAudIdIl;
                     }
 
-                    let weeksAuds = this.selectedWeeks[0] + '@' + blankAudId;
+                    let weeksAuds = this.selectedWeeks[0] + '@' + audId;
 
                     this.loading = true;
                     axios
