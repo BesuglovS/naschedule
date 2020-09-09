@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-12" style="display:flex;">
+            <div style="display:flex;">
                 <div class="card">
                     <div class="card-header">
                         <span style="margin-right: 1em;">
@@ -96,12 +96,11 @@
                                     </td>
                                 </tr>
 
-                                <tr v-for="ring in this.scheduleRings">
-                                    <td>
+                                <tr v-if="selectedRings.includes(ring)" v-for="ring in this.scheduleRings">
+                                    <td style="vertical-align: middle;">
                                         <strong>
-                                            {{ring}} <br />
-                                            <span style="font-size:4em;">
-                                                {{ringFromTime(ring).RingId}}
+                                            <span style="font-size:2em;">
+                                                {{ring}}
                                             </span>
                                         </strong>
                                     </td>
@@ -257,6 +256,44 @@
                                 <span style="font-size:0.6em;">
                                     {{discipline.teacherFio}}
                                 </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="showEditTools" class="card" style="margin-left: 1em; min-width: 140px;">
+                    <div class="card-header">
+                        <div>
+                            Звонки
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="text-align: center;">
+                        <button @click="selectAllRings()"
+                                style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 0.8em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                class="button isPrimary">Все
+                        </button>
+
+                        <button @click="clearAllRings()"
+                                style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 0.8em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                class="button isPrimary">Очистить
+                        </button>
+
+                        <hr>
+
+                        <div v-for="ring in scheduleRings">
+                            <button @click="ringClicked(ring)"
+                                    style="white-space:normal !important; margin-right:0.5em; margin-bottom: 0.5em;
+                                    font-size: 2em; justify-content: center; text-align: center;
+                                    border-radius: 5px;"
+                                    :class="{
+                                        'isPrimary': !selectedRings.includes(ring),
+                                        'isDanger': selectedRings.includes(ring) }">
+                                {{ring}}
                             </button>
                         </div>
                     </div>
@@ -474,6 +511,7 @@
                 showEditTools: true,
                 fastInputMode: false,
                 disciplineColorCoding: false,
+                selectedRings: [],
             }
         },
         methods: {
@@ -660,11 +698,22 @@
                       this.disciplineTeacherSchedule = response.data;
                   });
             },
+            ringClicked(ring) {
+                if (this.selectedRings.includes(ring)) {
+                    let index = this.selectedRings.indexOf(ring);
+                    this.selectedRings.splice(index, 1);
+                } else {
+                    this.selectedRings.push(ring);
+                }
+            },
+            selectAllRings() {
+                this.selectedRings = this.scheduleRings.slice();
+            },
+            clearAllRings() {
+                this.selectedRings = [];
+            },
             askForNew() {
                 let audByName = Object.assign({}, ...this.auditoriums.map((a) => ({[a.name]: a})));
-
-                console.log('audByName');
-                console.log(audByName);
 
                 if (this.fastInputMode) {
                     let tfdId = this.groupDisciplineSelected.tfdId;
