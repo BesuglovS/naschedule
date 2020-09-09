@@ -261,7 +261,7 @@
                     </div>
                 </div>
 
-                <div v-if="showEditTools" class="card" style="margin-left: 1em; min-width: 140px;">
+                <div class="card" style="margin-left: 1em; min-width: 140px;">
                     <div class="card-header">
                         <div>
                             Звонки
