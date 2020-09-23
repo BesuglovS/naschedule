@@ -44,6 +44,21 @@
                                     <input type="checkbox" v-model="severalWeeks" @change="severalWeeksSwitchFlipped();" class="custom-control-input" id="customSwitch1">
                                     <label class="custom-control-label" for="customSwitch1">Несколько недель</label>
                                 </div>
+
+
+                                <table style="margin: 0 auto;">
+                                    <tr>
+                                        <td>
+                                            <button v-for="dow in 6" style="margin-right:0.5em; margin-bottom: 0.5em;"
+                                                    @click="dowToggled(dow);"
+                                                    :class="{'button': true,
+                                                    'is-primary': !selectedDows.includes(dow),
+                                                    'is-danger': selectedDows.includes(dow) }">
+                                                {{dowRu[dow-1]}}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
 
                             <div v-if="loading === true" style="font-size: 2em; text-align: center">
@@ -110,9 +125,18 @@
                 collisions: {},
                 dowRu: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
                 totalCount: 0,
+                selectedDows: [1,2,3,4,5,6],
             }
         },
         methods: {
+            dowToggled(dow) {
+                let index = this.selectedDows.indexOf(dow);
+                if (index > -1) {
+                    this.selectedDows.splice(index, 1);
+                } else {
+                    this.selectedDows.push(dow);
+                }
+            },
             cl(text) {
                 console.log(text);
             },
@@ -128,11 +152,11 @@
                 this.collisions = {};
                 this.loading = true;
 
-                let apiUrl = '/tcs?weeks=' + this.selectedWeeks.join('|');
+                let apiUrl = '/tcs?weeks=' + this.selectedWeeks.join('|') + '&dows=' + this.selectedDows.join('|');
 
                 if (this.selectedWeeks.length === 1 && this.selectedWeeks[0] === -1)
                 {
-                    let weeksString = this.range(1, this.weekCount).join('|');
+                    let weeksString = this.range(1, this.weekCount).join('|') + '&dows=' + this.selectedDows.join('|');
 
                     apiUrl = '/tcs?weeks='  + weeksString;
                 }

@@ -291,6 +291,9 @@ class MainController extends Controller
         $input = $request->all();
 
         $calendars = Calendar::all()->pluck('id');
+        $dows = explode('|', $input["dows"]);
+
+
         $weeks = array();
 
         $ringsMinutes = array();
@@ -305,7 +308,8 @@ class MainController extends Controller
             $weeks = explode('|', $input['weeks']);
             sort($weeks);
 
-            $calendarIds = Calendar::IdsFromWeeks($weeks);
+            //$calendarIds = Calendar::IdsFromWeeks($weeks);
+            $calendarIds = Calendar::IdsFromDowsAndWeeks($dows, $weeks);
         }
 
         $teachers = Teacher::all()->sortBy('fio');
