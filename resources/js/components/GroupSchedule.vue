@@ -578,18 +578,26 @@
                     .then(response => {
                         this.groupDisciplines = response.data.filter(d => d.active === 1);
 
-                        if (this.groupDisciplinesWithTeacher.length > 0) {
-                            this.disciplineClicked(this.groupDisciplinesWithTeacher[0]);
-                        }
-
                         if (tfdSelected !== undefined) {
-
                             let saved = this.groupDisciplinesWithTeacher.filter(d => d.tfdId === tfdSelected);
+
+                            console.log("saved");
+                            console.log(saved);
 
                             if (saved.length !== 0) {
                                 this.disciplineClicked(saved[0]);
+                            } else {
+                                if (this.groupDisciplinesWithTeacher.length > 0) {
+                                    this.disciplineClicked(this.groupDisciplinesWithTeacher[0]);
+                                }
+                            }
+                        } else {
+                            if (this.groupDisciplinesWithTeacher.length > 0) {
+                                this.disciplineClicked(this.groupDisciplinesWithTeacher[0]);
                             }
                         }
+
+
                     });
             },
             reloadDisciplines() {
