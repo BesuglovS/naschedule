@@ -20,6 +20,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class MainController extends Controller
 {
@@ -864,5 +865,9 @@ class MainController extends Controller
 
     public function removeDuplicateLessons() {
         return view('main.removeDuplicateLessons');
+    }
+
+    public function isec() {
+        return Redirect::to("http://isec.nayanovaacademy.ru/");
     }
 }
