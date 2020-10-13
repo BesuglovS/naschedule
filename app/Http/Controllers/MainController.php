@@ -870,4 +870,8 @@ class MainController extends Controller
     public function isec() {
         return Redirect::to("http://isec.nayanovaacademy.ru/");
     }
+
+    public function chess() {
+        return Redirect::to("http://chess.nayanovaacademy.ru/");
+    }
 }

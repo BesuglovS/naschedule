@@ -203,3 +203,4 @@ Route::get('/trelloOnline', 'TrelloController@trelloOnline');
 Route::get('/trelloOnlineAction', 'TrelloController@trelloOnlineAction');
 
 Route::get('/isec', 'MainController@isec');
+Route::get('/chess', 'MainController@chess');
