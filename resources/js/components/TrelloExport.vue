@@ -107,6 +107,8 @@
                 }
             },
             upload() {
+                this.loading = true;
+
                 axios
                     .post('/trelloExport?facultyId=' + this.facultyId + '&week=' + this.week + '&dows=' + this.selectedDows.join('|'))
                     .then(response => {
