@@ -2,6 +2,14 @@
 <project version="4">
   <component name="PublishConfigData" serverName="wne - SFTP">
     <serverData>
+      <paths name="rna">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/rna" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/docs" local="$PROJECT_DIR$/public" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="wne - SFTP">
         <serverdata>
           <mappings>

@@ -146,6 +146,9 @@ Route::group(['middleware' => ['auth']], function () {
     // Trello
     Route::get('/trelloExport', 'TrelloController@index');
     Route::post('/trelloExport', 'TrelloController@upload');
+
+    Route::get('/teacherEdit', 'LessonDescriptionController@teacherEditIndex');
+    Route::get('/uld', 'LessonDescriptionController@updateLessonDescription');
 });
 
 //disciplineHours
@@ -179,6 +182,7 @@ Route::get('/lleByTeacher', 'LessonLogEventController@ByTeacher');
 
 //BIG RED BUTTON
 Route::get('/brb', 'TrelloController@brb');
+Route::get('/pass', 'BigRedButtonController@TMP');
 
 Route::get('/AudsTable1-4', 'BigRedButtonController@AudsTable1_4');
 Route::get('/AudsTable5-11', 'BigRedButtonController@AudsTable5_11');

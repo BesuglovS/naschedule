@@ -3,7 +3,14 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="4c8453d0-7f5e-4d9e-a3e5-f22cc09802c3" name="wne - SFTP" url="http://wiki.nayanova.edu">
-        <fileTransfer rootFolder="/home/u461885/wiki.nayanova.edu/" accessType="SFTP" host="u461885.ssh.masterhost.ru" port="22" sshConfig="u461885@u461885.ssh.masterhost.ru:22 (p)">
+        <fileTransfer rootFolder="/home/u461885/wiki.nayanova.edu/" accessType="SFTP" host="u461885.ssh.masterhost.ru" port="22" sshConfigId="c7375e3f-b6e7-44b0-8534-c2b4504c6895" sshConfig="u461885@u461885.ssh.masterhost.ru:22 (p)">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="e53027e8-4c94-4cff-8597-8807d0eb09e1" name="rna" url="http://ftp.h010433109.nichost.ru">
+        <fileTransfer rootFolder="/r.nayanovaacademy.ru/" host="ftp.h010433109.nichost.ru" port="21">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

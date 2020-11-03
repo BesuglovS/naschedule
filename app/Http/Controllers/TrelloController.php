@@ -6,7 +6,9 @@ ini_set('max_execution_time', 600);
 
 use App\DomainClasses\Calendar;
 use App\DomainClasses\ConfigOption;
+use App\DomainClasses\Discipline;
 use App\DomainClasses\Faculty;
+use App\DomainClasses\Lesson;
 use App\DomainClasses\StudentGroup;
 use App\DomainClasses\Teacher;
 use App\User;
@@ -19,18 +21,67 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 
 class TrelloController extends Controller
 {
     public static $trelloListIds = array(
+        1 => array(
+            '5 Д' => '5f4fceccea96c8742e6a982a',
+            '6 Г' => '5f4e6d41082a154cba2a6d68',
+            '8 В' => '5f4e6e30320f9d41cc091fce',
+        ),
+        2 => array(
+            '5 А' => '5f54bee8f648501a602b6756', '5 Б' => '5f54beebcbc8c324fd17709d', '5 В' => '5f54beed2067cc829b8dc882', '5 Г' => '5f54bef088cf8b2f033144cb', '5 Д' => '5f54bef2992f4452f0c555de',
+            '6 Б' => '5f57b42b9f9bad4c5b063821', '6 Г' => '5f54bf8a8d152044977245b0',
+            '8 В' => '5f54bfeac6bd18284d3c88f8",
+',
+        ),
+        3 => array(
+            '5 А' => '5f5c863ae04692770b346c44', '5 Б' => '5f5c863fadb0385bbd0d61af', '5 В' => '5f5c8642d357784f507e4010', '5 Г' => '5f5c864565dad27c60041b84', '5 Д' => '5f5c8648b2495c5fcbae15cf',
+            '6 Б' => '5f5c87d587aca316ca356785', '6 Г' => '5f5c87d7b189e85749fdca94',
+            '8 В' => '5f5c88a0a1c1af4f5f18ba16',
+        ),
+        4 => array(
+            '5 Д' => '5f67331a863e431b829cdf01',
+            '6 Б' => '5f6733a156209f5b4a0efe6f', '6 Г' => '5f6733a453a8ab8a0d3705f3',
+            '8 В' => '5f67354d7f86144dfba0f486',
+        ),
+        5 => array(
+            '6 Г' => '5f7322aeead27073e6e3dc47',
+            '8 Б' => '5f72c9ef27711f6f0c2717bb', '8 В' => '5f732362f0dfa3606717b930',
+        ),
+        6 => array(
+            '6 Г' => '5f782e6132089152aa865244',
+            '7 Б' => '5f7b5e113b82873c8dd21b90',
+            '8 В' => '5f782ec7a74ee319e16f57f8', '8 Г' => '5f782ecb5f6c5160f72bee00',
+        ),
         7 => array(
             '6 Г' => '5f815f09c9776c1609631271',
-            '7 Б' => '5f815f69ba63598a87c2e007',
+            '7 Б' => '5f815f69ba63598a87c2e007', '7 Г' => '5f86f7d0bea8f8238f59e7fd',
             '8 В' => '5f815fecaec1d9105c601b1f',
             '9 А' => '5f86d96e7af4386409d86bcc', '9 Г' => '5f8437a91ddfe5319b798912',
             '10 В' => '5f843b42cceac925a103b922',
+        ),
+        8 => array(
+            '6 Г' => '5f8ad2c44bc50e849cb0aca6',
+            '7 Б' => '5f8ad2d3884bcc53da701263', '7 Г' => '5f8ad2d787979a0e2dbf4a0a',
+            '8 В' => '5f8ad3067dd22077bf469cb0',
+            '9 А' => '5f8ad322452ce006859aaae1',
+            '10 В' => '5f8ad334836b01624b591cba',
+        ),
+        10 => array(
+            '1 А' => '5f9eabe3097f7303eda982f6', '1 Б' => '5f9eabe42fa0de0347333bce', '1 В' => '5f9eabf54ec59d63ee835c1c', '1 Г' => '5f9eabf7b276b860d4cff260', '1 Д' => '5f9eabf95235ee62248f6fcb',
+            '2 А' => '5f9bf2e8796d5252c04e64c1', '2 Б' => '5f9bf2eb5c195b8d0df8a6ee', '2 В' => '5f9bf2ed085d6a20c591aef5', '2 Г' => '5f9bf2efad36900d18d8c664', '2 Д' => '5f9bf2f144ec3473f0a55db8', '2 Е' => '5f9bf2f34f7b39151b1ad09b',
+            '3 А' => '5f9bf3af4cefac39c14d888d', '3 Б' => '5f9bf3b1fcc22c39dc5d1165', '3 В' => '5f9bf3b3bf7ca08d7ebb4e05', '3 Г' => '5f9bf3b5eac98466d6da208e',
+            '4 А' => '5f9bf4289acb5905789e419b', '4 Б' => '5f9bf42afbdda1828a78942c', '4 В' => '5f9bf42c5727da2746e68698', '4 Г' => '5f9bf42ec888ee8d0c2f0b49',
+            '5 А' => '5f9bf48832576338faf503e4', '5 Б' => '5f9bf48a4a8d3833492baad4', '5 В' => '5f9bf48c83fc557ae2cf6c90', '5 Г' => '5f9bf48e10f16a8235d97777', '5 Д' => '5f9d3f8eeb4b7e312056adcf',
+            '6 А' => '5f9bf53bc487400e209247d2', '6 Б' => '5f9bf53e118d3b78d72685eb', '6 В' => '5f9bf54097b9c1344f7ab17b', '6 Г' => '5f9bf5427429295f1acaeaff', '6 Д' => '5f9bf54482e090524b0f3024',
+            '7 А' => '5f9bf5a6c224c00575ec4bba', '7 Б' => '5f9bf5a8520a2d621b762f17', '7 В' => '5f9bf5aa941fe03d346daec6', '7 Г' => '5f9bf5ac2464844fc65c5823',
+            '8 А' => '5f9bf5f51ceec92594ed344e', '8 Б' => '5f9bf5f69aa656596e65084e', '8 В' => '5f9bf5fa432b236ecca25604', '8 Г' => '5f9bf5fc80a93121a93e2447',
+            '9 А' => '5f9bf75b69f34731277d662e', '9 Б' => '5f9bf75d3a86d5050ff977bd', '9 В' => '5f9bf75fd3226a789bcaeeec', '9 Г' => '5f9bf761e03f966dd3abb819',
+            '10 А' => '5f9bf7fc6cf35033cca8abd4', '10 Б' => '5f9bf7fe893e2e5fe2fad481', '10 В' => '5f9bf80044761c6eb08ea1f5', '10 Г' => '5f9bf802c40ca338dd59a769',
+            '11 А' => '5f9bf9d8d359b9218de73a2e', '11 Б' => '5f9bf9da234bb55025482d28', '11 В' => '5f9bf9dcbb1e1974652a68f3', '11 Г' => '5f9bf9de5ca5ec05a301204a'
         ),
     );
 
@@ -203,6 +254,51 @@ class TrelloController extends Controller
 
     public function brb()
     {
+        $teachers = Teacher::all()->sortBy('fio');
+        foreach ($teachers as $teacher) {
+            if ($teacher->user_id == null) {
+                $pass = "";
+                $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                $charactersLength = strlen($characters);
+                $randomString = '';
+                for ($i = 0; $i < 12; $i++) {
+                    $pass .= $characters[rand(0, $charactersLength - 1)];
+                }
+
+                $cyr = [
+                    'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п',
+                    'р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я',
+                    'А','Б','В','Г','Д','Е','Ё','Ж','З','И','Й','К','Л','М','Н','О','П',
+                    'Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я'
+                ];
+                $lat = [
+                    'a','b','v','g','d','e','io','zh','z','i','y','k','l','m','n','o','p',
+                    'r','s','t','u','f','h','ts','ch','sh','sht','a','i','y','e','yu','ya',
+                    'A','B','V','G','D','E','Io','Zh','Z','I','Y','K','L','M','N','O','P',
+                    'R','S','T','U','F','H','Ts','Ch','Sh','Sht','A','I','Y','e','Yu','Ya'
+                ];
+
+                $fiowospaces = str_replace(" ", "", $teacher->fio);
+                $name_lat = str_replace($cyr, $lat, $fiowospaces);
+                $email = $name_lat . "@nayanova.edu";
+
+                $teacher->pass = $pass;
+                $teacher->email = $email;
+
+                $user = new User();
+                $user->password = Hash::make($pass);
+                $user->email = $email;
+                $user->name = $teacher->fio;
+                $user->save();
+
+                $t = Teacher::find($teacher->id);
+                $t->user_id = $user->id;
+                $t->save();
+            }
+        }
+        return $teachers;
+
+
 //        $user = new User();
 //        $user->password = Hash::make('thebest');
 //        $user->email = 'Lyudmilaalex.ki@gmail.com';
@@ -223,7 +319,7 @@ class TrelloController extends Controller
 //        }
 //        fclose($file);
 //
-//        return "OK";
+
     }
 
     public function checkIndex() {
@@ -232,9 +328,11 @@ class TrelloController extends Controller
         $faculties = Faculty::all()->sortBy('sorting_order');
         $weekCount = Calendar::WeekCount();
 
-        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04", 35 => "20.04 - 26.04",
-            36 => "27.04 - 30.04", 37 => "06.05 - 08.05", 38 => "12.05 - 17.05",
-            39 => "18.05 - 24.05", 40 => "25.05 - 31.05");
+        $weeks = array (1 => "31.08 - 06.09", 2 => "07.09 - 13.09", 3 => "14.09 - 20.09",
+            4 => "21.09 - 27.09", 5 => "28.09 - 04.10", 6 => "05.10 - 11.10",
+            7 => "12.10 - 18.10", 8 => "19.10 - 25.10", 9 => "26.10 - 01.11",
+            10 => "02.11 - 08.11",
+            );
 
         $today = CarbonImmutable::now()->format('Y-m-d');
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
@@ -697,9 +795,11 @@ class TrelloController extends Controller
 
         $weekCount = Calendar::WeekCount();
 
-        $weeks = array (33 => "06.04 - 12.04", 34 => "13.04 - 19.04", 35 => "20.04 - 26.04",
-            36 => "27.04 - 30.04", 37 => "06.05 - 08.05", 38 => "12.05 - 17.05",
-            39 => "18.05 - 24.05", 40 => "25.05 - 31.05");
+        $weeks = array (1 => "31.08 - 06.09", 2 => "07.09 - 13.09", 3 => "14.09 - 20.09",
+            4 => "21.09 - 27.09", 5 => "28.09 - 04.10", 6 => "05.10 - 11.10",
+            7 => "12.10 - 18.10", 8 => "19.10 - 25.10", 9 => "26.10 - 01.11",
+            10 => "02.11 - 08.11",
+        );
 
         $today = CarbonImmutable::now()->format('Y-m-d');
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
@@ -792,6 +892,9 @@ class TrelloController extends Controller
             $lesson->time = $dateSplit[2];
             $leftIndex = mb_strrpos($nameSplit[1], '(');
             $lesson->discName = mb_substr($nameSplit[1], 0, $leftIndex - 1);
+            if (count($nameSplit) < 3) {
+                dd($lesson);
+            }
             $lesson->teacherFio = $nameSplit[2];
 
             //dd($lesson);

@@ -31,7 +31,11 @@ class MainController extends Controller
 
     public function root()
     {
-        return view('root');
+        if (Auth::id() <= 3) {
+            return view('root');
+        } else {
+            return view('teacher');
+        }
     }
 
     public function groupSchedule()
@@ -862,6 +866,7 @@ class MainController extends Controller
 
         return view('main.fillBlankAuds', compact('weekCount', 'buildings', 'audsWithBuilding', 'rings', 'semesterStarts', 'chap'));
     }
+
 
     public function removeDuplicateLessons() {
         return view('main.removeDuplicateLessons');

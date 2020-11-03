@@ -150,18 +150,18 @@ class OldApiController extends Controller
 
         $lessonsList = Lesson::GetDailyTFDLessons($disciplineTeacherIds, $calendarId);
 
-        if (!isset($input['internal'])) {
+        /*if (!isset($input['internal'])) {
             $lessonsList = collect(array());
-        }
+        }*/
 
-        $trelloCards = TrelloController::GroupTrelloDateCards($groupId, $date);
-        $trelloCards = array_reduce($trelloCards, function ($result, $item) {
-            $result[$item->name] = $item->url;
-            return $result;
-        }, array());
+//        $trelloCards = TrelloController::GroupTrelloDateCards($groupId, $date);
+//        $trelloCards = array_reduce($trelloCards, function ($result, $item) {
+//            $result[$item->name] = $item->url;
+//            return $result;
+//        }, array());
         //dd($trelloCards);
 
-        $lessonsList->map(function ($lesson) use ($trelloCards, $date) {
+        $lessonsList->map(function ($lesson) use (/*$trelloCards,*/ $date) {
             $dt = $date . " " . $lesson->time;
             $now = Carbon::now();
             $lessonStart = Carbon::createFromFormat('Y-m-d H:i', $dt);
@@ -199,11 +199,11 @@ class OldApiController extends Controller
             $lessonTrelloName = $carbonDateDM . " " . $dowRu[$dow] . " " .
                 mb_substr($lesson->Time, 0, 5) . " - " . $lesson->discName .
                 " (" . $lesson->groupName . ") - " . $teacherFio;
-            if (array_key_exists($lessonTrelloName, $trelloCards)) {
+            /*if (array_key_exists($lessonTrelloName, $trelloCards)) {
                 $lesson->trelloUrl = $trelloCards[$lessonTrelloName];
             } else {
                 $lesson->trelloUrl = null;
-            }
+            }*/
         });
 
         $resultItem = array();
@@ -290,9 +290,9 @@ class OldApiController extends Controller
 
         $Exams = Exam::FromGroupId_OldAPI($groupId);
 
-        if (!isset($input['internal'])) {
-            $Exams = collect(array());
-        }
+//        if (!isset($input['internal'])) {
+//            $Exams = collect(array());
+//        }
 
         $Exams->map(function ($exam) {
             $default_datetime = "01.01.2020 0:00";
@@ -910,9 +910,9 @@ class OldApiController extends Controller
 
         $tfdId = $input["tfdId"];
 
-        if (!isset($input['internal'])) {
-            return collect(array());
-        }
+//        if (!isset($input['internal'])) {
+//            return collect(array());
+//        }
 
         $result = DB::table('lessons')
             ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
@@ -978,9 +978,9 @@ class OldApiController extends Controller
                 ->where('lessons.state', '=', 1)
                 ->count();
 
-            if (!isset($input['internal'])) {
-                $hours = 0;
-            }
+//            if (!isset($input['internal'])) {
+//                $hours = 0;
+//            }
 
             $result[$tfdId]["hoursCount"] = $hours;
         }
@@ -1052,9 +1052,9 @@ class OldApiController extends Controller
                         'disciplines.type as disciplinesType')
                     ->get();
 
-                if (!isset($input['internal'])) {
-                    $rawLessons = collect(array());
-                }
+//                if (!isset($input['internal'])) {
+//                    $rawLessons = collect(array());
+//                }
 
                 $lessons = array();
 
@@ -1090,9 +1090,9 @@ class OldApiController extends Controller
                     'disciplines.type as disciplinesType')
                 ->get();
 
-            if (!isset($input['internal'])) {
-                $rawLessons = collect(array());
-            }
+//            if (!isset($input['internal'])) {
+//                $rawLessons = collect(array());
+//            }
 
             $lessons = array("1" => array(), "2" => array(), "3" => array(), "4" => array(),
                 "5" => array(), "6" => array(), "7" => array());
@@ -1100,6 +1100,7 @@ class OldApiController extends Controller
 
             $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());
 
+            /*
             if (count($weeks) === 1) {
                 $trelloCards = array_reduce(TrelloController::GroupTrelloWeekCards($groupId, $weeks[0]), function ($result, $item) {
                     $result[$item->name] = $item->url;
@@ -1125,7 +1126,7 @@ class OldApiController extends Controller
                         $lesson->trelloUrl = null;
                     }
                 });
-            }
+            }*/
 
 
 
@@ -1218,9 +1219,9 @@ class OldApiController extends Controller
                 ->select('calendars.date')
                 ->get();
 
-            if (!isset($input['internal'])) {
-                $lastLessonDateList = collect(array());
-            }
+//            if (!isset($input['internal'])) {
+//                $lastLessonDateList = collect(array());
+//            }
 
             $lastLessonDate = $lastLessonDateList->isEmpty() ? "" : $lastLessonDateList[0]->date;
 
@@ -1280,9 +1281,9 @@ class OldApiController extends Controller
                 'rings.time as Time', 'auditoriums.name as auditoriumName')
             ->get();
 
-        if (!isset($input['internal'])) {
-            $lessons = collect(array());
-        }
+//        if (!isset($input['internal'])) {
+//            $lessons = collect(array());
+//        }
 
         return $lessons;
     }
@@ -1333,9 +1334,9 @@ class OldApiController extends Controller
                         'discipline_teacher.id as TeacherForDisciplineId')
                     ->get();
 
-                if (!isset($input['internal'])) {
-                    $lessons = collect(array());
-                }
+//                if (!isset($input['internal'])) {
+//                    $lessons = collect(array());
+//                }
 
                 foreach ($lessons as $lesson)
                 {
@@ -1387,12 +1388,13 @@ class OldApiController extends Controller
                 ->whereIn('calendars.id', $calendarIds)
                 ->select('disciplines.name as discName', 'rings.time as startTime', 'calendars.date as date',
                     'teachers.fio as teacherFIO', 'auditoriums.name as auditoriumName',
-                    'discipline_teacher.id as tfdId', 'student_groups.name as groupName', 'student_groups.id as groupId')
+                    'discipline_teacher.id as tfdId', 'student_groups.name as groupName', 'student_groups.id as groupId',
+                    "lessons.description", "lessons.id as lessonId")
                 ->get();
 
-            if (!isset($input['internal'])) {
-                $rawLessons = collect(array());
-            }
+//            if (!isset($input['internal'])) {
+//                $rawLessons = collect(array());
+//            }
 
             $lessons = array("1" => array(), "2" => array(), "3" => array(), "4" => array(),
                 "5" => array(), "6" => array(), "7" => array());
@@ -1467,9 +1469,9 @@ class OldApiController extends Controller
                 'examAud.name as examinationAud')
             ->get();
 
-        if (!isset($input['internal'])) {
-            $exams = collect(array());
-        }
+//        if (!isset($input['internal'])) {
+//            $exams = collect(array());
+//        }
 
         foreach ($exams as $exam) {
             if ($exam->ConsultationDateTime == "2020-01-01 00:00:00") {

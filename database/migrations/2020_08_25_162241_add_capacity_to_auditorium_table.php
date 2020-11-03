@@ -25,7 +25,7 @@ class AddCapacityToAuditoriumTable extends Migration
      */
     public function down()
     {
-        Schema::table('auditorium', function (Blueprint $table) {
+        Schema::table('auditoriums', function (Blueprint $table) {
             $table->dropColumn('capacity');
         });
     }
