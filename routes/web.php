@@ -211,3 +211,6 @@ Route::get('/chess', 'MainController@chess');
 
 Route::get('/r', 'LessonDescriptionController@showIndex');
 Route::get('/rGroupDay', 'LessonDescriptionController@GroupDay');
+Route::get('/rOnline', 'LessonDescriptionController@onlineIndex');
+Route::get('/rOnlineAction', 'LessonDescriptionController@OnlineAction');
+Route::get('/lesson', 'LessonController@showLesson');

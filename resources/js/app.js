@@ -42,6 +42,7 @@ Vue.component('trello-teacher-day', require('./components/TrelloTeacherDay').def
 Vue.component('trello-online', require('./components/TrelloOnline').default);
 Vue.component('teacher-week-schedule', require('./components/TeacherWeekSchedule').default);
 Vue.component('group-day', require('./components/GroupDay').default);
+Vue.component('online', require('./components/Online').default);
 
 
 

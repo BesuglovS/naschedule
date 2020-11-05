@@ -225,6 +225,38 @@ class Calendar extends Model
         return $lastDateWeek;
     }
 
+    public static function Weeks()
+    {
+        $css = Carbon::parse(ConfigOption::SemesterStarts())->startOfWeek();
+
+        if (Calendar::all()->count() == 0) {
+            return array();
+        }
+
+        $weeks = array();
+        $calendars = Calendar::all();
+        foreach($calendars as $calendar) {
+            $date = $calendar->date;
+            $diff = $css->diffInDays($date);
+            $week = 1 + (int)($diff / 7);
+
+            if (!in_array($week, $weeks)) {
+                $weeks[] = $week;
+            }
+        }
+
+        $result = array();
+
+        foreach($weeks as $week) {
+            $weekStart = $css->clone()->addWeeks($week - 1);
+            $weekEnd = $weekStart->clone()->addDays(6);
+
+            $result[$week] = $weekStart->format('d.m') . " - " . $weekEnd->format('d.m');
+        }
+
+        return $result;
+    }
+
     public static function IdsByWeekAndDowFromDowsAndWeeks(array $dows, array $weeks)
     {
         $semesterStarts = Carbon::parse(ConfigOption::SemesterStarts());

@@ -53,14 +53,14 @@
                     <tr>
                         <td colspan="7" style="text-align: left !important;">
                             <span v-html="lesson.description" style="white-space: pre-wrap; word-wrap:break-word; ">{{lesson.description}}</span>
-                            <span v-if="lesson.description == ''" style="font-size: 2em;">Описание отсутствует</span>
+                            <span v-if="lesson.description === '' || lesson.description == null" style="font-size: 2em;">Описание отсутствует</span>
                         </td>
                     </tr>
                 </template>
             </table>
         </div>
 
-        <div v-if="this.lessons.length == 0" style="border: 1px solid black; border-radius: 10px; padding-bottom:1em;">
+        <div v-if="this.lessons.length === 0" style="border: 1px solid black; border-radius: 10px; padding-bottom:1em;">
             <div style="text-align: center; font-size: 2em;">
                 Пусто
             </div>
@@ -123,7 +123,9 @@ export default {
 
                             const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[A-ZА-Яа-я0-9+&@#\/%=~_|$])/igm
 
-                            item.description = item.description.replace(URLMatcher, match => `<a target="_blank" href="${match}">${match}</a>`);
+                            if (item.description !== null) {
+                                item.description = item.description.replace(URLMatcher, match => `<a target="_blank" href="${match}">${match}</a>`);
+                            }
                         });
 
                         this.loading = false;

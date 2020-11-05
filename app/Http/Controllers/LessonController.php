@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DomainClasses\Calendar;
 use App\DomainClasses\Discipline;
+use App\DomainClasses\Faculty;
 use App\DomainClasses\Lesson;
 use App\DomainClasses\LessonLogEvent;
 use App\DomainClasses\Teacher;
@@ -582,5 +583,48 @@ class LessonController extends Controller
         $lle4->public_comment = "";
         $lle4->hidden_comment = (($user !== null) ? $user->id . " @ " . $user->name . ": " : "") . " switch lessons " . $lesson1Id . '/' . $lesson2Id . ' add 2';
         $lle4->save();
+    }
+
+    public static function GetFacultyLessonsForCalendarIds($facultyId, $calendarIdsList) {
+        $facultyGroups = Faculty::GetStudentGroupIdsFromFacultyId($facultyId);
+
+        return DB::table('lessons')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->where('lessons.state', '=', 1)
+            ->wherein('student_groups.id', $facultyGroups)
+            ->whereIn('lessons.calendar_id', $calendarIdsList)
+            ->select('lessons.*',
+                'calendars.date as lesson_date', 'rings.time as rings_time', 'auditoriums.name as aud_name',
+                'student_groups.name as group_name', 'teachers.fio', 'disciplines.name as disc_name'
+            )
+            ->get();
+    }
+
+    public function showLesson(Request $request) {
+        $input = $request->all();
+        $lessonId = $input["lessonId"];
+
+        $lesson = DB::table('lessons')
+            ->join('discipline_teacher', 'lessons.discipline_teacher_id', '=', 'discipline_teacher.id')
+            ->join('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
+            ->join('disciplines', 'discipline_teacher.discipline_id', '=', 'disciplines.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->join('calendars', 'lessons.calendar_id', '=', 'calendars.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->where('lessons.id', '=', $lessonId)
+            ->select('lessons.*',
+                'calendars.date as lesson_date', 'rings.time as rings_time', 'auditoriums.name as aud_name',
+                'student_groups.name as group_name', 'teachers.fio', 'disciplines.name as disc_name'
+            )
+            ->first();
+
+        return view('teacher.lessonDesc', compact('lesson'));
     }
 }
