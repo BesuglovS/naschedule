@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class Lesson extends Model
 {
-    public $timestamps = false;
+    public function __construct()
+    {
+        $this->timestamps = false;
+    }
 
     public static function GetDailyBuildingLessons($calendarId, $buildingId)
     {
@@ -50,6 +53,35 @@ class Lesson extends Model
             ->select('lessons.id', 'rings.time', 'disciplines.name as disc_name',
                 'teachers.fio', 'auditoriums.name as aud_name',
                 'student_groups.name as group_name')
+
+            ->where('lessons.calendar_id', '=', $calendarId)
+            ->where('lessons.state', '=', 1)
+            ->whereIn('lessons.discipline_teacher_id', $disciplineTeacherIds)
+            ->orderBy('rings.time')
+            ->get();
+        $result->map(function ($lesson) {
+            $lesson->time = substr($lesson->time, 0, 5);
+        });
+        return $result;
+    }
+
+    public static function GetDailyTFDLessonsWithDescription($disciplineTeacherIds, $calendarId)
+    {
+        if ($calendarId == "")
+        {
+            return collect();
+        }
+
+        $result = DB::table('lessons')
+            ->join('discipline_teacher as tfd', 'lessons.discipline_teacher_id', '=', 'tfd.id')
+            ->join('disciplines', 'tfd.discipline_id', '=', 'disciplines.id')
+            ->join('teachers', 'tfd.teacher_id', '=', 'teachers.id')
+            ->join('student_groups', 'disciplines.student_group_id', '=', 'student_groups.id')
+            ->join('rings', 'lessons.ring_id', '=', 'rings.id')
+            ->join('auditoriums', 'lessons.auditorium_id', '=', 'auditoriums.id')
+            ->select('lessons.id', 'rings.time', 'disciplines.name as disc_name',
+                'teachers.fio', 'auditoriums.name as aud_name',
+                'student_groups.name as group_name', 'lessons.description')
 
             ->where('lessons.calendar_id', '=', $calendarId)
             ->where('lessons.state', '=', 1)

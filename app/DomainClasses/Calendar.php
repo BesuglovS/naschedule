@@ -9,7 +9,15 @@ use mysql_xdevapi\Table;
 
 class Calendar extends Model
 {
-    public $timestamps = false;
+
+
+    /**
+     * Calendar constructor.
+     */
+    public function __construct()
+    {
+        $this->timestamps = false;
+    }
 
     public static function IdfromDate($date)
     {

@@ -196,10 +196,10 @@ class OldApiController extends Controller
             $carbonDateDM = $carbonDate->format("d.m");
 
 
-            $lessonTrelloName = $carbonDateDM . " " . $dowRu[$dow] . " " .
+            /*$lessonTrelloName = $carbonDateDM . " " . $dowRu[$dow] . " " .
                 mb_substr($lesson->Time, 0, 5) . " - " . $lesson->discName .
                 " (" . $lesson->groupName . ") - " . $teacherFio;
-            /*if (array_key_exists($lessonTrelloName, $trelloCards)) {
+            if (array_key_exists($lessonTrelloName, $trelloCards)) {
                 $lesson->trelloUrl = $trelloCards[$lessonTrelloName];
             } else {
                 $lesson->trelloUrl = null;

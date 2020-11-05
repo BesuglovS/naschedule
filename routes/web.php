@@ -208,3 +208,6 @@ Route::get('/trelloOnlineAction', 'TrelloController@trelloOnlineAction');
 
 Route::get('/isec', 'MainController@isec');
 Route::get('/chess', 'MainController@chess');
+
+Route::get('/r', 'LessonDescriptionController@showIndex');
+Route::get('/rGroupDay', 'LessonDescriptionController@GroupDay');

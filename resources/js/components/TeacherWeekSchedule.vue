@@ -17,10 +17,6 @@
                     </div>
 
                     <div class="card-body">
-                        <select v-model="selectedTeacherId" @change="loadTeacherSchedule();">
-                            <option v-for="teacher in teachersSorted" :value="teacher.id">{{teacher.fio}}</option>
-                        </select>
-
                         <div id="teachersSchedule" style="margin-top: 1em;">
                             <div style="text-align: center;">
                                 Недели:
@@ -166,6 +162,7 @@
                                                     })
                                             ">
                                                 <div @click="lessonClicked(teacherSchedule[dow][ring][tfd]['lessons'][0]);"
+                                                     style="cursor: pointer;"
                                                      v-bind:class="{selectedLesson : teacherSchedule[dow][ring][tfd]['lessons'][0]['lessonId'] == selectedLessonId }"
                                                 >
                                                     <strong>{{teacherSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong><br />
@@ -252,6 +249,7 @@
         name: "TeacherWeekSchedule",
         props: {
             'teachers': Object,
+            'teacher': Object,
             'weekCount': Number,
         },
         data() {
@@ -522,14 +520,10 @@
             }
         },
         mounted() {
-            if (this.selectedTeacherId === -1)
-            {
-                if (this.teacherList.length !== 0) {
-                    this.selectedTeacherId = this.teachersSorted[0].id;
-                    this.selectedWeeks = [1];
-                    this.loadTeacherSchedule();
-                }
-            } else {
+            console.log('start');
+            if (this.teacher != null) {
+                console.log('in');
+                this.selectedTeacherId = this.teacher.id;
                 this.selectedWeeks = [1];
                 this.loadTeacherSchedule();
             }
