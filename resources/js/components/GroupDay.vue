@@ -119,28 +119,12 @@ export default {
                 .then(response => {
                         this.lessons = response.data;
 
-                        // Object.values(this.lessons).forEach(item => {
-                        //     let mainSplit = item.name.split(" - ");
-                        //     let dtSplit = mainSplit[0].split(" ");
-                        //     let groupLeftLeftBracket = mainSplit[1].lastIndexOf('(');
-                        //     let groupRightLeftBracket = mainSplit[1].lastIndexOf(')');
-                        //     let discName = mainSplit[1].substr(0, groupLeftLeftBracket - 1);
-                        //     let groupName = mainSplit[1].substr(groupLeftLeftBracket + 1, groupRightLeftBracket - groupLeftLeftBracket - 1);
-                        //     item.date = dtSplit[0];
-                        //     item.dow = dtSplit[1];
-                        //     item.time = dtSplit[2];
-                        //     item.discName = discName;
-                        //     item.groupName = groupName;
-                        //     item.teacherFio = mainSplit[2];
-                        //
-                        //     const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[A-ZА-Яа-я0-9+&@#\/%=~_|$])/igm
-                        //
-                        //     item.desc = item.desc.replace(URLMatcher, match => `<a href="${match}">${match}</a>`);
-                        //
-                        //     Object.values(item.comments).forEach(comment => {
-                        //         comment.data.text = comment.data.text.replace(URLMatcher, match => `<a href="${match}">${match}</a>`);
-                        //     });
-                        // });
+                        Object.values(this.lessons).forEach(item => {
+
+                            const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-ZА-Яа-я0-9+&@#\/%=~_|$?!:,.]*\)|[A-ZА-Яа-я0-9+&@#\/%=~_|$])/igm
+
+                            item.description = item.description.replace(URLMatcher, match => `<a target="_blank" href="${match}">${match}</a>`);
+                        });
 
                         this.loading = false;
                     }
