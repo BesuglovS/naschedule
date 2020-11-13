@@ -92,6 +92,14 @@ class TrelloController extends Controller
             '10 А' => '5fa3e0c227f4d40e42ffa4cb', '10 Б' => '5fa3e0c444b7030e3727ec13', '10 В' => '5fa3e0c6438145020401a6f5', '10 Г' => '5fa3e0c8dc46d60758cd297f',
             '11 А' => '5fa3e12faa3d518af9ae8e7a', '11 Б' => '5fa3e131e6f0687e3fa3edfb', '11 В' => '5fa3e1338291c66aea2fe980', '11 Г' => '5fa3e135f5e8db747c8403b4'
         ),
+        12 => array(
+            '6 А' => '5fae360ec251dd69411dc44f', '6 Б' => '5fae361241324f78099964b4', '6 В' => '5fae3614d209265be72ee722', '6 Г' => '5fae361756f3450c8ccf2f66', '6 Д' => '5fae364c19273c7a190b9d0d',
+            '7 А' => '5fae36604f778f11724f8b59', '7 Б' => '5fae3662752f517855df1599', '7 В' => '5fae366492c4e809dbf74535', '7 Г' => '5fae3665a9c5c810a1bf2a6c',
+            '8 А' => '5fae368c4e83320fbe42cad7', '8 Б' => '5fae368ec5f2d76b02cde828', '8 В' => '5fae36913f50f36aad3e6159', '8 Г' => '5fae3693f667487c4f347fb7',
+            '9 А' => '5fae36bc6aee355aed6a7a2b', '9 Б' => '5fae36be2642dc2d414b32ff', '9 В' => '5fae36c07274891916962f66', '9 Г' => '5fae36c204f38f791bbb4dfa',
+            '10 А' => '5fae36d48d1e46100d3cdc37', '10 Б' => '5fae36d779f43d803ab4ced8', '10 В' => '5fae36d98157207e80762b63', '10 Г' => '5fae36e3fb19c7782afcc34e',
+            '11 А' => '5fae36fa0cc1cd70bd5e4033', '11 Б' => '5fae36fc7dbfb81003e41d0a', '11 В' => '5fae36fed61bff4aa52f7f54', '11 Г' => '5fae37009251e03fc933ea81'
+        ),
     );
 
     public static $boardIds = array(
