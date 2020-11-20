@@ -100,6 +100,22 @@ class TrelloController extends Controller
             '10 А' => '5fae36d48d1e46100d3cdc37', '10 Б' => '5fae36d779f43d803ab4ced8', '10 В' => '5fae36d98157207e80762b63', '10 Г' => '5fae36e3fb19c7782afcc34e',
             '11 А' => '5fae36fa0cc1cd70bd5e4033', '11 Б' => '5fae36fc7dbfb81003e41d0a', '11 В' => '5fae36fed61bff4aa52f7f54', '11 Г' => '5fae37009251e03fc933ea81'
         ),
+        13 => array(
+            '6 А' => '5fb7d6e8ac24c683b5bc756c', '6 Б' => '5fb7d6f1e60ced6137e34982', '6 В' => '5fb7d6f4a2a4fc0ae2e4935f', '6 Г' => '5fb7d6f728dcd21386a8e819', '6 Д' => '5fb7d6fae47a1e748b85ff17',
+            '7 А' => '5fb7d7bd63a1c8596dcbbac8', '7 Б' => '5fb7d7bf23145972b49be0f5', '7 В' => '5fb7d7c166a3d14220f6b9dd', '7 Г' => '5fb7d7c356fbef1b909b0514',
+            '8 А' => '5fb7d84517558d22a34a78b7', '8 Б' => '5fb7d847aa708c806704dbfb', '8 В' => '5fb7d855c52e0183549cbd4a', '8 Г' => '5fb7d8583e999d6187895eb7',
+            '9 А' => '5fb7d90d300064663ac23169', '9 Б' => '5fb7d90f1a249a21b4b6d80b', '9 В' => '5fb7d9108485586188e97e25', '9 Г' => '5fb7d9132e861f7ba802cdb6',
+            '10 А' => '5fb7d9961cdedc174b42f323', '10 Б' => '5fb7d998f4397e0b192b4a5f', '10 В' => '5fb7d99a8f9c3443ad63a67e', '10 Г' => '5fb7d99c6b1c7181728c1e53',
+            '11 А' => '5fb7d9fbf34c552848590817', '11 Б' => '5fb7d9fdb8bacb0a7adb092e', '11 В' => '5fb7d9ff0773d97ed9757272', '11 Г' => '5fb7da0124474178c3e163d7'
+        ),
+        14 => array(
+            '6 А' => '5fb7d70e73fcc109aeda084b', '6 Б' => '5fb7d7110c5fbd671ec1bc83', '6 В' => '5fb7d7141c424c8144df1643', '6 Г' => '5fb7d716e855f648f087450f', '6 Д' => '5fb7d7190445b266c949479c',
+            '7 А' => '5fb7d7e85bddfd27b19b3e5f', '7 Б' => '5fb7d7ea6e5dab5906a0c557', '7 В' => '5fb7d7ec98e728020e0a6480', '7 Г' => '5fb7d7ef60a17e480bd017bb',
+            '8 А' => '5fb7d8600512b04cf5009424', '8 Б' => '5fb7d8639b5d360b4b61c907', '8 В' => '5fb7d8645881364cec9ad2e1', '8 Г' => '5fb7d867d03ec979d94a4c19',
+            '9 А' => '5fb7d92fb17f35600fe03db8', '9 Б' => '5fb7d931fb81af8142477918', '9 В' => '5fb7d93387d6fa543144712b', '9 Г' => '5fb7d9359309641ba0241ea2',
+            '10 А' => '5fb7d9a37b2f434cccb68477', '10 Б' => '5fb7d9a5347870600c633a49', '10 В' => '5fb7d9a7ba0c7328237fb7e0', '10 Г' => '5fb7d9aab5775f1f179c5694',
+            '11 А' => '5fb7da0ce549fb772ccc0edd', '11 Б' => '5fb7da0e77ccc648dda8f69a', '11 В' => '5fb7da10c4a9ad38162b800f', '11 Г' => '5fb7da13598a684c1d717765'
+        ),
     );
 
     public static $boardIds = array(
@@ -348,7 +364,8 @@ class TrelloController extends Controller
         $weeks = array (1 => "31.08 - 06.09", 2 => "07.09 - 13.09", 3 => "14.09 - 20.09",
             4 => "21.09 - 27.09", 5 => "28.09 - 04.10", 6 => "05.10 - 11.10",
             7 => "12.10 - 18.10", 8 => "19.10 - 25.10", 9 => "26.10 - 01.11",
-            10 => "02.11 - 08.11", 11 => "09.11 - 15.11",
+            10 => "02.11 - 08.11", 11 => "09.11 - 15.11", 12 => "16.11 - 22.11",
+            13 => "23.11 - 29.11", 14 => "30.11 - 06.12",
             );
 
         $today = CarbonImmutable::now()->format('Y-m-d');
@@ -767,7 +784,8 @@ class TrelloController extends Controller
         $weeks = array (1 => "31.08 - 06.09", 2 => "07.09 - 13.09", 3 => "14.09 - 20.09",
             4 => "21.09 - 27.09", 5 => "28.09 - 04.10", 6 => "05.10 - 11.10",
             7 => "12.10 - 18.10", 8 => "19.10 - 25.10", 9 => "26.10 - 01.11",
-            10 => "02.11 - 08.11", 11 => "09.11 - 15.11",
+            10 => "02.11 - 08.11", 11 => "09.11 - 15.11", 12 => "16.11 - 22.11",
+            13 => "23.11 - 29.11", 14 => "30.11 - 06.12",
         );
 
         $today = CarbonImmutable::now()->format('Y-m-d');
@@ -947,6 +965,200 @@ class TrelloController extends Controller
         }
         foreach ($byGroup as $key => $value) {
             $byGroup[$key]['groupName'] = $key;
+        }
+
+        foreach ($byGrade as $grade => $gradeItem) {
+            usort($byGrade[$grade]["lessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+
+            usort($byGrade[$grade]["onlineLessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+
+            usort($byGrade[$grade]["offlineLessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+
+            usort($byGrade[$grade]["emptyLessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+        }
+
+        foreach ($byGroup as $group => $groupItem) {
+            usort($byGroup[$group]["lessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+
+            usort($byGroup[$group]["onlineLessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+
+            usort($byGroup[$group]["offlineLessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+
+            usort($byGroup[$group]["emptyLessons"], function($a, $b) {
+                if ($a->groupName === $b->groupName) {
+                    $aDT = $a->date . " " . $a->time;
+                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    $bDT = $b->date . " " . $b->time;
+                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                    if ($aCarbon->eq($bCarbon)) {
+                        return 0;
+                    } else {
+                        return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                    }
+                } else {
+                    return strcmp($a->groupName, $b->groupName);
+                }
+            });
+        }
+
+        foreach ($byTeacherFio as $teacher => $teacherItem) {
+            usort($byTeacherFio[$teacher]["lessons"], function($a, $b) {
+                $aDT = $a->date . " " . $a->time;
+                $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                $bDT = $b->date . " " . $b->time;
+                $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                if ($aCarbon->eq($bCarbon)) {
+                    return 0;
+                } else {
+                    return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                }
+            });
+
+            usort($byTeacherFio[$teacher]["onlineLessons"], function($a, $b) {
+                $aDT = $a->date . " " . $a->time;
+                $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                $bDT = $b->date . " " . $b->time;
+                $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                if ($aCarbon->eq($bCarbon)) {
+                    return 0;
+                } else {
+                    return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                }
+            });
+
+            usort($byTeacherFio[$teacher]["offlineLessons"], function($a, $b) {
+                $aDT = $a->date . " " . $a->time;
+                $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                $bDT = $b->date . " " . $b->time;
+                $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                if ($aCarbon->eq($bCarbon)) {
+                    return 0;
+                } else {
+                    return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                }
+            });
+
+            usort($byTeacherFio[$teacher]["emptyLessons"], function($a, $b) {
+                $aDT = $a->date . " " . $a->time;
+                $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                $bDT = $b->date . " " . $b->time;
+                $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+
+                if ($aCarbon->eq($bCarbon)) {
+                    return 0;
+                } else {
+                    return ($aCarbon->gt($bCarbon)) ? 1 : -1;
+                }
+            });
         }
 
         $result['byGrade'] = $byGrade;
