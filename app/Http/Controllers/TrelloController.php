@@ -970,10 +970,19 @@ class TrelloController extends Controller
         foreach ($byGrade as $grade => $gradeItem) {
             usort($byGrade[$grade]["lessons"], function($a, $b) {
                 if ($a->groupName === $b->groupName) {
-                    $aDT = $a->date . " " . $a->time;
-                    $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
-                    $bDT = $b->date . " " . $b->time;
-                    $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+                    try {
+                        $aDT = $a->date . " " . $a->time;
+                        $aCarbon = Carbon::createFromFormat("d.m H:i", $aDT);
+                    } catch (\Exception $e) {
+                        dd($a);
+                    }
+
+                    try {
+                        $bDT = $b->date . " " . $b->time;
+                        $bCarbon = Carbon::createFromFormat("d.m H:i", $bDT);
+                    } catch (\Exception $e) {
+                        dd($b);
+                    }
 
                     if ($aCarbon->eq($bCarbon)) {
                         return 0;

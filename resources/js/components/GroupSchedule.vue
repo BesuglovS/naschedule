@@ -78,6 +78,30 @@
                                             </template>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td style="text-align: center;" colspan="2">
+                                            <button @click="lessonTypeToggled(1)"
+                                                    style="margin-right:0.5em;"
+                                                    :class="{'button': true,
+                                                    'is-primary': !lessonTypesShow[1],
+                                                    'is-danger': lessonTypesShow[1]}"
+                                            >Бюджет</button>
+
+                                            <button @click="lessonTypeToggled(2)"
+                                                    style="margin-right:0.5em;"
+                                                    :class="{'button': true,
+                                                    'is-primary': !lessonTypesShow[2],
+                                                    'is-danger': lessonTypesShow[2]}"
+                                            >Внеурочка</button>
+
+                                            <button @click="lessonTypeToggled(3)"
+                                                    style="margin-right:0.5em;"
+                                                    :class="{'button': true,
+                                                    'is-primary': !lessonTypesShow[3],
+                                                    'is-danger': lessonTypesShow[3]}"
+                                            >Платные</button>
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
 
@@ -85,7 +109,7 @@
                                 Загрузка <img :src="'./assets/img/loading.gif'" style="height:50px;" />
                             </div>
 
-                            <table v-if="loading === false" style="margin-top: 2em;" class="table td-center is-bordered">
+                            <table v-if="loading === false" style="margin-top: 1em;" class="table td-center is-bordered">
                                 <tr>
                                     <td></td>
                                     <td v-for="dow in 6">
@@ -160,7 +184,9 @@
                                                         </tr>
                                                     </table>
 
-                                                    <div
+                                                    <div v-if="((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 1) && (lessonTypesShow[1])) ||
+                                                    ((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2) && (lessonTypesShow[2])) ||
+                                                    ((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3) && (lessonTypesShow[3]))"
                                                         :class="{
                                                                 'budget': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 1,
                                                                 'vneur': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2,
@@ -512,6 +538,7 @@ export default {
             fastInputMode: false,
             disciplineColorCoding: false,
             selectedRings: [],
+            lessonTypesShow: { 1: true, 2: true, 3: true },
         }
     },
     methods: {
@@ -1265,6 +1292,9 @@ export default {
                 }
                 this.loadGroupSchedule();
             }
+        },
+        lessonTypeToggled(type) {
+            this.lessonTypesShow[type] = !this.lessonTypesShow[type];
         },
         editWeekToggled(week) {
             if (this.editSelectedWeeks.length === 1 && event.shiftKey) {
