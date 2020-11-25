@@ -252,9 +252,9 @@
             disciplinesFilteredHours() {
                 return {
                     'all' : this.disciplinesFiltered.map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
-                    1 : this.disciplinesFiltered.filter(d => d.type === 1).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
-                    2 : this.disciplinesFiltered.filter(d => d.type === 2).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
-                    3 : this.disciplinesFiltered.filter(d => d.type === 3).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0)
+                    1 : this.disciplinesFiltered.filter(d => (d.type === 1)).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    2 : this.disciplinesFiltered.filter(d => (d.type === 2)).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    3 : this.disciplinesFiltered.filter(d => (d.type === 3)).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0)
                 };
             },
             disciplinesFiltered() {

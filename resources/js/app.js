@@ -35,7 +35,6 @@ Vue.component('fill-blank-auds', require('./components/FillBlankAuds').default);
 Vue.component('teacher-got-ill', require('./components/TeacherGotIll').default);
 Vue.component('teacher-building-transfers', require('./components/TeacherBuildingTransfers').default);
 Vue.component('rdl', require('./components/Rdl').default);
-Vue.component('trello-export', require('./components/TrelloExport').default);
 Vue.component('trello-check', require('./components/TrelloCheck').default);
 Vue.component('trello-day', require('./components/TrelloDay').default);
 Vue.component('trello-teacher-day', require('./components/TrelloTeacherDay').default);
@@ -43,6 +42,7 @@ Vue.component('trello-online', require('./components/TrelloOnline').default);
 Vue.component('teacher-week-schedule', require('./components/TeacherWeekSchedule').default);
 Vue.component('group-day', require('./components/GroupDay').default);
 Vue.component('online', require('./components/Online').default);
+Vue.component('trello-export-new', require('./components/TrelloExportNew').default);
 
 
 

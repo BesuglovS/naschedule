@@ -109,6 +109,7 @@ class TrelloController extends Controller
             '11 А' => '5fb7d9fbf34c552848590817', '11 Б' => '5fb7d9fdb8bacb0a7adb092e', '11 В' => '5fb7d9ff0773d97ed9757272', '11 Г' => '5fb7da0124474178c3e163d7'
         ),
         14 => array(
+            '1 А' => '5fbcb118f93f5942208fca76',
             '6 А' => '5fb7d70e73fcc109aeda084b', '6 Б' => '5fb7d7110c5fbd671ec1bc83', '6 В' => '5fb7d7141c424c8144df1643', '6 Г' => '5fb7d716e855f648f087450f', '6 Д' => '5fb7d7190445b266c949479c',
             '7 А' => '5fb7d7e85bddfd27b19b3e5f', '7 Б' => '5fb7d7ea6e5dab5906a0c557', '7 В' => '5fb7d7ec98e728020e0a6480', '7 Г' => '5fb7d7ef60a17e480bd017bb',
             '8 А' => '5fb7d8600512b04cf5009424', '8 Б' => '5fb7d8639b5d360b4b61c907', '8 В' => '5fb7d8645881364cec9ad2e1', '8 Г' => '5fb7d867d03ec979d94a4c19',
@@ -151,7 +152,7 @@ class TrelloController extends Controller
         $css = Carbon::createFromFormat("Y-m-d", ConfigOption::SemesterStarts())->startOfWeek();
         $currentWeek = Calendar::WeekFromDate($today, $css);
 
-        return view('trello.index', compact('faculties', 'weekCount', 'weeks', 'currentWeek'));
+        return view('trello.indexNew', compact('faculties', 'weekCount', 'weeks', 'currentWeek'));
     }
 
     public function upload(Request $request) {
@@ -272,15 +273,34 @@ class TrelloController extends Controller
             'auth' => 'oauth'
         ]);
 
+        $siteCards = array();
+        foreach ($result as $listId => $lessons) {
+            $res = $client->get('lists/' . $listId .'/cards');
+            $data = json_decode($res->getBody());
+            $siteCards[$listId] = $data;
+        }
+
+        //dd($result, $siteCards);
+
         foreach ($result as $listId => $lessons) {
             foreach ($lessons as $lesson) {
-                $res = $client->post('cards', [
-                    'query' => [
-                        'idList' => $listId, // 5e8494347ea6d63682b9856f
-                        'name' => $lesson['name'], // 06.04 Пн 08:30 - Математика (1 А) - Манурина В.А.
-                        'due' => $lesson['due'], // 2020-04-06T04:30:00.000Z
-                    ]
-                ]);
+                $cardExists = false;
+                foreach($siteCards[$listId] as $cardLesson) {
+                    if ($lesson['name'] == $cardLesson->name) {
+                        $cardExists = true;
+                        break;
+                    }
+                }
+
+                if (!$cardExists) {
+                    $res = $client->post('cards', [
+                        'query' => [
+                            'idList' => $listId, // 5e8494347ea6d63682b9856f
+                            'name' => $lesson['name'], // 06.04 Пн 08:30 - Математика (1 А) - Манурина В.А.
+                            'due' => $lesson['due'], // 2020-04-06T04:30:00.000Z
+                        ]
+                    ]);
+                }
             }
         }
     }
