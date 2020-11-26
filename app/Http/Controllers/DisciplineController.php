@@ -83,13 +83,15 @@ class DisciplineController extends Controller
             ->join('student_groups', 'student_groups.id' , '=', 'disciplines.student_group_id')
             ->leftJoin('discipline_teacher', 'disciplines.id', '=', 'discipline_teacher.discipline_id')
             ->leftJoin('teachers', 'discipline_teacher.teacher_id', '=', 'teachers.id')
-            ->select('disciplines.*', 'student_groups.name as groupName', 'teachers.fio as teacherFio',
+            ->select('disciplines.*', 'student_groups.name as groupName', 'student_groups.id as student_group_id', 'teachers.fio as teacherFio',
                 'discipline_teacher.id as discipline_teacher_id')
             ->first();
 
         $teachers = Teacher::all()->sortBy('fio');
 
-        return view('disciplines.show', compact('discipline', 'teachers'));
+        $studentGroups = StudentGroup::mainStudentGroups();
+
+        return view('disciplines.show', compact('discipline', 'teachers', 'studentGroups'));
     }
 
     /**
@@ -435,5 +437,29 @@ class DisciplineController extends Controller
             'disciplines' => $result
         );
 
+    }
+
+    public function addDisciplinesAnotherGroup(Request $request)
+    {
+        $input = $request->all();
+        $disciplineId = $input["discipline_id"];
+        $discipline = Discipline::find($disciplineId);
+        $studentGroupId = $input["student_group_id"];
+
+        $newDiscipline = new Discipline();
+        $newDiscipline->name = $discipline->name;
+        $newDiscipline->student_group_id = $studentGroupId;
+
+        $newDiscipline->attestation = $discipline->attestation;
+        $newDiscipline->auditorium_hours = $discipline->auditorium_hours;
+        $newDiscipline->auditorium_hours_per_week = $discipline->auditorium_hours_per_week;
+        $newDiscipline->lecture_hours = $discipline->lecture_hours;
+        $newDiscipline->practical_hours = $discipline->practical_hours;
+        $newDiscipline->active = $discipline->active;
+        $newDiscipline->type = $discipline->type;
+
+        $newDiscipline->save();
+
+        return redirect('disciplines?groupId=' . $studentGroupId);
     }
 }

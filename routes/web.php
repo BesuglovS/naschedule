@@ -149,6 +149,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/teacherEdit', 'LessonDescriptionController@teacherEditIndex');
     Route::get('/uld', 'LessonDescriptionController@updateLessonDescription');
+
+    Route::post('/addDisciplinesAnotherGroup', 'DisciplineController@addDisciplinesAnotherGroup');
 });
 
 //disciplineHours

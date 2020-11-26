@@ -5,9 +5,9 @@
 @endsection
 
 @section('content')
-    <div class="container alert alert-info alert-block"><a href="/disciplines">Список дисциплин</a></div>
+    <div class="container alert alert-info alert-block"><a href="/disciplines?groupId={{$discipline->student_group_id}}">Список дисциплин</a></div>
     <div style="text-align: center">Дисциплина</div>
-    <div class="container" style="align-items: center; display: flex; justify-content: center;">
+    <div class="container" style="align-items: center; display: flex; flex-direction: column; justify-content: center;">
         <table style="margin: 10px" class="table td-center is-bordered">
             <tr>
                 <td>{{$discipline->name}}</td>
@@ -52,28 +52,48 @@
                 </td>
             </tr>
         </table>
-    </div>
 
-    @if(empty($discipline->teacherFio) && count($teachers) !== 0)
-    <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 2em;">
-        <form method="post" action="/teacherDisciplines/store">
-            @csrf
-            <select name="teacher_id" style="margin-right: 2em;">
-                @foreach($teachers as $teacher)
-                    <option value="{{$teacher->id}}">{{$teacher->fio}}</option>
-                @endforeach
-            </select>
+        @if(empty($discipline->teacherFio) && count($teachers) !== 0)
+            <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 2em;">
+                <form method="post" action="/teacherDisciplines/store">
+                    @csrf
+                    <select  name="teacher_id" style="margin-right: 2em;">
+                        @foreach($teachers as $teacher)
+                            <option value="{{$teacher->id}}">{{$teacher->fio}}</option>
+                        @endforeach
+                    </select>
 
-            <input type="hidden" name="discipline_id" value="{{$discipline->id}}">
+                    <input type="hidden" name="discipline_id" value="{{$discipline->id}}">
 
-            <button type="submit" class="button is-primary">Назначить</button>
-        </form>
-    </div>
-    @endif
+                    <button type="submit" class="button is-primary">Назначить</button>
+                </form>
+            </div>
+        @endif
 
-    @if(count($teachers) === 0)
-        <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 0.5em; font-size: 2em;">
-            Список преподавателей пуст
+        @if(count($teachers) === 0)
+            <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 0.5em; font-size: 2em;">
+                Список преподавателей пуст
+            </div>
+        @endif
+
+
+        <div>
+            <form method="post" action="/addDisciplinesAnotherGroup">
+                @csrf
+                @method('post')
+                <button class="button is-primary" type="submit">
+                    Скопировать в класс
+                </button>
+
+                <select style="margin-top: 6px;" name="student_group_id" id="sg">
+                    @foreach($studentGroups as $studentGroup)
+                        <option value="{{$studentGroup->id}}" @if($studentGroup->id == $discipline->student_group_id) selected @endif>{{$studentGroup->name}}</option>
+                    @endforeach
+                </select>
+
+                <input type="hidden" name="discipline_id" value="{{$discipline->id}}">
+            </form>
         </div>
-    @endif
+    </div>
+
 @endsection
