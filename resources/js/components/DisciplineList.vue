@@ -74,6 +74,7 @@
                                         'budget': discipline.type === 1,
                                         'vneur': discipline.type === 2,
                                         'plat': discipline.type === 3,
+                                        'elect': discipline.type === 4,
                                         'inactive': discipline.active === 0}"
                             >
                                 <td style="text-align: left !important;"><a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}</a></td>
@@ -104,6 +105,7 @@
                                     <template v-if="discipline.type == 1">Бюджет</template>
                                     <template v-if="discipline.type == 2">Внеурочные</template>
                                     <template v-if="discipline.type == 3">Платные</template>
+                                    <template v-if="discipline.type == 4">Электив</template>
                                 </td>
 
                                 <td><a :href="'/disciplines/' + discipline.DisciplineId + '/edit'" class="button is-primary">Редактировать</a></td>
@@ -286,6 +288,10 @@
 
     .plat {
         background-color: rgba(23,67,255,0.2);
+    }
+
+    .elect {
+        background-color: rgba(75,255,255,0.2);
     }
 
     .inactive {

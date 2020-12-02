@@ -498,7 +498,8 @@ class PdfController extends Controller
         $disciplineTypes = array(
             1 => isset($input['bud']),
             2 => isset($input['vne']),
-            3 => isset($input['pla'])
+            3 => isset($input['pla']),
+            4 => isset($input['ele'])
         );
 
         $typeString = "";
@@ -510,6 +511,9 @@ class PdfController extends Controller
         }
         if (isset($input['pla'])) {
             $typeString .= (($typeString === "") ? "" : " + ") . "Платные";
+        }
+        if (isset($input['ele'])) {
+            $typeString .= (($typeString === "") ? "" : " + ") . "Электив";
         }
 
         $input['disciplineTypes'] = $disciplineTypes;
@@ -616,7 +620,8 @@ class PdfController extends Controller
             $disciplineTypes = array(
                 1 => $type === 1,
                 2 => $type === 2,
-                3 => $type === 3
+                3 => $type === 3,
+                4 => $type === 4
             );
 
             $typeString = "";
@@ -629,6 +634,9 @@ class PdfController extends Controller
                     break;
                 case 3:
                     $typeString = "Платные";
+                    break;
+                case 4:
+                    $typeString = "Электив";
                     break;
             }
 
@@ -744,7 +752,8 @@ class PdfController extends Controller
                 $disciplineTypes = array(
                     1 => $type === 1,
                     2 => $type === 2,
-                    3 => $type === 3
+                    3 => $type === 3,
+                    4 => $type === 4,
                 );
 
                 $typeString = "";
@@ -757,6 +766,9 @@ class PdfController extends Controller
                         break;
                     case 3:
                         $typeString = "Платные";
+                        break;
+                    case 4:
+                        $typeString = "Электив";
                         break;
                 }
 

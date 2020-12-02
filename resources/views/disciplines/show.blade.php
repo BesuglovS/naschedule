@@ -39,6 +39,7 @@
                     @if($discipline->type == 1) Бюджет @endif
                     @if($discipline->type == 2) Внеурочные @endif
                     @if($discipline->type == 3) Платные @endif
+                    @if($discipline->type == 4) Электив @endif
                 </td>
 
                 <td><a href="/disciplines/{{$discipline->id}}/edit" class="button is-primary">Редактировать</a></td>

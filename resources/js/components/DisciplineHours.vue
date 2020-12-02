@@ -82,6 +82,7 @@
                                         'budget': discipline.type === 1,
                                         'vneur': discipline.type === 2,
                                         'plat': discipline.type === 3,
+                                        'elect': discipline.type === 4,
                                         'inactive': discipline.active === 0}"
                                 >
                                     <a :href="'/disciplines/' + discipline.DisciplineId">{{discipline.Name}}<br />{{discipline.teacherFio}}</a>
@@ -91,6 +92,7 @@
                                         'budget': discipline.type === 1,
                                         'vneur': discipline.type === 2,
                                         'plat': discipline.type === 3,
+                                        'elect': discipline.type === 4,
                                         'inactive': discipline.active === 0}">
                                     {{discipline.groupName}}
                                 </td>
@@ -99,16 +101,17 @@
                                         'budget': discipline.type === 1,
                                         'vneur': discipline.type === 2,
                                         'plat': discipline.type === 3,
+                                        'elect': discipline.type === 4,
                                         'inactive': discipline.active === 0}">
                                     {{discipline.AuditoriumHoursPerWeek}}
                                 </td>
 
                                 <td v-for="week in selectedWeeksSorted"
                                     :class="{
-                                        'zero': discipline.hoursByWeek[week] !== parseInt(discipline.AuditoriumHoursPerWeek) && discipline.hoursByWeek[week] === 0,
-                                        'less': discipline.hoursByWeek[week] !== 0 && discipline.hoursByWeek[week] < discipline.AuditoriumHoursPerWeek,
-                                        'ok': discipline.hoursByWeek[week] === parseInt(discipline.AuditoriumHoursPerWeek),
-                                        'more': discipline.hoursByWeek[week] !== 0 && discipline.hoursByWeek[week] > discipline.AuditoriumHoursPerWeek
+                                        'less': discipline.AuditoriumHoursPerWeek - discipline.hoursByWeek[week] > 0.5,
+                                        'aBitLess': (discipline.AuditoriumHoursPerWeek - discipline.hoursByWeek[week] <= 0.5) && (discipline.AuditoriumHoursPerWeek - discipline.hoursByWeek[week] > 0.01),
+                                        'ok': Math.abs(discipline.hoursByWeek[week] - parseFloat(discipline.AuditoriumHoursPerWeek)) <= 0.01,
+                                        'more': discipline.hoursByWeek[week] > discipline.AuditoriumHoursPerWeek
                                 }">
                                     {{discipline.hoursByWeek[week]}}
                                 </td>
@@ -251,10 +254,10 @@
         computed: {
             disciplinesFilteredHours() {
                 return {
-                    'all' : this.disciplinesFiltered.map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
-                    1 : this.disciplinesFiltered.filter(d => (d.type === 1)).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
-                    2 : this.disciplinesFiltered.filter(d => (d.type === 2)).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
-                    3 : this.disciplinesFiltered.filter(d => (d.type === 3)).map(d => parseInt(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0)
+                    'all' : this.disciplinesFiltered.map(d => parseFloat(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    1 : this.disciplinesFiltered.filter(d => (d.type === 1)).map(d => parseFloat(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    2 : this.disciplinesFiltered.filter(d => (d.type === 2)).map(d => parseFloat(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0),
+                    3 : this.disciplinesFiltered.filter(d => (d.type === 3)).map(d => parseFloat(d.AuditoriumHoursPerWeek)).reduce((a,b) => a + b, 0)
                 };
             },
             disciplinesFiltered() {
@@ -348,6 +351,10 @@
         background-color: #FF7F7F;
     }
 
+    .aBitLess {
+        background-color: rgba(255,253,48, 0.6);
+    }
+
     .disciplineTable th, .disciplineTable td {
         border: 1px solid black !important;
         padding-left: 8px !important;
@@ -364,6 +371,10 @@
 
     .plat {
         background-color: rgba(23,67,255,0.2);
+    }
+
+    .elect {
+        background-color: rgba(75,255,255,0.2);
     }
 
     .inactive {

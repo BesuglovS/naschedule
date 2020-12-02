@@ -341,6 +341,9 @@ class BigRedButtonController extends Controller
                     case 3:
                         $tri["Тип дисциплины"] = "Платные";
                         break;
+                    case 4:
+                        $tri["Тип дисциплины"] = "Электив";
+                        break;
                 }
 
                 $textResult[] = $tri;
@@ -480,6 +483,9 @@ class BigRedButtonController extends Controller
                         break;
                     case 3:
                         $tri["Тип дисциплины"] = "Платные";
+                        break;
+                    case 4:
+                        $tri["Тип дисциплины"] = "Электив";
                         break;
                 }
 

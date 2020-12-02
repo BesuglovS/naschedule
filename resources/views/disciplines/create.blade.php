@@ -57,6 +57,7 @@
                     <option value="1">Бюджет</option>
                     <option value="2">Внеурочные занятия</option>
                     <option value="3">Платные занятия</option>
+                    <option value="4">Электив</option>
                 </select>
             </div>
 

@@ -100,6 +100,13 @@
                                                     'is-primary': !lessonTypesShow[3],
                                                     'is-danger': lessonTypesShow[3]}"
                                             >Платные</button>
+
+                                            <button @click="lessonTypeToggled(4)"
+                                                    style="margin-right:0.5em;"
+                                                    :class="{'button': true,
+                                                    'is-primary': !lessonTypesShow[4],
+                                                    'is-danger': lessonTypesShow[4]}"
+                                            >Электив</button>
                                         </td>
                                     </tr>
                                 </table>
@@ -538,7 +545,7 @@ export default {
             fastInputMode: false,
             disciplineColorCoding: false,
             selectedRings: [],
-            lessonTypesShow: { 1: true, 2: true, 3: true },
+            lessonTypesShow: { 1: true, 2: true, 3: true, 4: true },
         }
     },
     methods: {

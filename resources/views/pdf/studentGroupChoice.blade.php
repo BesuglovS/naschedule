@@ -62,6 +62,12 @@
                                 <label class="custom-control-label" for="customSwitch3">Платные</label>
                             </div>
                         </td>
+                        <td>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" name="ele" class="custom-control-input" id="customSwitch4">
+                                <label class="custom-control-label" for="customSwitch4">Электив</label>
+                            </div>
+                        </td>
                     </tr>
                 </table>
 
@@ -127,7 +133,7 @@
                 </div>
 
                 <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 1em;">
-                    <button type="submit" style="font-size: 2em;" class="button is-primary">Создать PDF-файл (все 3 типа)</button>
+                    <button type="submit" style="font-size: 2em;" class="button is-primary">Создать PDF-файл (все 4 типа)</button>
                 </div>
             </form>
         </div>
@@ -177,7 +183,7 @@
             </div>
 
             <div class="container" style="align-items: center; display: flex; justify-content: center; margin-top: 1em;">
-                <button type="submit" style="font-size: 2em;" class="button is-primary">Создать PDF-файл (все 3 типа)</button>
+                <button type="submit" style="font-size: 2em;" class="button is-primary">Создать PDF-файл (все 4 типа)</button>
             </div>
         </form>
     </div>

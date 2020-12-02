@@ -57,6 +57,7 @@
                     <option value="1" @if($discipline->type == 1) selected @endif>Бюджет</option>
                     <option value="2" @if($discipline->type == 2) selected @endif>Внеурочные занятия</option>
                     <option value="3" @if($discipline->type == 3) selected @endif>Платные занятия</option>
+                    <option value="4" @if($discipline->type == 4) selected @endif>Электив</option>
                 </select>
             </div>
 
