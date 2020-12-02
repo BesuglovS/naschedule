@@ -193,11 +193,13 @@
 
                                                     <div v-if="((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 1) && (lessonTypesShow[1])) ||
                                                     ((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2) && (lessonTypesShow[2])) ||
-                                                    ((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3) && (lessonTypesShow[3]))"
+                                                    ((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3) && (lessonTypesShow[3])) ||
+                                                    ((groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 4) && (lessonTypesShow[4]))"
                                                         :class="{
                                                                 'budget': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 1,
                                                                 'vneur': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2,
-                                                                'plat': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3}">
+                                                                'plat': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3,
+                                                                'elect': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 4}">
                                                         {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}}
                                                         <template v-if="fastInputMode || ((!showEditTools) && (groupSchedule[dow][ring][tfd]['lessons'][0]['groupName'] !== selectedGroupName))">
                                                             (<strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>)
@@ -1697,5 +1699,9 @@ export default {
 
 .plat {
     background-color: rgba(23,67,255,0.2);
+}
+
+.elect {
+    background-color: rgba(75,255,255,0.2);
 }
 </style>

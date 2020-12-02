@@ -998,7 +998,8 @@ class OldApiController extends Controller
         $disciplineTypes = array(
             1 => true,
             2 => true,
-            3 => true
+            3 => true,
+            4 => true
         );
 
         $disciplineTypesArray = array();
@@ -1007,10 +1008,12 @@ class OldApiController extends Controller
             if (isset($dt[1])) { $disciplineTypes[1] = $dt[1]; if ($dt[1]) $disciplineTypesArray[] = 1;}
             if (isset($dt[2])) { $disciplineTypes[2] = $dt[2]; if ($dt[2]) $disciplineTypesArray[] = 2;}
             if (isset($dt[3])) { $disciplineTypes[3] = $dt[3]; if ($dt[3]) $disciplineTypesArray[] = 3;}
+            if (isset($dt[4])) { $disciplineTypes[4] = $dt[4]; if ($dt[4]) $disciplineTypesArray[] = 4;}
         } else {
             $disciplineTypesArray[] = 1;
             $disciplineTypesArray[] = 2;
             $disciplineTypesArray[] = 3;
+            $disciplineTypesArray[] = 4;
         }
 
         Carbon::setWeekStartsAt(Carbon::MONDAY);
