@@ -127,12 +127,15 @@
                                     </td>
                                 </tr>
 
-                                <tr v-if="selectedRings.includes(ring)" v-for="ring in this.scheduleRings">
+                                <tr v-if="selectedRings.includes(ring)" v-for="(ring, ringIndex) in this.scheduleRings">
                                     <td style="vertical-align: middle;">
                                         <strong>
                                             <span style="font-size:2em;">
                                                 {{ring}}
                                             </span>
+                                            <div style="font-size:5em;">
+                                                {{ringIndex+1}}
+                                            </div>
                                         </strong>
                                     </td>
                                     <td v-for="dow in 6">
@@ -200,6 +203,7 @@
                                                                 'vneur': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 2,
                                                                 'plat': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 3,
                                                                 'elect': disciplineColorCoding && groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 4}">
+                                                        <span v-if="groupSchedule[dow][ring][tfd]['lessons'][0]['disciplinesType'] === 4">Элективный курс.</span>
                                                         {{groupSchedule[dow][ring][tfd]["lessons"][0]["discName"]}}
                                                         <template v-if="fastInputMode || ((!showEditTools) && (groupSchedule[dow][ring][tfd]['lessons'][0]['groupName'] !== selectedGroupName))">
                                                             (<strong>{{groupSchedule[dow][ring][tfd]["lessons"][0]["groupName"]}}</strong>)
